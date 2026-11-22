@@ -1037,7 +1037,7 @@ canting migrate
 ---
 
 ## 🦀 Selamat Berkarya dengan Pakem Framework!
-Dokumentasi lengkap dan update framework: [github.com/lumina-java/framework](https://github.com/pakem-rs/framework)
+Dokumentasi lengkap dan update framework: [pakem.my.id](https://pakem.my.id)
 "#,
         name
     );

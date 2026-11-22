@@ -9,7 +9,7 @@ pub fn init_desktop_config(title: Option<&str>, width: u32, height: u32) {
 
 pub fn init_desktop_config_at(base: &Path, title: Option<&str>, width: u32, height: u32) {
     if !base.join("Cargo.toml").exists() {
-        println!("{}", "❌ Error: This command must be run inside a Lumina project root.".red().bold());
+        println!("{}", "❌ Error: This command must be run inside a Pakem project root.".red().bold());
         return;
     }
 
@@ -134,7 +134,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {{
 
 pub fn run_desktop(port: u16) {
     if !Path::new("Cargo.toml").exists() {
-        println!("{}", "❌ Error: This command must be run inside a Lumina project root.".red().bold());
+        println!("{}", "❌ Error: This command must be run inside a Pakem project root.".red().bold());
         return;
     }
 
@@ -157,7 +157,7 @@ pub fn run_desktop(port: u16) {
 
 pub fn build_desktop(release: bool) {
     if !Path::new("Cargo.toml").exists() {
-        println!("{}", "❌ Error: This command must be run inside a Lumina project root.".red().bold());
+        println!("{}", "❌ Error: This command must be run inside a Pakem project root.".red().bold());
         return;
     }
 

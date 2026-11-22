@@ -292,7 +292,7 @@ pub async fn run_migrate_async() {
 
 /// Eksekusi Perintah: canting migrate:rollback
 pub async fn run_rollback_async() {
-    println!("{}", "🔄  LUMINA DATABASE ROLLBACK ENGINE".bright_purple().bold());
+    println!("{}", "🔄  PAKEM DATABASE ROLLBACK ENGINE".bright_purple().bold());
     println!("─────────────────────────────────────────────────────────────────");
 
     let (url, driver) = match resolve_database_url() {
@@ -433,7 +433,7 @@ pub async fn run_status_async() {
 
 /// Eksekusi Perintah: canting db:seed [--class <Name>]
 pub async fn run_seed_async(class_name: Option<&str>) {
-    println!("{}", "🌱  LUMINA DATABASE SEEDER ENGINE".bright_purple().bold());
+    println!("{}", "🌱  PAKEM DATABASE SEEDER ENGINE".bright_purple().bold());
     println!("─────────────────────────────────────────────────────────────────");
 
     let (url, driver) = match resolve_database_url() {
@@ -532,7 +532,7 @@ pub async fn run_seed_async(class_name: Option<&str>) {
 
 /// Eksekusi Perintah: canting queue:work
 pub async fn run_queue_worker_async(queue_name: &str) {
-    println!("{}", "⚡  LUMINA PERSISTENT QUEUE WORKER".bright_purple().bold());
+    println!("{}", "⚡  PAKEM PERSISTENT QUEUE WORKER".bright_purple().bold());
     println!("─────────────────────────────────────────────────────────────────");
 
     let (url, driver) = match resolve_database_url() {

@@ -38,15 +38,30 @@ pub fn run_upgrade(cli_only: bool, project_only: bool, local_path: Option<String
                 .args(["install", "--path", target.to_str().unwrap(), "--force"])
                 .output()
         } else {
-            pb.set_message("Mengunduh & mengompilasi rilis terbaru dari GitHub (pakem-rs/framework)...");
-            Command::new("cargo")
-                .args(["install", "--git", "https://github.com/pakem-rs/framework.git", "canting", "--force"])
-                .output()
+            pb.set_message("Mengunduh & mengompilasi rilis terbaru dari crates.io (canting)...");
+            let crates_res = Command::new("cargo")
+                .args(["install", "canting", "--force"])
+                .output();
+            
+            if let Ok(ref res) = crates_res {
+                if res.status.success() {
+                    crates_res
+                } else {
+                    pb.set_message("Mencoba fallback via GitHub (pakem-rs/framework)...");
+                    Command::new("cargo")
+                        .args(["install", "--git", "https://github.com/pakem-rs/framework.git", "canting", "--force"])
+                        .output()
+                }
+            } else {
+                Command::new("cargo")
+                    .args(["install", "--git", "https://github.com/pakem-rs/framework.git", "canting", "--force"])
+                    .output()
+            }
         };
 
         match install_status {
             Ok(output) if output.status.success() => {
-                pb.finish_with_message("✔ [CLI UPDATED] Lumina CLI toolchain berhasil diperbarui!".green().to_string());
+                pb.finish_with_message("✔ [CLI UPDATED] Canting CLI toolchain berhasil diperbarui!".green().to_string());
             }
             Ok(output) => {
                 let err = String::from_utf8_lossy(&output.stderr);
@@ -56,6 +71,8 @@ pub fn run_upgrade(cli_only: bool, project_only: bool, local_path: Option<String
                     println!("    {}", line.dimmed());
                 }
                 println!("\n  {} Anda dapat mencoba manual:", "Saran:".cyan());
+                println!("    cargo install canting --force");
+                println!("    # atau via GitHub:");
                 println!("    cargo install --git https://github.com/pakem-rs/framework.git canting --force\n");
             }
             Err(e) => {

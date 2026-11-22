@@ -47,7 +47,7 @@ impl AuditReport {
 }
 
 pub fn run_audit() {
-    println!("\n{}", "🛡️  LUMINA SHIELD — Project Security & Configuration Audit".bright_cyan().bold());
+    println!("\n{}", "🛡️  PAKEM SHIELD — Project Security & Configuration Audit".bright_cyan().bold());
     println!("{}", "─────────────────────────────────────────────────────────────────".bright_black());
 
     let mut report = AuditReport::default();
@@ -178,7 +178,7 @@ pub fn run_audit() {
             println!("  {}. {}", i + 1, item);
         }
     } else {
-        println!("\n{}", "✨ Selamat! Proyek Lumina Anda memenuhi seluruh standar keamanan dasar.".bright_green().bold());
+        println!("\n{}", "✨ Selamat! Proyek Pakem Anda memenuhi seluruh standar keamanan dasar.".bright_green().bold());
     }
     println!("{}\n", "─────────────────────────────────────────────────────────────────".bright_black());
 }
