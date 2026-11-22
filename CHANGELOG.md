@@ -6,6 +6,29 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
 
 ## [1.0.1] - 2026-11-22
 
+### 🚀 Polyglot Application Logic Cloner (`canting clone:laravel`)
+- **Transpiler Proyek Laravel ke Pakem Framework**:
+  - Subcommand baru: `canting clone:laravel <PATH_PROYEK_LARAVEL>` (alias: `laravel:clone`).
+  - **Eloquent Model Parser (`model_parser.rs`)**:
+    - Memindai file PHP di `app/Models/*.php` dan `app/*.php`.
+    - Otomatis mengekstrak `$table`, `$primaryKey`, `$fillable`, `$casts`, `$timestamps`, dan `SoftDeletes`.
+    - Otomatis mentranspilasikan relasi Eloquent:
+      - `hasMany(Comment::class)` ➔ `has_many!(Comment, "post_id");`
+      - `belongsTo(User::class)` ➔ `belongs_to!(User, "user_id");`
+      - `belongsToMany(Role::class, 'role_user')` ➔ `belongs_to_many!(Role, "role_user", "user_id", "role_id");`
+      - `hasOne(Profile::class)` ➔ `has_one!(Profile, "user_id");`
+    - Membangkitkan Struct Model Rust `#[derive(PakemModel)]` lengkap dengan anotasi tabel dan auto-update `models/mod.rs`.
+  - **Routes Transpiler (`route_parser.rs`)**:
+    - Memindai `routes/web.php` dan `routes/api.php`.
+    - Mentranspilasikan `Route::get`, `Route::post`, `Route::put`, `Route::patch`, `Route::delete` menjadi route Pakem Rust.
+    - Mendukung ekspansi otomatis `Route::resource('posts', PostController::class)` menjadi 7 route RESTful standar (index, create, store, show, edit, update, destroy).
+  - **Blade View Converter (`view_converter.rs`)**:
+    - Mengonversi template Blade PHP (`resources/views/**/*.blade.php`) menjadi format Pakem (`.blade.rs`).
+    - Otomatis menerjemahkan pemanggilan objek PHP `$post->user->name` menjadi `$post.user.name` dan `$loop->iteration` menjadi `$loop.iteration`.
+  - **Controller Generator (`controller_parser.rs`)**:
+    - Menganalisis method public controller Laravel dan menghasilkan controller Pakem Rust yang mematuhi pedoman `AGENTS.md` (Unified `Request` parameter tunggal, `View::make()`, dan `PakemResult`).
+  - Mendukung opsi CLI fleksibel: `--dry-run`, `--models-only`, `--routes-only`, `--views-only`, `--with-controllers`, dan `--output <DIR>`.
+
 ### 🛡️ Kriptografi Nusantara: Enhanced Sandi A-N (Layer 0) & Multi-Framework Legacy Auth Migration
 - **Enhanced Sandi A-N Hybrid (Layer 0 Pre-Hash Engine)**:
   - Menggabungkan kearifan persandian kepramukaan dan keraton Nusantara dengan teknik manipulasi bit modern Rust.

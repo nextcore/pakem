@@ -238,6 +238,37 @@ enum Commands {
         migrations_dir: String,
     },
 
+    /// Clone and transpile an existing Laravel project into Pakem Framework (Models, Routes, Views)
+    #[command(name = "clone:laravel", alias = "laravel:clone")]
+    CloneLaravel {
+        /// Path to the Laravel project root directory (containing artisan, app/, routes/, etc.)
+        path: String,
+
+        /// Perform a dry-run without writing files to disk
+        #[arg(long)]
+        dry_run: bool,
+
+        /// Only transpile Eloquent Models
+        #[arg(long)]
+        models_only: bool,
+
+        /// Only transpile Routes
+        #[arg(long)]
+        routes_only: bool,
+
+        /// Only convert Blade Views
+        #[arg(long)]
+        views_only: bool,
+
+        /// Also generate Controllers based on detected Laravel controllers
+        #[arg(long)]
+        with_controllers: bool,
+
+        /// Output directory (default: current directory ".")
+        #[arg(short, long, default_value = ".")]
+        output: String,
+    },
+
     // ─── DevOps / Deployment ──────────────────────────────────────────────────
     /// Generate production Dockerfile, docker-compose.yml & aaPanel/Nginx reverse proxy
     #[command(name = "make:docker")]
@@ -463,6 +494,29 @@ fn main() {
                         std::process::exit(1);
                     }
                 });
+        }
+        Commands::CloneLaravel {
+            path,
+            dry_run,
+            models_only,
+            routes_only,
+            views_only,
+            with_controllers,
+            output,
+        } => {
+            let options = cloner::CloneLaravelOptions {
+                path,
+                dry_run,
+                models_only,
+                routes_only,
+                views_only,
+                with_controllers,
+                output,
+            };
+            if let Err(e) = cloner::LaravelCloner::run(options) {
+                eprintln!("{} {}", "❌ Error:".bold().red(), e);
+                std::process::exit(1);
+            }
         }
         Commands::MakeDocker { name, port } => {
             generator::generate_docker(name, port);
