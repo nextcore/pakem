@@ -1,6 +1,6 @@
 [package]
 name = "pakem"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 authors = ["Slamet Sugandi <packercyber@gmail.com>"]
 description = "A beautiful, fast, and elegant web framework for Rust — Look like Laravel, Run at Rust Speed"
@@ -19,7 +19,7 @@ path = "src/lib.rs"
 members = ["pakem_macros", "canting", "indonesian-script", "pakem-live", "pakem-framework"]
 
 [dependencies]
-pakem_macros = { path = "pakem_macros", version = "1.0.0" }
+pakem_macros = { path = "pakem_macros", version = "1.0.1" }
 indonesian-script = { path = "indonesian-script", version = "0.1.2" }
 tokio = { version = "1", features = ["full"] }
 axum = { version = "0.7", features = ["macros", "multipart", "ws"] }
