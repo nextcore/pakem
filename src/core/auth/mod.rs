@@ -11,6 +11,26 @@ pub mod rbac;
 pub use blacklist::TokenBlacklist;
 pub use rbac::{HasRolesAndPermissions, Role, Permission};
 
+/// Hash Facade ala Laravel — Mendukung Tri-Layer Hashing (Layer 0 Sandi A-N) & Multi-Framework Migration
+pub struct Hash;
+
+impl Hash {
+    /// Membuat hash password baru berstandar Tri-Layer Pakem
+    pub fn make(plain: &str) -> String {
+        self::hash::make(plain)
+    }
+
+    /// Verifikasi apakah password cocok dengan hash
+    pub fn check(plain: &str, hashed: &str) -> bool {
+        self::hash::check(plain, hashed)
+    }
+
+    /// Verifikasi apakah password cocok sekaligus memeriksa kebutuhan migrasi hash legacy
+    pub fn check_with_migration(plain: &str, hashed: &str) -> (bool, bool) {
+        self::hash::check_with_migration(plain, hashed)
+    }
+}
+
 /// AuthUser — Representasi pengguna yang terautentikasi.
 /// Berfungsi sebagai Model data JWT sekaligus Custom Extractor (Dependency Injection).
 #[derive(Debug, Serialize, Deserialize, Clone)]

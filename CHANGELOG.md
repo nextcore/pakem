@@ -6,6 +6,23 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
 
 ## [1.0.1] - 2026-11-22
 
+### 🛡️ Kriptografi Nusantara: Enhanced Sandi A-N (Layer 0) & Multi-Framework Legacy Auth Migration
+- **Enhanced Sandi A-N Hybrid (Layer 0 Pre-Hash Engine)**:
+  - Menggabungkan kearifan persandian kepramukaan dan keraton Nusantara dengan teknik manipulasi bit modern Rust.
+  - **Arsitektur Hybrid S-Box & Key-Dependent Dynamic Masking**:
+    - Substitusi alfabet A-N ($A-M \leftrightarrow N-Z, a-m \leftrightarrow n-z$) dan inversi numerik 0-5 ($0-4 \leftrightarrow 5-9$).
+    - *Cucuk Canting Interleaving* (transposisi pasangan indeks genap-ganjil) menghancurkan pola kata dan susunan fonetik natural language.
+    - **Key-Dependent Stream Masking**: Bitwise diffusion yang diderivasi langsung dari `APP_KEY` rahasia aplikasi. Tanpa `APP_KEY`, mustahil merekonstruksi atau membalikkan string sandi sekalipun binary atau algoritmanya di-reverse engineer.
+    - Envelope versioning: `$an1$` (Classic Sandi A-N) dan `$ank$` (Hybrid Key-Dependent).
+    - Kecepatan raw speed: beroperasi dalam hitungan nanodetik tanpa alokasi heap tambahan.
+- **Tri-Layer Password Security Stack (`pakem::core::auth::Hash`)**:
+  - **Layer 0**: Hybrid Sandi A-N Transformation (`$ank$`).
+  - **Layer 1**: HMAC-SHA256 Secret Pepper dengan `APP_KEY` (mengatasi batasan 72-karakter Bcrypt dan rainbow table).
+  - **Layer 2**: Bcrypt Slow Memory-Hard Key Derivation Function (Cost: 12).
+- **Legacy Auth Migration Adapter (`LegacyAuthAdapter`)**:
+  - Mendeteksi dialek hash secara otomatis: Pakem Tri-Layer, Laravel Bcrypt (`$2y$`, `$2a$`, `$2b$`), CodeIgniter 3 (SHA-1), dan MD5 legacy.
+  - Metode `Hash::check_with_migration()` mengembalikan `(is_valid, needs_rehash)` untuk melakukan re-hashing transparan ke database saat user sistem lama login tanpa perlu reset password.
+
 ### 🎨 Rebranding Bersejarah: Pakem Framework & Canting CLI
 - **Transformasi Identitas Resmi (`pakem-rs`)**:
   - Transisi penuh dari nama rintisan *Lumina* menjadi **Pakem Framework** (`pakem` di crates.io).
