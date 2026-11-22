@@ -50,16 +50,16 @@ sqlite = []
 postgres = []
 mysql = []"#,
             format!(
-                r#"# Database Configuration (PostgreSQL)
-DB_CONNECTION=postgres
+                r#"# Database Configuration (PostgreSQL - Laravel Style)
+DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_DATABASE={}_db
 DB_USERNAME=postgres
 DB_PASSWORD=secret
 
-# Atau gunakan URL eksplisit:
-DATABASE_URL=postgres://postgres:secret@127.0.0.1:5432/{}_db"#,
+# Opsional: Jika ingin menggunakan URL eksplisit
+# DATABASE_URL=postgres://postgres:secret@127.0.0.1:5432/{}_db"#,
                 name, name
             ),
         ),
@@ -70,7 +70,7 @@ sqlite = []
 postgres = []
 mysql = []"#,
             format!(
-                r#"# Database Configuration (MySQL / MariaDB)
+                r#"# Database Configuration (MySQL / MariaDB - Laravel Style)
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -78,8 +78,8 @@ DB_DATABASE={}_db
 DB_USERNAME=root
 DB_PASSWORD=
 
-# Atau gunakan URL eksplisit:
-DATABASE_URL=mysql://root:@127.0.0.1:3306/{}_db"#,
+# Opsional: Jika ingin menggunakan URL eksplisit
+# DATABASE_URL=mysql://root:@127.0.0.1:3306/{}_db"#,
                 name, name
             ),
         ),
@@ -91,19 +91,17 @@ postgres = []
 mysql = []
 mssql = ["pakem/mssql"]"#,
             format!(
-                r#"# Database Configuration (Microsoft SQL Server / MSSQL)
-DB_CONNECTION=mssql
+                r#"# Database Configuration (Microsoft SQL Server - Laravel Style)
+DB_CONNECTION=sqlsrv
 DB_HOST=127.0.0.1
 DB_PORT=1433
 DB_DATABASE={}_db
 DB_USERNAME=sa
 DB_PASSWORD=YourPassword123
 
-# Atau gunakan format connection string MSSQL:
-DATABASE_URL="jdbc:sqlserver://127.0.0.1:1433;user=sa;password=YourPassword123;database={}_db;trustServerCertificate=true"
-# Format URL: DATABASE_URL="sqlserver://sa:YourPassword123@127.0.0.1:1433?database={}_db&trustServerCertificate=true"
-# Format Named Instance (gunakan double backslash \): DATABASE_URL="jdbc:sqlserver://127.0.0.1\\INSTANCE;user=sa;password=YourPassword123;database={}_db;trustServerCertificate=true""#,
-                name, name, name, name
+# Opsional: Format connection string eksplisit
+# DATABASE_URL="jdbc:sqlserver://127.0.0.1:1433;user=sa;password=YourPassword123;database={}_db;trustServerCertificate=true""#,
+                name, name
             ),
         ),
         "all" => (
@@ -115,16 +113,22 @@ mysql = []"#,
             format!(
                 r#"# Database Configuration (Multi-Driver: sqlite / postgres / mysql)
 DB_CONNECTION=sqlite
-DB_HOST=127.0.0.1
-DB_PORT=5432
 DB_DATABASE=./database.sqlite
-DB_USERNAME=root
-DB_PASSWORD=
 
-# Atau gunakan URL eksplisit:
-DATABASE_URL=sqlite:./database.sqlite
-# DATABASE_URL=postgres://postgres:secret@127.0.0.1:5432/{}_db
-# DATABASE_URL=mysql://root:@127.0.0.1:3306/{}_db"#,
+# Opsional: Jika ingin beralih ke driver lain
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE={}_db
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# DB_CONNECTION=pgsql
+# DB_HOST=127.0.0.1
+# DB_PORT=5432
+# DB_DATABASE={}_db
+# DB_USERNAME=postgres
+# DB_PASSWORD=secret"#,
                 name, name
             ),
         ),
@@ -136,14 +140,10 @@ postgres = []
 mysql = []"#,
             r#"# Database Configuration (SQLite - Zero Config)
 DB_CONNECTION=sqlite
-DB_HOST=127.0.0.1
-DB_PORT=
 DB_DATABASE=./database.sqlite
-DB_USERNAME=
-DB_PASSWORD=
 
-# URL eksplisit:
-DATABASE_URL=sqlite:./database.sqlite"#.to_string(),
+# Opsional: Jika ingin menggunakan URL eksplisit
+# DATABASE_URL=sqlite:./database.sqlite"#.to_string(),
         ),
     };
 

@@ -7,20 +7,23 @@ use std::fs;
 use std::path::Path;
 use std::time::Instant;
 
-/// Helper untuk menyelesaikan URL database dari .env
+/// Helper untuk menyelesaikan URL database dari .env (mendukung DATABASE_URL maupun DB_* ala Laravel)
 pub fn resolve_database_url() -> Result<(String, String), String> {
     dotenv::dotenv().ok();
 
     if let Ok(url) = std::env::var("DATABASE_URL") {
-        if !url.trim().is_empty() {
-            let driver = if url.starts_with("postgres") || url.starts_with("postgresql") {
+        let trimmed = url.trim();
+        if !trimmed.is_empty() {
+            let driver = if trimmed.starts_with("postgres") || trimmed.starts_with("postgresql") {
                 "postgresql".to_string()
-            } else if url.starts_with("mysql") {
+            } else if trimmed.starts_with("mysql") {
                 "mysql".to_string()
+            } else if trimmed.starts_with("jdbc:sqlserver") || trimmed.starts_with("sqlserver") || trimmed.starts_with("mssql") {
+                "mssql".to_string()
             } else {
                 "sqlite".to_string()
             };
-            return Ok((url, driver));
+            return Ok((trimmed.to_string(), driver));
         }
     }
 
@@ -32,7 +35,7 @@ pub fn resolve_database_url() -> Result<(String, String), String> {
     let pass = std::env::var("DB_PASSWORD").unwrap_or_default();
 
     match conn.to_lowercase().as_str() {
-        "postgres" | "postgresql" | "pg" => {
+        "postgres" | "postgresql" | "pgsql" | "pg" => {
             let p = if port.is_empty() { "5432" } else { &port };
             let auth = if pass.is_empty() { user } else { format!("{}:{}", user, pass) };
             Ok((format!("postgres://{}@{}:{}/{}", auth, host, p, db), "postgresql".to_string()))
@@ -42,9 +45,22 @@ pub fn resolve_database_url() -> Result<(String, String), String> {
             let auth = if pass.is_empty() { user } else { format!("{}:{}", user, pass) };
             Ok((format!("mysql://{}@{}:{}/{}", auth, host, p, db), "mysql".to_string()))
         }
+        "mssql" | "sqlserver" | "sqlsrv" => {
+            let p = if port.is_empty() { "1433" } else { &port };
+            let trust = std::env::var("DB_TRUST_CERT").unwrap_or_else(|_| "true".to_string());
+            Ok((
+                format!(
+                    "jdbc:sqlserver://{}:{};user={};password={};database={};trustServerCertificate={}",
+                    host, p, user, pass, db, trust
+                ),
+                "mssql".to_string(),
+            ))
+        }
         _ => {
-            let path = if db.starts_with("./") || db.starts_with("/") || db.contains(":") {
+            let path = if db.starts_with("./") || db.starts_with("/") || db.contains(":\\") || db.contains(":/") {
                 db
+            } else if db.starts_with("sqlite:") {
+                db.replace("sqlite:", "")
             } else {
                 format!("./{}", db)
             };

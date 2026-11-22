@@ -19,6 +19,11 @@ impl ConfigManager {
         Self { settings }
     }
 
+    /// Set atau override nilai konfigurasi secara programatik.
+    pub fn set(&mut self, key: &str, value: &str) {
+        self.settings.insert(key.to_string(), value.to_string());
+    }
+
     /// Ambil nilai konfigurasi berdasarkan key.
     /// Contoh: config.get("APP_NAME")
     pub fn get(&self, key: &str) -> Option<String> {
@@ -50,39 +55,59 @@ impl ConfigManager {
     }
     /// Membangun DATABASE_URL dari variabel DB_* ala Laravel atau mengambil langsung dari DATABASE_URL.
     pub fn get_db_url(&self) -> String {
-        // Jika DATABASE_URL sudah ada di .env secara eksplisit, gunakan itu (prioritas).
+        // 1. Jika DATABASE_URL sudah ada di .env secara eksplisit dan tidak kosong, gunakan itu (prioritas).
         if let Some(url) = self.get("DATABASE_URL") {
-            return url;
+            let trimmed = url.trim();
+            if !trimmed.is_empty() {
+                return trimmed.to_string();
+            }
         }
 
-        let connection = self.get_or("DB_CONNECTION", "sqlite");
+        // 2. Format dinamis ala Laravel (DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD)
+        let connection = self.get_or("DB_CONNECTION", "sqlite").to_lowercase();
 
         match connection.as_str() {
-            "sqlite" => {
-                let db = self.get_or("DB_DATABASE", "./lumina.db");
-                format!("sqlite:{}", db)
-            }
-            "mysql" | "postgres" | "postgresql" => {
-                let host = self.get_or("DB_HOST", "127.0.0.1");
-                let port = self.get_or(
-                    "DB_PORT",
-                    if connection == "mysql" {
-                        "3306"
-                    } else {
-                        "5432"
-                    },
-                );
-                let user = self.get_or("DB_USERNAME", "root");
-                let pass = self.get_or("DB_PASSWORD", "");
-                let db = self.get_or("DB_DATABASE", "lumina");
-
-                if connection == "mysql" {
-                    format!("mysql://{}:{}@{}:{}/{}", user, pass, host, port, db)
+            "sqlite" | "sqlite3" => {
+                let db = self.get_or("DB_DATABASE", "./database.sqlite");
+                if db.starts_with("sqlite:") {
+                    db
+                } else if db.starts_with("./") || db.starts_with("/") || db.contains(":\\") || db.contains(":/") {
+                    format!("sqlite:{}", db)
                 } else {
-                    format!("postgres://{}:{}@{}:{}/{}", user, pass, host, port, db)
+                    format!("sqlite:./{}", db)
                 }
             }
-            _ => self.get_or("DATABASE_URL", "sqlite:./lumina.db"),
+            "mysql" | "mariadb" => {
+                let host = self.get_or("DB_HOST", "127.0.0.1");
+                let port = self.get_or("DB_PORT", "3306");
+                let user = self.get_or("DB_USERNAME", "root");
+                let pass = self.get_or("DB_PASSWORD", "");
+                let db = self.get_or("DB_DATABASE", "pakem");
+                let auth = if pass.is_empty() { user } else { format!("{}:{}", user, pass) };
+                format!("mysql://{}@{}:{}/{}", auth, host, port, db)
+            }
+            "postgres" | "postgresql" | "pgsql" | "pg" => {
+                let host = self.get_or("DB_HOST", "127.0.0.1");
+                let port = self.get_or("DB_PORT", "5432");
+                let user = self.get_or("DB_USERNAME", "postgres");
+                let pass = self.get_or("DB_PASSWORD", "");
+                let db = self.get_or("DB_DATABASE", "pakem");
+                let auth = if pass.is_empty() { user } else { format!("{}:{}", user, pass) };
+                format!("postgres://{}@{}:{}/{}", auth, host, port, db)
+            }
+            "mssql" | "sqlserver" | "sqlsrv" => {
+                let host = self.get_or("DB_HOST", "127.0.0.1");
+                let port = self.get_or("DB_PORT", "1433");
+                let user = self.get_or("DB_USERNAME", "sa");
+                let pass = self.get_or("DB_PASSWORD", "");
+                let db = self.get_or("DB_DATABASE", "pakem");
+                let trust = self.get_or("DB_TRUST_CERT", "true");
+                format!(
+                    "jdbc:sqlserver://{}:{};user={};password={};database={};trustServerCertificate={}",
+                    host, port, user, pass, db, trust
+                )
+            }
+            _ => self.get_or("DATABASE_URL", "sqlite:./database.sqlite"),
         }
     }
 }

@@ -15,9 +15,9 @@ pub async fn run() {
     println!("{}", "   ⚡ Pakem Framework — Interactive Tinker Shell (REPL)   ".cyan().bold());
     println!("{}", "=========================================================".cyan());
 
-    // Coba hubungkan ke basis data aktif dari .env
-    let pool = if let Ok(db_url) = std::env::var("DATABASE_URL") {
-        match DatabasePool::connect(&db_url).await {
+    // Coba hubungkan ke basis data aktif dari .env (mendukung DATABASE_URL maupun DB_* ala Laravel)
+    let pool = match crate::migrator::resolve_database_url() {
+        Ok((db_url, _)) => match DatabasePool::connect(&db_url).await {
             Ok(p) => {
                 let kind_str = match p.kind {
                     pakem::database::connection::DatabaseKind::Sqlite => "SQLite",
@@ -32,10 +32,11 @@ pub async fn run() {
                 println!("{} Gagal menghubungkan ke database: {}", "⚠️  [Database]".yellow().bold(), e);
                 None
             }
+        },
+        Err(_) => {
+            println!("{} Konfigurasi basis data tidak ditemukan di .env (mode offline tanpa db).", "ℹ️  [Database]".blue());
+            None
         }
-    } else {
-        println!("{} DATABASE_URL tidak ditemukan di .env (mode offline tanpa db).", "ℹ️  [Database]".blue());
-        None
     };
 
     println!("{}", "Ketik 'help' untuk daftar perintah, 'exit' atau Ctrl+D untuk keluar.\n".dimmed());
