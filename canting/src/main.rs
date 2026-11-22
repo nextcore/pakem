@@ -300,6 +300,33 @@ enum Commands {
         output: String,
     },
 
+    /// Clone DTO, routes, and controllers from an OpenAPI / Swagger JSON spec (URL or file)
+    #[command(name = "clone:api", alias = "api:clone")]
+    CloneApi {
+        /// URL or local file path to the OpenAPI / Swagger JSON specification
+        source: String,
+
+        /// Perform a dry-run without writing files to disk
+        #[arg(long)]
+        dry_run: bool,
+
+        /// Only transpile DTO schemas
+        #[arg(long)]
+        dto_only: bool,
+
+        /// Only transpile Routes
+        #[arg(long)]
+        routes_only: bool,
+
+        /// Also generate Controllers based on detected endpoints
+        #[arg(long)]
+        with_controllers: bool,
+
+        /// Output directory (default: current directory ".")
+        #[arg(short, long, default_value = ".")]
+        output: String,
+    },
+
     // ─── DevOps / Deployment ──────────────────────────────────────────────────
     /// Generate production Dockerfile, docker-compose.yml & aaPanel/Nginx reverse proxy
     #[command(name = "make:docker")]
@@ -568,6 +595,27 @@ fn main() {
                 output,
             };
             if let Err(e) = cloner::CiCloner::run(options) {
+                eprintln!("{} {}", "❌ Error:".bold().red(), e);
+                std::process::exit(1);
+            }
+        }
+        Commands::CloneApi {
+            source,
+            dry_run,
+            dto_only,
+            routes_only,
+            with_controllers,
+            output,
+        } => {
+            let options = cloner::CloneApiOptions {
+                source,
+                dry_run,
+                dto_only,
+                routes_only,
+                with_controllers,
+                output,
+            };
+            if let Err(e) = cloner::ApiCloner::run(options) {
                 eprintln!("{} {}", "❌ Error:".bold().red(), e);
                 std::process::exit(1);
             }

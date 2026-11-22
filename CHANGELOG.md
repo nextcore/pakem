@@ -6,6 +6,21 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
 
 ## [1.0.1] - 2026-11-22
 
+### 🌐 Universal OpenAPI & Swagger Contract Cloner (`canting clone:api`)
+- **Transpiler Kontrak REST API (.NET / Golang / Java / Node) ke Pakem Framework**:
+  - Subcommand baru: `canting clone:api <SWAGGER_URL_ATAU_FILE>` (alias: `api:clone`).
+  - **Dukungan Dual Format**: Mendukung spesifikasi Swagger 2.0 (`definitions`) dan OpenAPI 3.x (`components.schemas`).
+  - **Multi-Source Fetcher**: Menerima file JSON lokal maupun URL HTTP/HTTPS secara langsung.
+  - **DTO Model Generator (`schema_parser.rs`)**:
+    - Mengonversi skema JSON ke Rust DTO struct `#[derive(Serialize, Deserialize)]`.
+    - Menangani tipe data bertipe kuat (`integer`, `int32/int64`, `number/float/double`, `boolean`, `array`, `object`).
+    - Menangani field `required` vs `Option<T>` serta pemetaan `#[serde(rename = "...")]`.
+    - Mendaftarkan seluruh DTO ke `src/app/dto/mod.rs`.
+  - **API Routes & Controller Generator (`endpoint_parser.rs`)**:
+    - Memetakan path dan method HTTP ke `routes/api.rs`.
+    - Mengelompokkan endpoint berdasarkan Tag/prefix menjadi modul controller (`src/app/controllers/*_controller.rs`).
+    - Menghasilkan handler stub yang mengembalikan `PakemResult` dengan format respons JSON seragam.
+
 ### 🇮🇩 CodeIgniter 3 & 4 Application Cloner (`canting clone:ci`)
 - **Transpiler Proyek CodeIgniter ke Pakem Framework**:
   - Subcommand baru: `canting clone:ci <PATH_PROYEK_CI>` (alias: `ci:clone`).
