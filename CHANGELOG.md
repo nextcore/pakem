@@ -6,6 +6,26 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
 
 ## [1.0.1] - 2026-11-22
 
+### 🇮🇩 CodeIgniter 3 & 4 Application Cloner (`canting clone:ci`)
+- **Transpiler Proyek CodeIgniter ke Pakem Framework**:
+  - Subcommand baru: `canting clone:ci <PATH_PROYEK_CI>` (alias: `ci:clone`).
+  - **Dukungan Dual Arsitektur**: Otomatis mendeteksi struktur CodeIgniter 3 (`application/`) maupun CodeIgniter 4 (`app/`).
+  - **CI Model Parser (`model_parser.rs`)**:
+    - Memindai model CI3 (`extends CI_Model`) dan CI4 (`extends Model` / `CodeIgniter\Model`).
+    - Otomatis membersihkan prefix/suffix nama class (`User_model`, `UserModel`, `M_Barang` ➔ `User`, `Barang`).
+    - Menguraikan properti `$table`, `$primaryKey`, `$allowedFields`, dan timestamps.
+    - Membangkitkan Struct Model Rust `#[derive(PakemModel)]` dan mendaftarkannya ke `src/app/models/mod.rs`.
+  - **CI Routes Transpiler (`route_parser.rs`)**:
+    - Mendukung routes format CI3 (`$route[...] = '...'`) dan CI4 (`$routes->get(...)`).
+    - Otomatis menormalisasi wildcard route CI (`(:num)`, `(:segment)`, `(:any)`) ke standar RESTful parameter (`{id}`, `{slug}`).
+    - Menghasilkan file routing `routes/web.rs`.
+  - **CI Native PHP View to Blade Pakem Converter (`view_converter.rs`)**:
+    - Mengonversi sintaks view PHP native CI (`<?= $var ?>`, `<?php echo ...; ?>`) menjadi tag Blade `{{ $var }}`.
+    - Mengonversi struktur kontrol PHP (`<?php if(...): ?>`, `<?php foreach(...): ?>`) menjadi direktif `@if(...)` dan `@foreach(...)`.
+    - Mengonversi helper form CI (`form_open('login')`, `form_close()`) menjadi form HTML dengan proteksi bawaan `@csrf`.
+  - **CI Controller Generator (`controller_parser.rs`)**:
+    - Mengonversi method controller CI3/CI4 menjadi controller Rust yang mematuhi Unified `Request` bundle dan `PakemResult`.
+
 ### 🚀 Polyglot Application Logic Cloner (`canting clone:laravel`)
 - **Transpiler Proyek Laravel ke Pakem Framework**:
   - Subcommand baru: `canting clone:laravel <PATH_PROYEK_LARAVEL>` (alias: `laravel:clone`).

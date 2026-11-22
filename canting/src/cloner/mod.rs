@@ -1,9 +1,11 @@
+pub mod ci;
 pub mod codegen;
 pub mod introspector;
 pub mod laravel;
 pub mod relation_analyzer;
 pub mod schema;
 
+pub use ci::{CiCloner, CloneCiOptions};
 pub use laravel::{CloneLaravelOptions, LaravelCloner};
 
 use colored::*;

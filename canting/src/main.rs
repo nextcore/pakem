@@ -269,6 +269,37 @@ enum Commands {
         output: String,
     },
 
+    /// Clone and transpile an existing CodeIgniter 3 or 4 project into Pakem Framework
+    #[command(name = "clone:ci", alias = "ci:clone")]
+    CloneCi {
+        /// Path to the CodeIgniter project root directory (containing application/ or app/)
+        path: String,
+
+        /// Perform a dry-run without writing files to disk
+        #[arg(long)]
+        dry_run: bool,
+
+        /// Only transpile Models
+        #[arg(long)]
+        models_only: bool,
+
+        /// Only transpile Routes
+        #[arg(long)]
+        routes_only: bool,
+
+        /// Only convert Views
+        #[arg(long)]
+        views_only: bool,
+
+        /// Also generate Controllers based on detected CodeIgniter controllers
+        #[arg(long)]
+        with_controllers: bool,
+
+        /// Output directory (default: current directory ".")
+        #[arg(short, long, default_value = ".")]
+        output: String,
+    },
+
     // ─── DevOps / Deployment ──────────────────────────────────────────────────
     /// Generate production Dockerfile, docker-compose.yml & aaPanel/Nginx reverse proxy
     #[command(name = "make:docker")]
@@ -514,6 +545,29 @@ fn main() {
                 output,
             };
             if let Err(e) = cloner::LaravelCloner::run(options) {
+                eprintln!("{} {}", "❌ Error:".bold().red(), e);
+                std::process::exit(1);
+            }
+        }
+        Commands::CloneCi {
+            path,
+            dry_run,
+            models_only,
+            routes_only,
+            views_only,
+            with_controllers,
+            output,
+        } => {
+            let options = cloner::CloneCiOptions {
+                path,
+                dry_run,
+                models_only,
+                routes_only,
+                views_only,
+                with_controllers,
+                output,
+            };
+            if let Err(e) = cloner::CiCloner::run(options) {
                 eprintln!("{} {}", "❌ Error:".bold().red(), e);
                 std::process::exit(1);
             }
