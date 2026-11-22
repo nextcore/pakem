@@ -167,7 +167,7 @@ name = "{}-server"
 path = "src/main.rs"
 
 [dependencies]
-lumina = {{ package = "lumina-framework", version = "0.7.0", git = "https://github.com/lumina-java/framework.git", branch = "0.x" }}
+pakem = "1.0"
 tokio = {{ version = "1", features = ["full"] }}
 axum = {{ version = "0.7", features = ["macros", "multipart"] }}
 serde = {{ version = "1", features = ["derive"] }}
@@ -363,7 +363,7 @@ impl WelcomeController {
             .with("rust_edition", "2021")
             .with("db_driver", db_info.0)
             .with("db_status", db_info.1)
-            .with("docs_url", "https://github.com/lumina-java/framework")
+            .with("docs_url", "https://github.com/pakem-rs/framework")
             .render(req)
             .await
             .into_response()
@@ -539,8 +539,8 @@ async fn api_v1_index(req: Request) -> PakemResult {
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         API Endpoints
                     </a>
-                    <a href="https://github.com/lumina-java/framework" target="_blank" class="text-slate-300 hover:text-indigo-400 font-medium text-sm transition">Docs</a>
-                    <a href="https://github.com/lumina-java/framework" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-500/20 transition-all">GitHub Repo</a>
+                    <a href="https://github.com/pakem-rs/framework" target="_blank" class="text-slate-300 hover:text-indigo-400 font-medium text-sm transition">Docs</a>
+                    <a href="https://github.com/pakem-rs/framework" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-500/20 transition-all">GitHub Repo</a>
                 </div>
             </div>
         </div>
@@ -596,7 +596,7 @@ async fn api_v1_index(req: Request) -> PakemResult {
                     <span>🚀 Inspect API Spec</span>
                     <span class="text-xs bg-black/30 px-2 py-0.5 rounded-md mono-font">GET /api</span>
                 </a>
-                <a href="https://github.com/lumina-java/framework" target="_blank" class="bg-slate-900/80 text-slate-200 border border-slate-800 px-7 py-3.5 rounded-xl font-semibold hover:bg-slate-800 hover:text-white transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                <a href="https://github.com/pakem-rs/framework" target="_blank" class="bg-slate-900/80 text-slate-200 border border-slate-800 px-7 py-3.5 rounded-xl font-semibold hover:bg-slate-800 hover:text-white transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
                     <span>📖 Documentation</span>
                 </a>
             </div>
@@ -679,7 +679,7 @@ async fn api_v1_index(req: Request) -> PakemResult {
     <span class="text-slate-400">"driver"</span>: <span class="text-amber-300">"{{ db_driver }}"</span>,
     <span class="text-slate-400">"status"</span>: <span class="text-amber-300">"{{ db_status }}"</span>
   },
-  <span class="text-slate-400">"documentation"</span>: <span class="text-amber-300">"https://github.com/lumina-java/framework"</span>
+  <span class="text-slate-400">"documentation"</span>: <span class="text-amber-300">"https://github.com/pakem-rs/framework"</span>
 }</pre>
                 </div>
             </div>
@@ -721,7 +721,7 @@ async fn api_v1_index(req: Request) -> PakemResult {
                 <p class="text-slate-400 text-sm leading-relaxed mb-4">
                     Tulis model database semudah di Laravel Eloquent dengan makro sakti <code class="mono-font bg-slate-900 text-indigo-300 px-1 rounded">#[derive(PakemModel)]</code>. Otomatis menyediakan <code class="mono-font text-indigo-300">all()</code>, <code class="mono-font text-indigo-300">find(id)</code>, dan CRUD.
                 </p>
-                <a href="https://github.com/lumina-java/framework#models" target="_blank" class="text-xs font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1">
+                <a href="https://github.com/pakem-rs/framework#models" target="_blank" class="text-xs font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1">
                     Pelajari Makro Model <span>&rarr;</span>
                 </a>
             </div>
@@ -872,12 +872,12 @@ CREATE TABLE IF NOT EXISTS users (
     // 14a. database/seeders/0001_users_seeder.sql
     let default_seeder = r#"-- Pakem Default Users Seeder (Admin, Editor, Member)
 -- Password default: password123 (bcrypt cost 12)
-DELETE FROM users WHERE email IN ('admin@lumina.dev', 'editor@lumina.dev', 'member@lumina.dev');
+DELETE FROM users WHERE email IN ('admin@pakem.my.id', 'editor@pakem.my.id', 'member@pakem.my.id');
 
 INSERT INTO users (name, email, password, role) VALUES 
-('Administrator Pakem', 'admin@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'admin'),
-('Editor Konten', 'editor@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'editor'),
-('Member Komunitas', 'member@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'member');
+('Administrator Pakem', 'admin@pakem.my.id', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'admin'),
+('Editor Konten', 'editor@pakem.my.id', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'editor'),
+('Member Komunitas', 'member@pakem.my.id', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'member');
 "#;
     fs::write(
         base.join("database/seeders/0001_users_seeder.sql"),
@@ -1009,7 +1009,7 @@ DATABASE_URL=postgres://postgres:secret@127.0.0.1:5432/nama_db_kamu
 
 ### Jalankan Migrasi Database:
 ```bash
-lumina migrate
+canting migrate
 ```
 
 ---
@@ -1037,7 +1037,7 @@ lumina migrate
 ---
 
 ## 🦀 Selamat Berkarya dengan Pakem Framework!
-Dokumentasi lengkap dan update framework: [github.com/lumina-java/framework](https://github.com/lumina-java/framework)
+Dokumentasi lengkap dan update framework: [github.com/lumina-java/framework](https://github.com/pakem-rs/framework)
 "#,
         name
     );
@@ -1121,10 +1121,10 @@ services:
       - APP_ENV=production
       - APP_PORT=8000
     networks:
-      - lumina-net
+      - pakem-net
 
 networks:
-  lumina-net:
+  pakem-net:
     driver: bridge
 "#,
         safe_name = safe_name

@@ -1,6 +1,6 @@
 @extends('aurora.layouts.guest')
 
-@section('title', 'Daftar Akun — Lumina Aurora')
+@section('title', 'Daftar Akun — Pakem Aurora')
 
 @section('content')
 <div class="mb-6">

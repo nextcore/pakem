@@ -7,12 +7,14 @@ use std::collections::HashMap;
 use tower_sessions::Session;
 
 /// Type alias untuk controller handler return type yang cantik dan ekspresif.
-/// Menggantikan `Result<impl IntoResponse, AppError>` menjadi hanya `LuminaResult`.
+/// Menggantikan `Result<impl IntoResponse, AppError>` menjadi hanya `PakemResult`.
 pub type PakemResult<T = axum::response::Response> = std::result::Result<T, AppError>;
+
+/// Alias kompatibilitas balik untuk LuminaResult
 pub type LuminaResult<T = axum::response::Response> = PakemResult<T>;
 
-/// Alias alternatif untuk LuminaResult.
-pub type HttpResult<T = axum::response::Response> = LuminaResult<T>;
+/// Alias alternatif untuk PakemResult.
+pub type HttpResult<T = axum::response::Response> = PakemResult<T>;
 
 /// Request — Bundle Extractor untuk menyederhanakan Dependency Injection.
 /// Menyediakan akses cepat ke State, Session, CSRF, Path Params, Query Params, dan Helper Response dalam satu parameter.
@@ -422,18 +424,18 @@ impl Request {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    //  RESPONSE HELPERS (MENGEMBALIKAN LuminaResult / Ok(Response))
+    //  RESPONSE HELPERS (MENGEMBALIKAN PakemResult / Ok(Response))
     // ─────────────────────────────────────────────────────────────────────────
 
     /// Shortcut untuk mengembalikan JSON response secara instan.
-    pub fn json<T: serde::Serialize>(&self, value: T) -> LuminaResult {
+    pub fn json<T: serde::Serialize>(&self, value: T) -> PakemResult {
         use axum::response::IntoResponse;
         Ok(axum::Json(value).into_response())
     }
 
     /// Mengembalikan response JSON standar HTTP 200 OK:
     /// `{ "success": true, "data": ... }`
-    pub fn ok<T: serde::Serialize>(&self, data: T) -> LuminaResult {
+    pub fn ok<T: serde::Serialize>(&self, data: T) -> PakemResult {
         use axum::response::IntoResponse;
         Ok(axum::Json(serde_json::json!({
             "success": true,
@@ -443,7 +445,7 @@ impl Request {
 
     /// Mengembalikan response JSON HTTP 200 OK dengan pesan sukses kustom:
     /// `{ "success": true, "message": "...", "data": ... }`
-    pub fn success<T: serde::Serialize>(&self, data: T, message: &str) -> LuminaResult {
+    pub fn success<T: serde::Serialize>(&self, data: T, message: &str) -> PakemResult {
         use axum::response::IntoResponse;
         Ok(axum::Json(serde_json::json!({
             "success": true,
@@ -454,7 +456,7 @@ impl Request {
 
     /// Mengembalikan response JSON HTTP 201 Created:
     /// `{ "success": true, "data": ... }`
-    pub fn created<T: serde::Serialize>(&self, data: T) -> LuminaResult {
+    pub fn created<T: serde::Serialize>(&self, data: T) -> PakemResult {
         use axum::response::IntoResponse;
         Ok((
             axum::http::StatusCode::CREATED,
@@ -466,7 +468,7 @@ impl Request {
     }
 
     /// Mengembalikan response JSON HTTP 201 Created dengan pesan:
-    pub fn created_with<T: serde::Serialize>(&self, data: T, message: &str) -> LuminaResult {
+    pub fn created_with<T: serde::Serialize>(&self, data: T, message: &str) -> PakemResult {
         use axum::response::IntoResponse;
         Ok((
             axum::http::StatusCode::CREATED,
@@ -479,14 +481,14 @@ impl Request {
     }
 
     /// Mengembalikan response HTTP 204 No Content
-    pub fn no_content(&self) -> LuminaResult {
+    pub fn no_content(&self) -> PakemResult {
         use axum::response::IntoResponse;
         Ok(axum::http::StatusCode::NO_CONTENT.into_response())
     }
 
     /// Mengembalikan response JSON HTTP 404 Not Found:
     /// `{ "success": false, "error": "..." }`
-    pub fn not_found(&self, message: &str) -> LuminaResult {
+    pub fn not_found(&self, message: &str) -> PakemResult {
         use axum::response::IntoResponse;
         Ok((
             axum::http::StatusCode::NOT_FOUND,
@@ -499,7 +501,7 @@ impl Request {
 
     /// Mengembalikan response JSON HTTP 400 Bad Request:
     /// `{ "success": false, "error": "..." }`
-    pub fn bad_request(&self, message: &str) -> LuminaResult {
+    pub fn bad_request(&self, message: &str) -> PakemResult {
         use axum::response::IntoResponse;
         Ok((
             axum::http::StatusCode::BAD_REQUEST,
@@ -511,7 +513,7 @@ impl Request {
     }
 
     /// Mengembalikan response JSON HTTP 401 Unauthorized
-    pub fn unauthorized(&self, message: &str) -> LuminaResult {
+    pub fn unauthorized(&self, message: &str) -> PakemResult {
         use axum::response::IntoResponse;
         Ok((
             axum::http::StatusCode::UNAUTHORIZED,
@@ -523,7 +525,7 @@ impl Request {
     }
 
     /// Mengembalikan response JSON HTTP 403 Forbidden
-    pub fn forbidden(&self, message: &str) -> LuminaResult {
+    pub fn forbidden(&self, message: &str) -> PakemResult {
         use axum::response::IntoResponse;
         Ok((
             axum::http::StatusCode::FORBIDDEN,
@@ -535,7 +537,7 @@ impl Request {
     }
 
     /// Mengembalikan response JSON HTTP 422 Unprocessable Entity (Validasi error)
-    pub fn unprocessable<E: serde::Serialize>(&self, errors: E, message: &str) -> LuminaResult {
+    pub fn unprocessable<E: serde::Serialize>(&self, errors: E, message: &str) -> PakemResult {
         use axum::response::IntoResponse;
         Ok((
             axum::http::StatusCode::UNPROCESSABLE_ENTITY,
@@ -549,7 +551,7 @@ impl Request {
 
     /// Mengembalikan response JSON data paginasi bergaya Laravel:
     /// `{ "success": true, "data": [...], "meta": { "total": ..., "current_page": ..., "last_page": ..., "per_page": ... } }`
-    pub fn paginate<T: serde::Serialize>(&self, paginator: crate::database::orm::LengthAwarePaginator<T>) -> LuminaResult {
+    pub fn paginate<T: serde::Serialize>(&self, paginator: crate::database::orm::LengthAwarePaginator<T>) -> PakemResult {
         use axum::response::IntoResponse;
         Ok(axum::Json(serde_json::json!({
             "success": true,

@@ -1,13 +1,13 @@
 @extends('layout')
 
-@section('title')Users List - Lumina Framework@endsection
+@section('title')Users List - Pakem Framework@endsection
 
 @section('content')
 <div class="container py-5">
     <div class="row mb-4">
         <div class="col">
             <h1 class="fw-bold">👥 Users List</h1>
-            <p class="text-muted">Daftar pengguna yang terdaftar di sistem Lumina.</p>
+            <p class="text-muted">Daftar pengguna yang terdaftar di sistem Pakem.</p>
         </div>
     </div>
 

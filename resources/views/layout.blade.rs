@@ -71,7 +71,7 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center fw-bold text-primary" href="/">
-                <img src="/storage/assets/logo.png" alt="Lumina Logo" width="30" height="30" class="d-inline-block align-top me-2">
+                <img src="/storage/assets/logo.png" alt="Pakem Logo" width="30" height="30" class="d-inline-block align-top me-2">
                 LUMINA
             </a>
             <div class="collapse navbar-collapse">
@@ -99,7 +99,7 @@
     <footer class="footer text-center">
         <div class="container">
             <hr>
-            <p>&copy; 2026 Lumina Framework — **Premium Medical Edition**. Built with Rust 🦀</p>
+            <p>&copy; 2026 Pakem Framework — **Premium Medical Edition**. Built with Rust 🦀</p>
         </div>
     </footer>
 

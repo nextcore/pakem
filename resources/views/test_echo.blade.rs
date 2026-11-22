@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between mb-10">
             <div class="flex items-center gap-4">
                 <span class="text-4xl animate-pulse">📡</span>
-                <h1 class="text-3xl font-bold">Lumina Echo Test</h1>
+                <h1 class="text-3xl font-bold">Pakem Echo Test</h1>
             </div>
             <div id="status" class="px-4 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-bold border border-red-500/50">
                 Disconnected

@@ -510,11 +510,11 @@ pub fn router() -> Router<AppState> {
             </div>
             <p style="color:#94a3b8;font-size:0.7rem;margin:0 0 10px 0;">Copy and run these commands in your project terminal to instantly generate assets.</p>
             <div style="display:flex;flex-direction:column;gap:6px;">
-                <div class="code-block"><span style="color:#cbd5e1;">lumina make:controller ProductController</span><button onclick="navigator.clipboard.writeText('lumina make:controller ProductController')">Copy</button></div>
-                <div class="code-block"><span style="color:#cbd5e1;">lumina make:model Product</span><button onclick="navigator.clipboard.writeText('lumina make:model Product')">Copy</button></div>
-                <div class="code-block"><span style="color:#cbd5e1;">lumina make:crud Patient name:string age:integer</span><button onclick="navigator.clipboard.writeText('lumina make:crud Patient name:string age:integer')">Copy</button></div>
-                <div class="code-block"><span style="color:#cbd5e1;">lumina make:auth</span><button onclick="navigator.clipboard.writeText('lumina make:auth')">Copy</button></div>
-                <div class="code-block"><span style="color:#cbd5e1;">lumina migrate</span><button onclick="navigator.clipboard.writeText('lumina migrate')">Copy</button></div>
+                <div class="code-block"><span style="color:#cbd5e1;">canting make:controller ProductController</span><button onclick="navigator.clipboard.writeText('canting make:controller ProductController')">Copy</button></div>
+                <div class="code-block"><span style="color:#cbd5e1;">canting make:model Product</span><button onclick="navigator.clipboard.writeText('canting make:model Product')">Copy</button></div>
+                <div class="code-block"><span style="color:#cbd5e1;">canting make:crud Patient name:string age:integer</span><button onclick="navigator.clipboard.writeText('canting make:crud Patient name:string age:integer')">Copy</button></div>
+                <div class="code-block"><span style="color:#cbd5e1;">canting make:auth</span><button onclick="navigator.clipboard.writeText('canting make:auth')">Copy</button></div>
+                <div class="code-block"><span style="color:#cbd5e1;">canting migrate</span><button onclick="navigator.clipboard.writeText('canting migrate')">Copy</button></div>
             </div>
         </div>
 

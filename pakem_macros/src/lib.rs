@@ -145,7 +145,7 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
     let fields = if let syn::Fields::Named(ref fields) = input.fields {
         fields.named.iter().collect::<Vec<_>>()
     } else {
-        panic!("LuminaModel hanya bisa digunakan pada struct dengan named fields");
+        panic!("PakemModel hanya bisa digunakan pada struct dengan named fields");
     };
 
     // Cari nama field primary key (default "id" jika tidak ada atribut #[primary_key])

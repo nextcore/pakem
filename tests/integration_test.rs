@@ -3,7 +3,7 @@ use axum::http::{HeaderValue, StatusCode};
 use axum::middleware;
 use axum::response::IntoResponse;
 use pakem::core::auth::AuthUser;
-use pakem::core::request::Request as LuminaRequest;
+use pakem::core::request::Request as PakemRequest;
 use pakem::core::response::ApiResponse;
 use pakem::core::router::Router;
 use pakem::core::testing::TestApp;
@@ -31,7 +31,7 @@ struct PaginationQuery {
 
 // Controller handlers for API CRUD testing
 async fn list_products(
-    req: LuminaRequest,
+    req: PakemRequest,
     Query(query): Query<PaginationQuery>,
 ) -> impl IntoResponse {
     let db = req.db().get_pool();
@@ -56,7 +56,7 @@ async fn list_products(
 }
 
 async fn create_product(
-    req: LuminaRequest,
+    req: PakemRequest,
     axum::Json(input): axum::Json<CreateProductInput>,
 ) -> impl IntoResponse {
     let db = req.db().get_pool();
@@ -76,7 +76,7 @@ async fn create_product(
     ApiResponse::with_message(product, "Product created")
 }
 
-async fn get_product(req: LuminaRequest, Path(id): Path<i64>) -> impl IntoResponse {
+async fn get_product(req: PakemRequest, Path(id): Path<i64>) -> impl IntoResponse {
     let db = req.db().get_pool();
     let row =
         sqlx::query_as::<_, (i64, String, i64)>("SELECT id, name, price FROM products WHERE id = ?")
@@ -97,7 +97,7 @@ async fn get_product(req: LuminaRequest, Path(id): Path<i64>) -> impl IntoRespon
 }
 
 async fn update_product(
-    req: LuminaRequest,
+    req: PakemRequest,
     Path(id): Path<i64>,
     axum::Json(input): axum::Json<CreateProductInput>,
 ) -> impl IntoResponse {
@@ -129,7 +129,7 @@ async fn update_product(
     }
 }
 
-async fn delete_product(req: LuminaRequest, Path(id): Path<i64>) -> impl IntoResponse {
+async fn delete_product(req: PakemRequest, Path(id): Path<i64>) -> impl IntoResponse {
     let db = req.db().get_pool();
     let res = sqlx::query("DELETE FROM products WHERE id = ?")
         .bind(id)
@@ -421,7 +421,7 @@ async fn test_api_crud_jwt_auth_middleware() {
     // 3. Valid Bearer Token
     let user = AuthUser::new(
         1,
-        "admin@lumina.dev".to_string(),
+        "admin@pakem.my.id".to_string(),
         "admin".to_string(),
         vec!["read".to_string(), "write".to_string()],
         24,

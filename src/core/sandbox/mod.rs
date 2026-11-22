@@ -94,7 +94,7 @@ impl WasmPlugin {
         Self::from_bytes(name, &bytes)
     }
 
-    /// Buat Linker standar Lumina dengan fungsi host bawaan
+    /// Buat Linker standar Pakem dengan fungsi host bawaan
     fn create_linker(engine: &Engine) -> Result<Linker<HostState>, SandboxError> {
         let mut linker = Linker::<HostState>::new(engine);
 
@@ -244,7 +244,7 @@ impl WasmInstance {
 
 }
 
-/// Pengelola Plugin dan Ekstensi Lumina Sandbox (Thread-Safe & Hot-Reloadable)
+/// Pengelola Plugin dan Ekstensi Pakem Sandbox (Thread-Safe & Hot-Reloadable)
 #[derive(Clone)]
 pub struct LuminaPluginManager {
     plugins: Arc<RwLock<HashMap<String, Arc<WasmPlugin>>>>,

@@ -6,11 +6,11 @@ RUN apt-get update && apt-get install -y pkg-config libssl-dev build-essential &
 
 # Copy only Cargo files first for better caching
 COPY Cargo.toml Cargo.lock ./
-COPY lumina_macros ./lumina_macros
+COPY pakem_macros ./pakem_macros
 
 # Create a dummy main.rs to build dependencies
 RUN mkdir src && echo "fn main() {}" > src/main.rs && \
-    mkdir -p src/bin && echo "fn main() {}" > src/bin/lumina.rs && \
+    mkdir -p src/bin && echo "fn main() {}" > src/bin/pakem.rs && \
     cargo build --release && \
     rm -rf src
 
@@ -27,8 +27,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y libssl3 ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Copy binaries
-COPY --from=builder /usr/src/app/target/release/lumina-server /app/lumina-server
-COPY --from=builder /usr/src/app/target/release/lumina /app/lumina
+COPY --from=builder /usr/src/app/target/release/pakem-server /app/pakem-server
+COPY --from=builder /usr/src/app/target/release/pakem /app/pakem
 
 # Copy necessary assets
 COPY resources /app/resources
@@ -42,4 +42,4 @@ ENV APP_PORT=8000
 
 EXPOSE 8000
 
-CMD ["./lumina-server"]
+CMD ["./pakem-server"]

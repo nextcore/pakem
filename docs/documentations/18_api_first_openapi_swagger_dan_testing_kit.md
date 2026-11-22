@@ -1,22 +1,22 @@
 # 🚀 Modul 18: API-First Suite, OpenAPI v3, Swagger UI & Fluent Testing Kit
 
-> **Filosofi Desain Lumina:**  
+> **Filosofi Desain Pakem:**  
 > *"Look like Laravel, Run at Rust Speed. Dokumentasi RESTful API terstandarisasi otomatis tanpa boilerplate, dan pengalaman pengujian HTTP in-memory yang seindah Laravel."*
 
-Lumina Framework v0.8.0 menghadirkan **API-First Suite & Testing Ergonomics** yang mengubah cara pengembang membangun dan menguji backend REST API di Rust:
-1. **Route Metadata & OpenAPI v3 Auto-Generation**: Tambahkan metadata ekspresif langsung pada method chaining router Lumina (`.summary()`, `.description()`, `.tag()`, `.deprecated()`).
+Pakem Framework v0.8.0 menghadirkan **API-First Suite & Testing Ergonomics** yang mengubah cara pengembang membangun dan menguji backend REST API di Rust:
+1. **Route Metadata & OpenAPI v3 Auto-Generation**: Tambahkan metadata ekspresif langsung pada method chaining router Pakem (`.summary()`, `.description()`, `.tag()`, `.deprecated()`).
 2. **Built-in Swagger UI Endpoint**: Cukup panggil `.swagger_ui("/docs", ...)` pada router, maka visualisasi interaktif Swagger UI siap digunakan di browser.
-3. **CLI Exporter**: Perintah Artisan bawaan `lumina route:openapi` dan `lumina export:postman` untuk ekspor instan ke CI/CD maupun Postman/Insomnia.
-4. **Fluent HTTP Testing Assertion Kit (`lumina::testing::*`)**: Engine pengujian in-memory tanpa overhead jaringan TCP yang menyediakan 20+ assertion fluen ala Laravel (`assert_status`, `assert_json_path`, `assert_database_has`, dll).
+3. **CLI Exporter**: Perintah Artisan bawaan `canting route:openapi` dan `canting export:postman` untuk ekspor instan ke CI/CD maupun Postman/Insomnia.
+4. **Fluent HTTP Testing Assertion Kit (`pakem::testing::*`)**: Engine pengujian in-memory tanpa overhead jaringan TCP yang menyediakan 20+ assertion fluen ala Laravel (`assert_status`, `assert_json_path`, `assert_database_has`, dll).
 
 ---
 
 ## 📖 1. Route Metadata & OpenAPI v3
 
-Anda dapat mendekorasi route Lumina dengan metadata OpenAPI standar secara fluen:
+Anda dapat mendekorasi route Pakem dengan metadata OpenAPI standar secara fluen:
 
 ```rust
-use lumina::prelude::*;
+use pakem::prelude::*;
 
 pub fn api_routes() -> Router<AppState> {
     Router::new()
@@ -55,12 +55,12 @@ pub fn api_routes() -> Router<AppState> {
 
 ## 🎨 2. Memasang Swagger UI Interaktif
 
-Hanya dengan satu baris method chaining `.swagger_ui()`, Lumina akan secara otomatis mendaftarkan endpoint visual Swagger UI v5 dan spesifikasi mentah JSON:
+Hanya dengan satu baris method chaining `.swagger_ui()`, Pakem akan secara otomatis mendaftarkan endpoint visual Swagger UI v5 dan spesifikasi mentah JSON:
 
 ```rust
 let router = Router::new()
     .merge(api_routes())
-    .swagger_ui("/docs", "Lumina Application API", "1.0.0");
+    .swagger_ui("/docs", "Pakem Application API", "1.0.0");
 ```
 
 Endpoint yang otomatis aktif:
@@ -69,38 +69,38 @@ Endpoint yang otomatis aktif:
 
 ---
 
-## ⚡ 3. Lumina CLI Exporter (OpenAPI & Postman)
+## ⚡ 3. Pakem CLI Exporter (OpenAPI & Postman)
 
 Bagi tim backend yang mengintegrasikan spesifikasi API ke pipeline CI/CD atau membagikannya ke tim Frontend / Mobile Developer:
 
 ### A. Ekspor OpenAPI Spec (`route:openapi`)
 ```bash
 # Menghasilkan openapi.json (default)
-lumina route:openapi
+canting route:openapi
 
 # Menghasilkan openapi.yaml
-lumina route:openapi --format yaml --output openapi.yaml
+canting route:openapi --format yaml --output openapi.yaml
 
 # Kustomisasi nama API & versi
-lumina route:openapi --title "POS API Service" --version "2.1.0"
+canting route:openapi --title "POS API Service" --version "2.1.0"
 ```
 
 ### B. Ekspor Koleksi Postman v2.1 (`export:postman`)
 ```bash
 # Menghasilkan koleksi Postman yang siap di-import 1-klik
-lumina export:postman --output pos_postman.json --name "POS Service API"
+canting export:postman --output pos_postman.json --name "POS Service API"
 ```
 
 ---
 
-## 🧪 4. Fluent HTTP Testing Assertion Kit (`lumina::testing::*`)
+## 🧪 4. Fluent HTTP Testing Assertion Kit (`pakem::testing::*`)
 
-Pengujian di Lumina berjalan **in-memory** menggunakan runtime Tokio dan Tower `oneshot`, memberikan eksekusi tes instan tanpa port collision di CI/CD.
+Pengujian di Pakem berjalan **in-memory** menggunakan runtime Tokio dan Tower `oneshot`, memberikan eksekusi tes instan tanpa port collision di CI/CD.
 
 ### A. Dasar Pengujian dengan `TestApp`
 
 ```rust
-use lumina::testing::TestApp;
+use pakem::testing::TestApp;
 use serde_json::json;
 
 #[tokio::test]
@@ -122,7 +122,7 @@ async fn test_contact_creation_flow() {
         .with_token("valid_jwt_token")
         .with_json(json!({
             "name": "Budi Santoso",
-            "email": "budi@lumina.dev",
+            "email": "budi@pakem.my.id",
             "phone": "08123456789"
         }))
         .send().await;
@@ -181,7 +181,7 @@ async fn test_database_state() {
 
     // Memastikan baris data tersimpan di tabel
     app.assert_database_has("users", json!({
-        "email": "budi@lumina.dev",
+        "email": "budi@pakem.my.id",
         "is_active": 1
     })).await;
 

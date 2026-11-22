@@ -2,7 +2,7 @@ use pakem::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
 #[lumina(table = "contacts")]
 pub struct Contact {
     pub id: i64,
@@ -133,21 +133,21 @@ async fn test_eloquent_crud_and_query_builder() {
 
 struct TestContactController;
 impl TestContactController {
-    /// GET /contacts — Hanya `req: Request` -> `LuminaResult`
-    async fn index(req: Request) -> LuminaResult {
+    /// GET /contacts — Hanya `req: Request` -> `PakemResult`
+    async fn index(req: Request) -> PakemResult {
         let contacts = Contact::all(req.db()).await?;
         req.ok(contacts)
     }
 
     /// GET /contacts/paged — Paginasi otomatis dari `req.pagination()`
-    async fn paginate(req: Request) -> LuminaResult {
+    async fn paginate(req: Request) -> PakemResult {
         let (page, per_page) = req.pagination();
         let paginator = Contact::paginate(req.db(), page, per_page).await?;
         req.paginate(paginator)
     }
 
     /// GET /contacts/:id — ID diambil langsung lewat `req.id_or_fail()?`
-    async fn show(req: Request) -> LuminaResult {
+    async fn show(req: Request) -> PakemResult {
         let id = req.id_or_fail()?;
         match Contact::find(req.db(), id).await? {
             Some(contact) => req.ok(contact),
@@ -156,7 +156,7 @@ impl TestContactController {
     }
 
     /// DELETE /contacts/:id — Hapus data
-    async fn destroy(req: Request) -> LuminaResult {
+    async fn destroy(req: Request) -> PakemResult {
         let id = req.id_or_fail()?;
         if Contact::destroy(req.db(), id).await? {
             req.success(serde_json::json!({ "id": id }), "Kontak berhasil dihapus")
@@ -211,7 +211,7 @@ async fn test_beautiful_controller_routes() {
         .delete("/contacts/:id", TestContactController::destroy);
 
     let application = pakem::core::application::Application::new().with_api(api_router);
-    let session_store = pakem::core::session::store::LuminaSessionStore::Memory(
+    let session_store = pakem::core::session::store::PakemSessionStore::Memory(
         tower_sessions::MemoryStore::default(),
     );
     app.router = application.build_router(app.state.clone(), session_store);
@@ -237,7 +237,7 @@ async fn test_beautiful_controller_routes() {
     res.assert_status(axum::http::StatusCode::OK);
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
 #[lumina(table = "test_users")]
 pub struct TestUser {
     pub id: i64,
@@ -247,7 +247,7 @@ pub struct TestUser {
     pub deleted_at: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
 #[lumina(table = "test_posts")]
 pub struct TestPost {
     pub id: i64,
@@ -258,7 +258,7 @@ pub struct TestPost {
     pub deleted_at: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
 #[lumina(table = "test_profiles")]
 pub struct TestProfile {
     pub id: i64,
@@ -269,7 +269,7 @@ pub struct TestProfile {
     pub deleted_at: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
 #[lumina(table = "test_tags")]
 pub struct TestTag {
     pub id: i64,
@@ -347,7 +347,7 @@ async fn test_eloquent_relationships() {
     u2.id = u2.save(&pool).await.unwrap();
 
     // 3. Insert Posts for User 1
-    let mut p1 = TestPost { user_id: u1.id, title: "Belajar Rust Lumina".to_string(), ..Default::default() };
+    let mut p1 = TestPost { user_id: u1.id, title: "Belajar Rust Pakem".to_string(), ..Default::default() };
     p1.id = p1.save(&pool).await.unwrap();
 
     let mut p2 = TestPost { user_id: u1.id, title: "Eloquent di Rust".to_string(), ..Default::default() };
@@ -380,7 +380,7 @@ async fn test_eloquent_relationships() {
     // A. Has Many: u1.has_many::<TestPost> & macro method u1.posts(&pool)
     let u1_posts = u1.posts(&pool).await.unwrap();
     assert_eq!(u1_posts.len(), 2);
-    assert_eq!(u1_posts[0].title, "Belajar Rust Lumina");
+    assert_eq!(u1_posts[0].title, "Belajar Rust Pakem");
     assert_eq!(u1_posts[1].title, "Eloquent di Rust");
 
     // B. Belongs To: p1.belongs_to::<TestUser> & macro method p1.author(&pool)

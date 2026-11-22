@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title')Register - Lumina Framework@endsection
+@section('title')Register - Pakem Framework@endsection
 
 @section('content')
 <div class="row justify-content-center">
@@ -8,7 +8,7 @@
         <div class="card shadow-lg border-0 mt-5">
             <div class="card-body p-5">
                 <div class="text-center mb-4">
-                    <h2 class="fw-bold text-success">Join Lumina</h2>
+                    <h2 class="fw-bold text-success">Join Pakem</h2>
                     <p class="text-muted">Create your account to get started</p>
                 </div>
 

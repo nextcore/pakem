@@ -97,7 +97,7 @@ fn test_hardware_bridge_device_message_serialization() {
 #[test]
 fn test_device_bridge_script_generation() {
     let script = device_bridge_script();
-    assert!(script.contains("window.LuminaDevice"));
+    assert!(script.contains("window.PakemDevice"));
     assert!(script.contains("navigator.usb.requestDevice"));
     assert!(script.contains("navigator.serial.requestPort"));
     assert!(script.contains("connectServerBridge"));

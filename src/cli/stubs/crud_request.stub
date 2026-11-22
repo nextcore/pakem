@@ -1,6 +1,6 @@
-use lumina::lumina_form;
+use pakem::pakem_form;
 
-#[lumina_form]
+#[pakem_form]
 pub struct {{name}}Request {
     {{fields}}
     

@@ -1,6 +1,6 @@
 {
-  "scopeName": "text.html.lumina",
-  "name": "Lumina",
+  "scopeName": "text.html.pakem",
+  "name": "Pakem",
   "patterns": [
     { "include": "#blade-tags" },
     { "include": "#tera-tags" },
@@ -10,11 +10,11 @@
     "blade-tags": {
       "patterns": [
         {
-          "name": "keyword.control.lumina",
+          "name": "keyword.control.pakem",
           "match": "@(if|elseif|else|endif|foreach|as|endforeach|extends|section|endsection|yield|csrf|include|guest|auth|stack|push|endpush)\\b"
         },
         {
-          "name": "variable.other.lumina",
+          "name": "variable.other.pakem",
           "match": "\\$\\w+"
         }
       ]

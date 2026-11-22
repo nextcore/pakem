@@ -60,11 +60,11 @@ pub fn register(_config: &crate::core::config::ConfigManager) -> Router<AppState
              .get("/entries", TelescopeController::entries)
         })
 
-        // ─── Lumina Live Showcase Route ───
-        .get("/live-demo", |req: lumina::prelude::Request| async move {
+        // ─── Pakem Live Showcase Route ───
+        .get("/live-demo", |req: pakem::prelude::Request| async move {
             crate::core::live::LiveRegistry::global().register::<crate::app::live::counter::Counter>("counter");
-            lumina::prelude::View::make("live_demo")
-                .with("title", "Lumina Live Demo")
+            pakem::prelude::View::make("live_demo")
+                .with("title", "Pakem Live Demo")
                 .render(req)
                 .await
         })

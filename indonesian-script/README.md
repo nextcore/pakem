@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-2021%20edition-orange.svg)](https://www.rust-lang.org)
 [![WebAssembly](https://img.shields.io/badge/WebAssembly-WASM-purple.svg)](https://webassembly.org)
-[![Lumina Framework](https://img.shields.io/badge/ecosystem-Lumina%20Framework-blue.svg)](https://github.com/lumina-java/framework)
+[![Pakem Framework](https://img.shields.io/badge/ecosystem-Pakem%20Framework-blue.svg)](https://github.com/pakem-rs/framework)
 
 ---
 
@@ -32,7 +32,7 @@
 
 Instal langsung via Cargo:
 ```bash
-cargo install --git https://github.com/lumina-java/indonesia-script
+cargo install --git https://github.com/pakem-rs/indonesia-script
 ```
 
 Kompilasi berkas `.is` menjadi berkas JavaScript:
@@ -51,7 +51,7 @@ is-cli app.is -o dist/app.js
 Tambahkan ke `Cargo.toml`:
 ```toml
 [dependencies]
-indonesian-script = { git = "https://github.com/lumina-java/indonesia-script" }
+indonesian-script = { git = "https://github.com/pakem-rs/indonesia-script" }
 ```
 
 Gunakan di dalam kode Rust Anda:
@@ -157,5 +157,5 @@ Kontribusi fitur, kosakata daerah nusantara lainnya, dan optimasi sangat terbuka
 ## 📜 Lisensi
 
 Indonesian Script dirilis di bawah lisensi terbuka [MIT License](LICENSE).  
-Dikelola dengan bangga oleh tim [Lumina Framework](https://github.com/lumina-java/framework).
+Dikelola dengan bangga oleh tim [Pakem Framework](https://github.com/pakem-rs/framework).
 

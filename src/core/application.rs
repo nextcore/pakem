@@ -2,7 +2,7 @@
 use crate::core::container::Container;
 use crate::core::router::Router;
 use crate::core::security::csrf;
-use crate::core::session::store::LuminaSessionStore;
+use crate::core::session::store::PakemSessionStore;
 use crate::core::view::ViewEngine;
 use crate::database::{connection::DatabasePool, migration};
 use crate::http::middleware::{logger, security_headers};
@@ -49,7 +49,7 @@ pub struct AppState {
     pub lang: Arc<crate::core::i18n::LangManager>,
     pub echo: Arc<crate::core::echo::EchoManager>,
     pub socialite: Arc<crate::core::auth::socialite::SocialiteManager>,
-    pub sandbox: Arc<crate::core::sandbox::LuminaPluginManager>,
+    pub sandbox: Arc<crate::core::sandbox::PakemPluginManager>,
 }
 
 impl AppState {
@@ -143,7 +143,7 @@ impl Application {
         self.with_global_middleware(layer)
     }
 
-    /// Pasang router Axum tambahan dari ekstensi modular (misal: lumina-live).
+    /// Pasang router Axum tambahan dari ekstensi modular (misal: pakem-live).
     pub fn with_raw_router(mut self, router: axum::Router<AppState>) -> Self {
         self.extra_routers.push(router);
         self
@@ -181,7 +181,7 @@ impl Application {
         self
     }
 
-    pub fn build_router(&self, state: AppState, session_store: LuminaSessionStore) -> AxumRouter {
+    pub fn build_router(&self, state: AppState, session_store: PakemSessionStore) -> AxumRouter {
         let kernel = crate::http::kernel::HttpKernel::new();
 
         let session_layer = SessionManagerLayer::new(session_store)
@@ -290,14 +290,14 @@ impl Application {
                         echo_arc
                     }
                     Err(e) => {
-                        eprintln!("⚠️  [Lumina Echo] Redis gagal: {}. Fallback ke in-memory.", e);
+                        eprintln!("⚠️  [Pakem Echo] Redis gagal: {}. Fallback ke in-memory.", e);
                         Arc::new(crate::core::echo::EchoManager::new())
                     }
                 }
             }
             #[cfg(not(feature = "redis"))]
             {
-                eprintln!("⚠️  [Lumina Echo] Feature 'redis' belum aktif. Fallback ke in-memory.");
+                eprintln!("⚠️  [Pakem Echo] Feature 'redis' belum aktif. Fallback ke in-memory.");
                 Arc::new(crate::core::echo::EchoManager::new())
             }
         } else {
@@ -372,7 +372,7 @@ impl Application {
                 match crate::core::queue::QueueManager::new_with_redis(&redis_url) {
                     Ok(qm) => Arc::new(qm),
                     Err(e) => {
-                        eprintln!("⚠️  [Lumina Queue] Koneksi Redis gagal: {}. Fallback ke Database.", e);
+                        eprintln!("⚠️  [Pakem Queue] Koneksi Redis gagal: {}. Fallback ke Database.", e);
                         match db_pool.as_ref() {
                             Some(pool) => Arc::new(crate::core::queue::QueueManager::new_with_pool(pool.clone())),
                             None => Arc::new(crate::core::queue::QueueManager::new(
@@ -384,7 +384,7 @@ impl Application {
             }
             #[cfg(not(feature = "redis"))]
             {
-                eprintln!("⚠️  [Lumina Queue] Feature 'redis' belum aktif. Fallback ke Database.");
+                eprintln!("⚠️  [Pakem Queue] Feature 'redis' belum aktif. Fallback ke Database.");
                 match db_pool.as_ref() {
                     Some(pool) => Arc::new(crate::core::queue::QueueManager::new_with_pool(pool.clone())),
                     None => Arc::new(crate::core::queue::QueueManager::new(
@@ -455,7 +455,7 @@ impl Application {
             echo,
             socialite,
             sandbox: {
-                let s = Arc::new(crate::core::sandbox::LuminaPluginManager::new());
+                let s = Arc::new(crate::core::sandbox::PakemPluginManager::new());
                 let _ = s.load_directory("plugins");
                 let _ = s.load_directory("resources/plugins");
                 s
@@ -467,7 +467,7 @@ impl Application {
 
         // ── 5. Inisialisasi Session Store (Persistent) ──────────────────────
         let session_db_url = config.get_db_url();
-        let mut session_store = LuminaSessionStore::Memory(MemoryStore::default());
+        let mut session_store = PakemSessionStore::Memory(MemoryStore::default());
 
         if db_pool.is_some() {
             #[cfg(feature = "mysql")]
@@ -475,7 +475,7 @@ impl Application {
                 if let Ok(pool) = sqlx::MySqlPool::connect(&session_db_url).await {
                     let store = MySqlStore::new(pool);
                     let _ = store.migrate().await;
-                    session_store = LuminaSessionStore::MySql(store);
+                    session_store = PakemSessionStore::MySql(store);
                     println!("💾 Session Store: Persistent (MySQL)");
                 }
             }
@@ -486,7 +486,7 @@ impl Application {
                 if let Ok(pool) = sqlx::PgPool::connect(&session_db_url).await {
                     let store = PostgresStore::new(pool);
                     let _ = store.migrate().await;
-                    session_store = LuminaSessionStore::Postgres(store);
+                    session_store = PakemSessionStore::Postgres(store);
                     println!("💾 Session Store: Persistent (PostgreSQL)");
                 }
             }
@@ -495,7 +495,7 @@ impl Application {
                 if let Ok(pool) = sqlx::SqlitePool::connect(&session_db_url).await {
                     let store = SqliteStore::new(pool);
                     let _ = store.migrate().await;
-                    session_store = LuminaSessionStore::Sqlite(store);
+                    session_store = PakemSessionStore::Sqlite(store);
                     println!("💾 Session Store: Persistent (SQLite)");
                 }
             }

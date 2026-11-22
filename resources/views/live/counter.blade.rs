@@ -1,7 +1,7 @@
 <div class="p-6 bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md mx-auto my-6 text-center">
     <div class="mb-4">
         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-            ⚡ Lumina Live (Tri-Dialect Reactive UI)
+            ⚡ Pakem Live (Tri-Dialect Reactive UI)
         </span>
     </div>
 

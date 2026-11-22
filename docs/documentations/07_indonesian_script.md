@@ -1,10 +1,10 @@
 # 📘 Modul 07: Indonesian Script (.is)
 
-**Indonesian Script (`.is`)** adalah bahasa skrip terintegrasi yang dirancang khusus untuk ekosistem Lumina Framework. Menggunakan kata kunci bahasa Indonesia yang natural, skrip ini dapat dieksekusi secara instan di backend tanpa memerlukan proses kompilasi ulang Rust yang memakan waktu.
+**Indonesian Script (`.is`)** adalah bahasa skrip terintegrasi yang dirancang khusus untuk ekosistem Pakem Framework. Menggunakan kata kunci bahasa Indonesia yang natural, skrip ini dapat dieksekusi secara instan di backend tanpa memerlukan proses kompilasi ulang Rust yang memakan waktu.
 
 ---
 
-## 1. Keunggulan Indonesian Script di Lumina
+## 1. Keunggulan Indonesian Script di Pakem
 
 - 🇮🇩 **Sintaks Bahasa Indonesia & Jawa Natural**: Ramah untuk pengembang lokal, pemula, dan tim non-teknis (misal tim promosi atau akuntansi yang membuat rumus bisnis).
 - ⚡ **Zero-Compilation Overhead**: Skrip diinterpretasikan oleh Abstract Syntax Tree (AST) runner berbasis `IsScriptRunner` yang aman dan cepat.
@@ -67,13 +67,13 @@ fungsi faktorial(n) {
 
 ## 3. Fungsi Bawaan (Built-in Helpers)
 
-Lumina menyediakan sejumlah fungsi bawaan yang siap pakai di dalam skrip `.is`:
+Pakem menyediakan sejumlah fungsi bawaan yang siap pakai di dalam skrip `.is`:
 
 | Helper | Deskripsi | Contoh |
 | :--- | :--- | :--- |
 | `rupiah(angka)` | Format angka ke teks Rupiah | `rupiah(50000)` ➔ `"Rp 50.000"` |
 | `panjang(teks)` | Menghitung jumlah karakter | `panjang("halo")` ➔ `4` |
-| `huruf_besar(teks)` | Mengubah ke huruf besar | `huruf_besar("lumina")` ➔ `"LUMINA"` |
+| `huruf_besar(teks)` | Mengubah ke huruf besar | `huruf_besar("pakem")` ➔ `"LUMINA"` |
 | `huruf_kecil(teks)` | Mengubah ke huruf kecil | `huruf_kecil("RUST")` ➔ `"rust"` |
 | `potong(teks, batas)` | Memotong string panjang | `potong("artikel panjang", 7)` ➔ `"artikel..."` |
 | `cetak(...)` | Menampilkan log debug ke console | `cetak("Nilai kalkulasi:", subtotal)` |
@@ -85,13 +85,13 @@ Lumina menyediakan sejumlah fungsi bawaan yang siap pakai di dalam skrip `.is`:
 Anda dapat memanggil fungsi di dalam skrip `.is` secara ergonomis menggunakan method `req.state.script("path.is")`:
 
 ```rust
-use lumina::prelude::*;
+use pakem::prelude::*;
 use serde_json::json;
 
 pub async fn hitung_diskon_handler(
     req: Request,
     ValidatedJson(payload): ValidatedJson<KuponRequest>,
-) -> LuminaResult {
+) -> PakemResult {
     // Memanggil fungsi 'hitung_promo' dari skrip 'app/scripts/promo.is'
     let diskon = req.state.script("promo.is")
         .call("hitung_promo", vec![json!(payload.total), json!(payload.kode)])

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title | default(value="Dashboard — Lumina") }}</title>
+    <title>{{ title | default(value="Dashboard — Pakem") }}</title>
 
     <!-- Bootstrap 5 Fallback -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -66,7 +66,7 @@
             box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
         }
 
-        .lumina-logo-text {
+        .pakem-logo-text {
             font-weight: 800;
             font-size: 1.25rem;
             padding: 1.5rem;
@@ -88,8 +88,8 @@
 
     <!-- Sidebar -->
     <aside class="sidebar-premium">
-        <div class="lumina-logo-text">
-            <span style="color: #60a5fa;">⚡</span> Lumina
+        <div class="pakem-logo-text">
+            <span style="color: #60a5fa;">⚡</span> Pakem
         </div>
 
         <nav class="flex-grow-1 px-3 py-4">
@@ -100,7 +100,7 @@
                 Dashboard
             </a>
 
-            <a href="/lumina/telescope" class="nav-link-premium">
+            <a href="/pakem/telescope" class="nav-link-premium">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="me-3">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -140,7 +140,7 @@
     <main class="main-content">
         <!-- Top Header -->
         <header class="navbar navbar-light bg-white border-bottom px-4 shadow-sm" style="height: 64px;">
-            <h1 class="h5 mb-0 fw-bold text-dark">{{ title | default(value="Dashboard — Lumina") }}</h1>
+            <h1 class="h5 mb-0 fw-bold text-dark">{{ title | default(value="Dashboard — Pakem") }}</h1>
             <div class="d-flex align-items-center">
                 <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold me-2" style="width: 32px; height: 32px; font-size: 14px;">
                     {{ email | default(value="U") | truncate(length=1, end="") | upper }}

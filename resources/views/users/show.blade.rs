@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title')User Profile - Lumina Framework@endsection
+@section('title')User Profile - Pakem Framework@endsection
 
 @section('content')
 <div class="container py-5">

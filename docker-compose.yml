@@ -1,11 +1,11 @@
 services:
   app:
     build: .
-    container_name: lumina_app
+    container_name: pakem_app
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgres://lumina:secret@db:5432/lumina
+      - DATABASE_URL=postgres://pakem:secret@db:5432/pakem
       - REDIS_URL=redis://redis:6379
       - APP_ENV=production
     depends_on:
@@ -19,30 +19,30 @@ services:
 
   db:
     image: postgres:15-alpine
-    container_name: lumina_db
+    container_name: pakem_db
     environment:
-      - POSTGRES_USER=lumina
+      - POSTGRES_USER=pakem
       - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=lumina
+      - POSTGRES_DB=pakem
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lumina"]
+      test: ["CMD-SHELL", "pg_isready -U pakem"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: lumina_redis
+    container_name: pakem_redis
     ports:
       - "6379:6379"
 
   nginx:
     image: nginx:alpine
-    container_name: lumina_nginx
+    container_name: pakem_nginx
     ports:
       - "80:80"
       - "443:443"

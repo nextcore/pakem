@@ -5,12 +5,12 @@ use std::{fs, path::Path};
 
 /// Jalankan semua file migrasi dari direktori `database/migrations/`
 /// secara berurutan. Mendukung multi-database (SQLite, MySQL, Postgres).
-/// Menggunakan tabel tunggal terstandarisasi `_lumina_migrations`.
+/// Menggunakan tabel tunggal terstandarisasi `_pakem_migrations`.
 pub async fn run_migrations(pool: &Pool<Any>, kind: DatabaseKind) -> Result<(), sqlx::Error> {
-    // 1. Buat tabel tracker migrasi tunggal terpadu (_lumina_migrations) dengan syntax yang sesuai driver
+    // 1. Buat tabel tracker migrasi tunggal terpadu (_pakem_migrations) dengan syntax yang sesuai driver
     let create_table_sql = match kind {
         DatabaseKind::Sqlite => {
-            "CREATE TABLE IF NOT EXISTS _lumina_migrations (
+            "CREATE TABLE IF NOT EXISTS _pakem_migrations (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
                 migration_name  TEXT NOT NULL UNIQUE,
                 batch           INTEGER NOT NULL DEFAULT 1,
@@ -18,7 +18,7 @@ pub async fn run_migrations(pool: &Pool<Any>, kind: DatabaseKind) -> Result<(), 
             )"
         }
         DatabaseKind::MySql => {
-            "CREATE TABLE IF NOT EXISTS _lumina_migrations (
+            "CREATE TABLE IF NOT EXISTS _pakem_migrations (
                 id              INT AUTO_INCREMENT PRIMARY KEY,
                 migration_name  VARCHAR(255) NOT NULL UNIQUE,
                 batch           INT NOT NULL DEFAULT 1,
@@ -26,7 +26,7 @@ pub async fn run_migrations(pool: &Pool<Any>, kind: DatabaseKind) -> Result<(), 
             )"
         }
         DatabaseKind::Postgres => {
-            "CREATE TABLE IF NOT EXISTS _lumina_migrations (
+            "CREATE TABLE IF NOT EXISTS _pakem_migrations (
                 id              SERIAL PRIMARY KEY,
                 migration_name  VARCHAR(255) NOT NULL UNIQUE,
                 batch           INTEGER NOT NULL DEFAULT 1,
@@ -34,8 +34,8 @@ pub async fn run_migrations(pool: &Pool<Any>, kind: DatabaseKind) -> Result<(), 
             )"
         }
         DatabaseKind::Mssql => {
-            "IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='_lumina_migrations' AND xtype='U')
-            CREATE TABLE _lumina_migrations (
+            "IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='_pakem_migrations' AND xtype='U')
+            CREATE TABLE _pakem_migrations (
                 id              INT IDENTITY(1,1) PRIMARY KEY,
                 migration_name  NVARCHAR(255) NOT NULL UNIQUE,
                 batch           INT NOT NULL DEFAULT 1,
@@ -54,23 +54,33 @@ pub async fn run_migrations(pool: &Pool<Any>, kind: DatabaseKind) -> Result<(), 
     .await
     .unwrap_or_default();
 
-    // Ambil daftar migrasi yang sudah tercatat di _lumina_migrations
+    // Ambil daftar migrasi yang sudah tercatat di _pakem_migrations
     let mut applied_migrations: Vec<String> = sqlx::query_scalar::<_, String>(
-        "SELECT migration_name FROM _lumina_migrations"
+        "SELECT migration_name FROM _pakem_migrations"
     )
     .fetch_all(pool)
     .await
     .unwrap_or_default();
 
+    // Ambil riwayat lama dari _lumina_migrations jika ada
+    if let Ok(lumina_applied) = sqlx::query_scalar::<_, String>("SELECT migration_name FROM _lumina_migrations").fetch_all(pool).await {
+        for leg in &lumina_applied {
+            if !applied_migrations.contains(leg) {
+                let ins = if kind == DatabaseKind::Postgres { "INSERT INTO _pakem_migrations (migration_name, batch) VALUES ($1, 1)" } else if kind == DatabaseKind::Mssql { "INSERT INTO _pakem_migrations (migration_name, batch) VALUES (@p1, 1)" } else { "INSERT INTO _pakem_migrations (migration_name, batch) VALUES (?, 1)" };
+                let _ = sqlx::query(ins).bind(leg).execute(pool).await;
+                applied_migrations.push(leg.clone());
+            }
+        }
+    }
     // Migrasikan riwayat lama jika ada
     for leg in &legacy_applied {
         if !applied_migrations.contains(leg) {
             let ins_leg = if kind == DatabaseKind::Postgres {
-                "INSERT INTO _lumina_migrations (migration_name, batch) VALUES ($1, 1)"
+                "INSERT INTO _pakem_migrations (migration_name, batch) VALUES ($1, 1)"
             } else if kind == DatabaseKind::Mssql {
-                "INSERT INTO _lumina_migrations (migration_name, batch) VALUES (@p1, 1)"
+                "INSERT INTO _pakem_migrations (migration_name, batch) VALUES (@p1, 1)"
             } else {
-                "INSERT INTO _lumina_migrations (migration_name, batch) VALUES (?, 1)"
+                "INSERT INTO _pakem_migrations (migration_name, batch) VALUES (?, 1)"
             };
             let _ = sqlx::query(ins_leg).bind(leg).execute(pool).await;
             applied_migrations.push(leg.clone());
@@ -209,11 +219,11 @@ pub async fn run_migrations(pool: &Pool<Any>, kind: DatabaseKind) -> Result<(), 
         }
 
         let insert_sql = if kind == DatabaseKind::Postgres {
-            "INSERT INTO _lumina_migrations (migration_name, batch) VALUES ($1, 1)"
+            "INSERT INTO _pakem_migrations (migration_name, batch) VALUES ($1, 1)"
         } else if kind == DatabaseKind::Mssql {
-            "INSERT INTO _lumina_migrations (migration_name, batch) VALUES (@p1, 1)"
+            "INSERT INTO _pakem_migrations (migration_name, batch) VALUES (@p1, 1)"
         } else {
-            "INSERT INTO _lumina_migrations (migration_name, batch) VALUES (?, 1)"
+            "INSERT INTO _pakem_migrations (migration_name, batch) VALUES (?, 1)"
         };
         sqlx::query(insert_sql)
             .bind(&name)
@@ -228,13 +238,13 @@ pub async fn run_migrations(pool: &Pool<Any>, kind: DatabaseKind) -> Result<(), 
 
 pub async fn migrate_status(pool: &Pool<Any>) -> Result<(), sqlx::Error> {
     let applied_migrations: Vec<String> =
-        match sqlx::query_scalar::<_, String>("SELECT migration_name FROM _lumina_migrations ORDER BY id ASC")
+        match sqlx::query_scalar::<_, String>("SELECT migration_name FROM _pakem_migrations ORDER BY id ASC")
             .fetch_all(pool)
             .await
         {
             Ok(v) => v,
             Err(_) => {
-                println!("⚠️  Tabel _lumina_migrations tidak ditemukan atau belum diinisialisasi.");
+                println!("⚠️  Tabel _pakem_migrations tidak ditemukan atau belum diinisialisasi.");
                 return Ok(());
             }
         };
@@ -274,14 +284,14 @@ pub async fn migrate_status(pool: &Pool<Any>) -> Result<(), sqlx::Error> {
 
 pub async fn migrate_rollback(pool: &Pool<Any>) -> Result<(), sqlx::Error> {
     let last_migration: Option<String> = match sqlx::query_scalar::<_, String>(
-        "SELECT migration_name FROM _lumina_migrations ORDER BY id DESC LIMIT 1",
+        "SELECT migration_name FROM _pakem_migrations ORDER BY id DESC LIMIT 1",
     )
     .fetch_optional(pool)
     .await
     {
         Ok(v) => v,
         Err(_) => {
-            println!("⚠️  Tabel _lumina_migrations tidak ditemukan.");
+            println!("⚠️  Tabel _pakem_migrations tidak ditemukan.");
             return Ok(());
         }
     };
@@ -320,7 +330,7 @@ pub async fn migrate_rollback(pool: &Pool<Any>) -> Result<(), sqlx::Error> {
         println!("⚠️  Gagal mengekstrak nama tabel dari file migrasi.");
     }
 
-    sqlx::query("DELETE FROM _lumina_migrations WHERE migration_name = ?")
+    sqlx::query("DELETE FROM _pakem_migrations WHERE migration_name = ?")
         .bind(&name)
         .execute(pool)
         .await?;

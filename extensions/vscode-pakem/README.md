@@ -1,6 +1,6 @@
-# ✨ Lumina Framework Extension for VS Code & Antigravity IDE
+# ✨ Pakem Framework Extension for VS Code & Antigravity IDE
 
-Official developer tooling for **Lumina Framework** — bringing the elegant Developer Experience of Laravel to Rust!
+Official developer tooling for **Pakem Framework** — bringing the elegant Developer Experience of Laravel to Rust!
 
 ## 🚀 Fitur Utama
 
@@ -9,10 +9,10 @@ Di dalam file `.rs`:
 
 | Shortcut | Hasil Snippet | Deskripsi |
 | :--- | :--- | :--- |
-| `l-prelude` | `use crate::app::prelude::*;` | Import seluruh model, request, dan core Lumina dalam 1 baris |
-| `l-ctrl` | `ResourceController` | Template Controller lengkap dengan `req: Request` & `LuminaResult` |
-| `l-model` | `#[derive(LuminaModel)]` | Struct Model Eloquent Active Record lengkap |
-| `l-action` | `pub async fn name(req: Request) -> LuminaResult` | Handler tunggal ekspresif |
+| `l-prelude` | `use crate::app::prelude::*;` | Import seluruh model, request, dan core Pakem dalam 1 baris |
+| `l-ctrl` | `ResourceController` | Template Controller lengkap dengan `req: Request` & `PakemResult` |
+| `l-model` | `#[derive(PakemModel)]` | Struct Model Eloquent Active Record lengkap |
+| `l-action` | `pub async fn name(req: Request) -> PakemResult` | Handler tunggal ekspresif |
 | `l-paginate` | `let (page, per_page) = req.pagination();` | Paginasi otomatis |
 | `l-find` | `match Model::find(req.db(), id).await?` | Pencarian record dengan 404 otomatis |
 | `l-save` | `item.save(req.db()).await?;` | Active record INSERT/UPDATE |
@@ -34,18 +34,18 @@ Di dalam file `.rs`:
 ## 🛠️ Cara Pasang di VS Code / Antigravity IDE
 
 ### Opsi A: Pasang Langsung untuk Development Lokal (Instan)
-Salin folder `vscode-lumina` ke direktori ekstensi VS Code pengguna:
+Salin folder `vscode-pakem` ke direktori ekstensi VS Code pengguna:
 
 ```bash
 # Di PowerShell:
-Copy-Item -Recurse "d:\FRAMEWORK RUST\framework\extensions\vscode-lumina" "$HOME\.vscode\extensions\lumina-vscode"
+Copy-Item -Recurse "d:\FRAMEWORK RUST\framework\extensions\vscode-pakem" "$HOME\.vscode\extensions\pakem-vscode"
 ```
 Setelah disalin, restart atau reload jendela VS Code (`Ctrl+Shift+P` -> `Developer: Reload Window`). Ekstensi dan seluruh snippet langsung aktif!
 
 ### Opsi B: Package ke File `.vsix`
 Jika sudah menginstal `vsce` (`npm install -g @vscode/vsce`):
 ```bash
-cd extensions/vscode-lumina
+cd extensions/vscode-pakem
 vsce package
 ```
 Lalu instal file `.vsix` yang dihasilkan lewat menu Extensions -> `Install from VSIX...`.

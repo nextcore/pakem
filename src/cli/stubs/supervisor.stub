@@ -1,17 +1,17 @@
-[program:lumina]
-command=/app/lumina-server
+[program:pakem]
+command=/app/pakem-server
 directory=/app
 autostart=true
 autorestart=true
-stderr_logfile=/var/log/lumina.err.log
-stdout_logfile=/var/log/lumina.out.log
+stderr_logfile=/var/log/pakem.err.log
+stdout_logfile=/var/log/pakem.out.log
 environment=APP_ENV="production"
 
-[program:lumina-worker]
-command=/app/lumina queue:work
+[program:pakem-worker]
+command=/app/canting queue:work
 directory=/app
 autostart=true
 autorestart=true
-stderr_logfile=/var/log/lumina-worker.err.log
-stdout_logfile=/var/log/lumina-worker.out.log
+stderr_logfile=/var/log/pakem-worker.err.log
+stdout_logfile=/var/log/pakem-worker.out.log
 environment=APP_ENV="production"

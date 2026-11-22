@@ -14,7 +14,7 @@ macro_rules! dump {
 }
 
 /// Macro untuk Dump and Die (Mencetak variabel ke browser HTML dan menghentikan request).
-/// Ini bekerja dengan cara memicu Panic khusus yang akan ditangkap oleh Router Lumina
+/// Ini bekerja dengan cara memicu Panic khusus yang akan ditangkap oleh Router Pakem
 /// lalu di-render menjadi halaman HTML bergaya Dark Mode.
 #[macro_export]
 macro_rules! dd {
@@ -61,7 +61,7 @@ pub fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Lumina Dump & Die</title>
+                <title>Pakem Dump & Die</title>
                 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
                 <style>
                     :root {{
@@ -143,7 +143,7 @@ pub fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response {
                 <div class="container">
                     <header>
                         <div class="logo">
-                            <span>✨ Lumina</span>
+                            <span>✨ Pakem</span>
                             <span class="badge">Dump & Die</span>
                         </div>
                         <div class="location">{}</div>
@@ -152,7 +152,7 @@ pub fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response {
                         <pre>{}</pre>
                     </div>
                     <div class="footer">
-                        Rendered by Lumina Framework Debugger • {}
+                        Rendered by Pakem Framework Debugger • {}
                     </div>
                 </div>
             </body>
@@ -187,7 +187,7 @@ pub fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Lumina Exception Handler</title>
+            <title>Pakem Exception Handler</title>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
             <style>
                 :root {{
@@ -274,7 +274,7 @@ pub fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response {
             <div class="container">
                 <header>
                     <div class="logo">
-                        <span>💥 Lumina Exception</span>
+                        <span>💥 Pakem Exception</span>
                         <span class="badge">Unhandled Panic</span>
                     </div>
                     <div class="location">{}</div>
@@ -291,7 +291,7 @@ pub fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response {
                 </div>
 
                 <div class="footer">
-                    Rendered by Lumina Framework Debugger • {}
+                    Rendered by Pakem Framework Debugger • {}
                 </div>
             </div>
         </body>

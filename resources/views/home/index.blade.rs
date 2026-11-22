@@ -1,15 +1,15 @@
 @extends('layout')
 
-@section('title')Home - Lumina Framework@endsection
+@section('title')Home - Pakem Framework@endsection
 
 @section('content')
 <header class="hero text-center">
     <div class="container">
-        <img src="/images/logo.png" alt="Lumina Logo" style="width: 120px; height: 120px; margin-bottom: 20px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2)); border-radius: 20px;">
-        <h1 class="display-3 fw-bold mb-3">Selamat Datang di Lumina</h1>
+        <img src="/images/logo.png" alt="Pakem Logo" style="width: 120px; height: 120px; margin-bottom: 20px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2)); border-radius: 20px;">
+        <h1 class="display-3 fw-bold mb-3">Selamat Datang di Pakem</h1>
         <p class="lead mb-4">Framework web Rust yang indah, cepat, dan elegan.</p>
         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <a href="https://github.com/lumina-java/lumina" class="btn btn-light btn-lg px-4 gap-3">Documentation</a>
+            <a href="https://github.com/pakem-rs/pakem" class="btn btn-light btn-lg px-4 gap-3">Documentation</a>
             <a href="/api/users" class="btn btn-outline-light btn-lg px-4">Browse API</a>
         </div>
     </div>

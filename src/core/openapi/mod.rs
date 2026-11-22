@@ -127,7 +127,7 @@ impl OpenApiSpec {
             info: OpenApiInfo {
                 title: title.to_string(),
                 version: version.to_string(),
-                description: Some("Dokumentasi REST API Otomatis yang dihasilkan oleh Lumina Framework.".to_string()),
+                description: Some("Dokumentasi REST API Otomatis yang dihasilkan oleh Pakem Framework.".to_string()),
             },
             servers: vec![OpenApiServer {
                 url: "/".to_string(),
@@ -413,7 +413,7 @@ pub fn generate_swagger_ui_html(spec_url: &str, title: &str) -> String {
     </h1>
     <div class="lumina-links">
       <a href="{spec_url}" target="_blank">Raw JSON Spec</a>
-      <a href="https://lumina-java.github.io/docs/" target="_blank">Dokumentasi Lumina</a>
+      <a href="https://lumina-java.github.io/docs/" target="_blank">Dokumentasi Pakem</a>
     </div>
   </div>
   <div id="swagger-ui"></div>

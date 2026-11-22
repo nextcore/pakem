@@ -2,10 +2,10 @@
 pub fn device_bridge_script() -> &'static str {
     r#"
 /**
- * Lumina Device Bridge (WebUSB, WebSerial, WebHID, WebRTC)
+ * Pakem Device Bridge (WebUSB, WebSerial, WebHID, WebRTC)
  * Connects Linux Cloud Server to Client Hardware
  */
-window.LuminaDevice = {
+window.PakemDevice = {
     // ── Thermal Receipt Printer (WebUSB / WebSerial) ──
     printer: {
         device: null,
@@ -15,16 +15,16 @@ window.LuminaDevice = {
                 await this.device.open();
                 await this.device.selectConfiguration(1);
                 await this.device.claimInterface(0);
-                console.log("✅ [LuminaDevice] USB Printer connected:", this.device.productName);
+                console.log("✅ [PakemDevice] USB Printer connected:", this.device.productName);
                 return true;
             } catch (err) {
-                console.error("❌ [LuminaDevice] Failed to connect USB printer:", err);
+                console.error("❌ [PakemDevice] Failed to connect USB printer:", err);
                 return false;
             }
         },
         async printBase64(dataBase64) {
             if (!this.device) {
-                console.warn("⚠️ [LuminaDevice] Printer not connected. Requesting connection...");
+                console.warn("⚠️ [PakemDevice] Printer not connected. Requesting connection...");
                 const connected = await this.connectUsb();
                 if (!connected) return false;
             }
@@ -35,10 +35,10 @@ window.LuminaDevice = {
                     bytes[i] = binary.charCodeAt(i);
                 }
                 await this.device.transferOut(1, bytes);
-                console.log("✅ [LuminaDevice] Print completed successfully.");
+                console.log("✅ [PakemDevice] Print completed successfully.");
                 return true;
             } catch (err) {
-                console.error("❌ [LuminaDevice] Print failed:", err);
+                console.error("❌ [PakemDevice] Print failed:", err);
                 return false;
             }
         }
@@ -51,7 +51,7 @@ window.LuminaDevice = {
             try {
                 this.port = await navigator.serial.requestPort();
                 await this.port.open({ baudRate });
-                console.log("✅ [LuminaDevice] Serial Scanner connected.");
+                console.log("✅ [PakemDevice] Serial Scanner connected.");
 
                 const textDecoder = new TextDecoderStream();
                 this.port.readable.pipeTo(textDecoder.writable);
@@ -73,7 +73,7 @@ window.LuminaDevice = {
                     }
                 }
             } catch (err) {
-                console.error("❌ [LuminaDevice] Scanner error:", err);
+                console.error("❌ [PakemDevice] Scanner error:", err);
             }
         }
     },
@@ -95,8 +95,9 @@ window.LuminaDevice = {
                 console.error("Bridge dispatch error:", e);
             }
         };
-        console.log("🔗 [LuminaDevice] Hardware WebSocket Bridge connected:", wsUrl);
+        console.log("🔗 [PakemDevice] Hardware WebSocket Bridge connected:", wsUrl);
     }
 };
+window.LuminaDevice = window.PakemDevice;
 "#
 }

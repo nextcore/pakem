@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumina Telescope</title>
+    <title>Pakem Telescope</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center gap-2">
                     <span class="text-2xl">✨</span>
-                    <span class="text-xl font-bold tracking-tight text-white">Lumina <span class="text-sky-400">Telescope</span></span>
+                    <span class="text-xl font-bold tracking-tight text-white">Pakem <span class="text-sky-400">Telescope</span></span>
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded">v1.0.0</span>
@@ -41,16 +41,16 @@
             <!-- Sidebar / Tabs -->
             <aside class="w-full lg:w-64 flex-shrink-0">
                 <div class="space-y-1">
-                    <button hx-get="/lumina/telescope/entries?tag=requests" hx-target="#entries-container" class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors {% if active_tag == 'requests' %}bg-slate-800 text-sky-400 font-semibold{% else %}text-slate-400{% endif %}">
+                    <button hx-get="/pakem/telescope/entries?tag=requests" hx-target="#entries-container" class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors {% if active_tag == 'requests' %}bg-slate-800 text-sky-400 font-semibold{% else %}text-slate-400{% endif %}">
                         🚀 Requests
                     </button>
-                    <button hx-get="/lumina/telescope/entries?tag=events" hx-target="#entries-container" class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors {% if active_tag == 'events' %}bg-slate-800 text-sky-400 font-semibold{% else %}text-slate-400{% endif %}">
+                    <button hx-get="/pakem/telescope/entries?tag=events" hx-target="#entries-container" class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors {% if active_tag == 'events' %}bg-slate-800 text-sky-400 font-semibold{% else %}text-slate-400{% endif %}">
                         ⚡ Events
                     </button>
-                    <button hx-get="/lumina/telescope/entries?tag=jobs" hx-target="#entries-container" class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors {% if active_tag == 'jobs' %}bg-slate-800 text-sky-400 font-semibold{% else %}text-slate-400{% endif %}">
+                    <button hx-get="/pakem/telescope/entries?tag=jobs" hx-target="#entries-container" class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors {% if active_tag == 'jobs' %}bg-slate-800 text-sky-400 font-semibold{% else %}text-slate-400{% endif %}">
                         📦 Jobs
                     </button>
-                    <button hx-get="/lumina/telescope/entries?tag=logs" hx-target="#entries-container" class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors {% if active_tag == 'logs' %}bg-slate-800 text-sky-400 font-semibold{% else %}text-slate-400{% endif %}">
+                    <button hx-get="/pakem/telescope/entries?tag=logs" hx-target="#entries-container" class="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors {% if active_tag == 'logs' %}bg-slate-800 text-sky-400 font-semibold{% else %}text-slate-400{% endif %}">
                         📝 Logs
                     </button>
                 </div>
@@ -80,7 +80,7 @@
     </div>
 
     <footer class="mt-20 py-10 border-t border-slate-800 text-center text-slate-500 text-sm">
-        <p>Built with ❤️ by Antigravity for Lumina Framework</p>
+        <p>Built with ❤️ by Antigravity for Pakem Framework</p>
     </footer>
 </body>
 </html>

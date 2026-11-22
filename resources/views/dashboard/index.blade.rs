@@ -1,7 +1,7 @@
 @extends('dashboard_layout')
 
 @section('title')
-    Dashboard — Lumina Overview
+    Dashboard — Pakem Overview
 @endsection
 
 @section('content')
@@ -47,7 +47,7 @@
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
                     </div>
-                    <div class="fs-3 fw-bold text-dark">Lumina 0.1</div>
+                    <div class="fs-3 fw-bold text-dark">Pakem 0.1</div>
                     <div class="text-muted mt-2" style="font-size: 11px;">Rust Powered Framework</div>
                 </div>
             </div>
@@ -77,7 +77,7 @@
                 <div class="card-header bg-light border-bottom-0 d-flex justify-content-between align-items-center py-3 px-4">
                     <div>
                         <h5 class="mb-0 fw-bold text-dark">Eager Loading Demo</h5>
-                        <small class="text-muted">Solusi N+1 Query dalam ORM Lumina</small>
+                        <small class="text-muted">Solusi N+1 Query dalam ORM Pakem</small>
                     </div>
                     <span class="badge bg-primary px-3 py-2 shadow-sm" style="font-size: 10px; letter-spacing: 0.5px;">2 QUERIES TOTAL</span>
                 </div>
@@ -146,7 +146,7 @@
                     </div>
 
                     <div class="mt-4 p-3 rounded" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
-                        <small class="text-secondary" style="font-size: 10px;">Lumina menggunakan <strong>Secure JWT Cookies</strong> untuk otentikasi stateless yang aman dan cepat.</small>
+                        <small class="text-secondary" style="font-size: 10px;">Pakem menggunakan <strong>Secure JWT Cookies</strong> untuk otentikasi stateless yang aman dan cepat.</small>
                     </div>
                 </div>
             </div>

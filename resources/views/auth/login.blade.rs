@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title')Login - Lumina Framework@endsection
+@section('title')Login - Pakem Framework@endsection
 
 @section('content')
 <div class="row justify-content-center">

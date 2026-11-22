@@ -3,7 +3,7 @@ use axum::http::{header, Request, StatusCode};
 use pakem::core::application::Application;
 use pakem::core::auth::AuthUser;
 use pakem::core::router::Router;
-use pakem::core::session::store::LuminaSessionStore;
+use pakem::core::session::store::PakemSessionStore;
 use pakem::core::testing::TestApp;
 use pakem::http::auth::generate_token;
 use pakem::http::middleware::{
@@ -53,7 +53,7 @@ async fn tenant_guard(req: axum::extract::Request, next: Next) -> Response {
 // ─── Controller Handlers ───────────────────────────────────────────────────────
 
 async fn web_home() -> impl IntoResponse {
-    Html("<h1>Selamat Datang di Lumina Web</h1>")
+    Html("<h1>Selamat Datang di Pakem Web</h1>")
 }
 
 async fn api_ping() -> impl IntoResponse {
@@ -78,7 +78,7 @@ async fn vip_data() -> impl IntoResponse {
 async fn test_pipeline_and_global_middleware() {
     let test_app = TestApp::new().await;
     let state = test_app.state.clone();
-    let session_store = LuminaSessionStore::Memory(tower_sessions::MemoryStore::default());
+    let session_store = PakemSessionStore::Memory(tower_sessions::MemoryStore::default());
 
     let web = Router::new().get("/home", web_home);
     let api = Router::new().get("/ping", api_ping);
@@ -131,7 +131,7 @@ async fn test_pipeline_and_global_middleware() {
 async fn test_route_and_group_middleware() {
     let test_app = TestApp::new().await;
     let state = test_app.state.clone();
-    let session_store = LuminaSessionStore::Memory(tower_sessions::MemoryStore::default());
+    let session_store = PakemSessionStore::Memory(tower_sessions::MemoryStore::default());
 
     let api = Router::new()
         .get("/open", api_ping)
@@ -187,7 +187,7 @@ async fn test_route_and_group_middleware() {
 async fn test_jwt_with_signature_and_pairing_guards() {
     let test_app = TestApp::new().await;
     let state = test_app.state.clone();
-    let session_store = LuminaSessionStore::Memory(tower_sessions::MemoryStore::default());
+    let session_store = PakemSessionStore::Memory(tower_sessions::MemoryStore::default());
 
     // Generate valid test JWT
     let user = AuthUser::new(
@@ -334,7 +334,7 @@ async fn test_jwt_with_signature_and_pairing_guards() {
 async fn test_router_guard_and_middleware_fn_ergonomics() {
     async fn sample_guard(req: axum::extract::Request, next: Next) -> Response {
         let mut res = next.run(req).await;
-        res.headers_mut().insert("X-Guarded-By", "LuminaNativeGuard".parse().unwrap());
+        res.headers_mut().insert("X-Guarded-By", "PakemNativeGuard".parse().unwrap());
         res
     }
 
@@ -350,7 +350,7 @@ async fn test_router_guard_and_middleware_fn_ergonomics() {
     let req1 = Request::builder().uri("/direct-guard").method("GET").body(Body::empty()).unwrap();
     let res1 = r1.into_axum().oneshot(req1).await.unwrap();
     assert_eq!(res1.status(), StatusCode::OK);
-    assert_eq!(res1.headers().get("X-Guarded-By").unwrap(), "LuminaNativeGuard");
+    assert_eq!(res1.headers().get("X-Guarded-By").unwrap(), "PakemNativeGuard");
 
     // 2. Test .middleware_fn(sample_guard)
     let r2 = Router::new()
@@ -360,7 +360,7 @@ async fn test_router_guard_and_middleware_fn_ergonomics() {
     let req2 = Request::builder().uri("/middleware-fn").method("GET").body(Body::empty()).unwrap();
     let res2 = r2.into_axum().oneshot(req2).await.unwrap();
     assert_eq!(res2.status(), StatusCode::OK);
-    assert_eq!(res2.headers().get("X-Guarded-By").unwrap(), "LuminaNativeGuard");
+    assert_eq!(res2.headers().get("X-Guarded-By").unwrap(), "PakemNativeGuard");
 
     // 3. Test .middleware(from_fn(sample_guard)) with from_fn re-exported in prelude
     let r3 = Router::new()
@@ -370,6 +370,6 @@ async fn test_router_guard_and_middleware_fn_ergonomics() {
     let req3 = Request::builder().uri("/prelude-from-fn").method("GET").body(Body::empty()).unwrap();
     let res3 = r3.into_axum().oneshot(req3).await.unwrap();
     assert_eq!(res3.status(), StatusCode::OK);
-    assert_eq!(res3.headers().get("X-Guarded-By").unwrap(), "LuminaNativeGuard");
+    assert_eq!(res3.headers().get("X-Guarded-By").unwrap(), "PakemNativeGuard");
 }
 

@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('title')
-    About Lumina Framework
+    About Pakem Framework
 @endsection
 
 @section('content')
@@ -101,7 +101,7 @@
 <div class="container py-5">
     <div class="hero-section text-center mb-5">
         <div class="logo-container">
-            <img src="/images/logo.png" alt="Lumina Logo" class="logo-img">
+            <img src="/images/logo.png" alt="Pakem Logo" class="logo-img">
         </div>
         <h1 class="display-title">LUMINA</h1>
         <p class="lead text-slate-600 max-w-2xl mx-auto px-4">
@@ -120,7 +120,7 @@
                     <span>⚡</span>
                 </div>
                 <h5 class="fw-bold">Blazing Fast</h5>
-                <p class="text-muted mb-0">Powered by Axum and Tokio, Lumina delivers sub-millisecond response times under heavy load.</p>
+                <p class="text-muted mb-0">Powered by Axum and Tokio, Pakem delivers sub-millisecond response times under heavy load.</p>
             </div>
         </div>
         <div class="col-md-4">
@@ -129,7 +129,7 @@
                     <span>🛡️</span>
                 </div>
                 <h5 class="fw-bold">Memory Safe</h5>
-                <p class="text-muted mb-0">Lumina leverages Rust's ownership model to eliminate null pointers and data races entirely.</p>
+                <p class="text-muted mb-0">Pakem leverages Rust's ownership model to eliminate null pointers and data races entirely.</p>
             </div>
         </div>
         <div class="col-md-4">
@@ -168,7 +168,7 @@
             </div>
             <div class="col-lg-6 text-center">
                 <div class="p-4 bg-slate-900 rounded-4 text-start font-monospace small text-white shadow-lg">
-                    <div class="text-slate-500 mb-2">// Initializing Lumina App</div>
+                    <div class="text-slate-500 mb-2">// Initializing Pakem App</div>
                     <div><span class="text-purple-400">let</span> app = <span class="text-blue-400">Application::new</span>();</div>
                     <div>app.<span class="text-blue-400">serve</span>(<span class="text-green-400">"127.0.0.1:8000"</span>).<span class="text-purple-400">await</span>;</div>
                 </div>
@@ -180,7 +180,7 @@
         <a href="/" class="btn btn-primary btn-lg px-5 rounded-pill shadow-lg me-3">
             Get Started
         </a>
-        <a href="https://github.com/lumina-rust/lumina" class="btn btn-outline-dark btn-lg px-5 rounded-pill shadow-sm">
+        <a href="https://github.com/pakem-rust/pakem" class="btn btn-outline-dark btn-lg px-5 rounded-pill shadow-sm">
             <i class="bi bi-github me-2"></i>GitHub
         </a>
     </div>

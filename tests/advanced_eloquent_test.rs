@@ -7,7 +7,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel)]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel)]
 #[table("test_contacts")]
 pub struct TestContact {
     pub id: i64,
@@ -64,42 +64,42 @@ async fn test_auto_slug_generation_and_collision_resolution() {
     assert_eq!(slug, "tutorial-rust-menulis-code-ciamik-cepat-tahun-2026");
 
     // 2. Simpan entitas pertama
-    let s1 = AutoSlug::generate(&pool, "test_articles", "Belajar Lumina Framework", None)
+    let s1 = AutoSlug::generate(&pool, "test_articles", "Belajar Pakem Framework", None)
         .await
         .unwrap();
-    assert_eq!(s1, "belajar-lumina-framework");
+    assert_eq!(s1, "belajar-pakem-framework");
 
     sqlx::query("INSERT INTO test_articles (title, slug) VALUES (?, ?)")
-        .bind("Belajar Lumina Framework")
+        .bind("Belajar Pakem Framework")
         .bind(&s1)
         .execute(&pool.pool)
         .await
         .unwrap();
 
     // 3. Simpan entitas kedua dengan judul yang sama (Collision Resolution)
-    let s2 = AutoSlug::generate(&pool, "test_articles", "Belajar Lumina Framework", None)
+    let s2 = AutoSlug::generate(&pool, "test_articles", "Belajar Pakem Framework", None)
         .await
         .unwrap();
-    assert_eq!(s2, "belajar-lumina-framework-1");
+    assert_eq!(s2, "belajar-pakem-framework-1");
 
     sqlx::query("INSERT INTO test_articles (title, slug) VALUES (?, ?)")
-        .bind("Belajar Lumina Framework 2")
+        .bind("Belajar Pakem Framework 2")
         .bind(&s2)
         .execute(&pool.pool)
         .await
         .unwrap();
 
     // 4. Simpan entitas ketiga (benturan berikutnya)
-    let s3 = AutoSlug::generate(&pool, "test_articles", "Belajar Lumina Framework", None)
+    let s3 = AutoSlug::generate(&pool, "test_articles", "Belajar Pakem Framework", None)
         .await
         .unwrap();
-    assert_eq!(s3, "belajar-lumina-framework-2");
+    assert_eq!(s3, "belajar-pakem-framework-2");
 
     // 5. Update entitas 1 mengecualikan ID dirinya sendiri
-    let s_self = AutoSlug::generate(&pool, "test_articles", "Belajar Lumina Framework", Some(1))
+    let s_self = AutoSlug::generate(&pool, "test_articles", "Belajar Pakem Framework", Some(1))
         .await
         .unwrap();
-    assert_eq!(s_self, "belajar-lumina-framework");
+    assert_eq!(s_self, "belajar-pakem-framework");
 }
 
 #[tokio::test]
@@ -128,9 +128,9 @@ async fn test_audit_trail_logging_and_history() {
         .on("test_contacts", 42)
         .action("CREATE")
         .by_user(Some(1001))
-        .diff(json!({}), json!({ "name": "Budi Santoso", "email": "budi@lumina.dev" }))
+        .diff(json!({}), json!({ "name": "Budi Santoso", "email": "budi@pakem.my.id" }))
         .ip(Some("192.168.1.10"))
-        .user_agent(Some("Mozilla/5.0 LuminaClient"))
+        .user_agent(Some("Mozilla/5.0 PakemClient"))
         .save()
         .await
         .unwrap();
@@ -173,7 +173,7 @@ impl Seeder for DummyContactSeeder {
         for i in 1..=5 {
             sqlx::query("INSERT INTO test_contacts (name, email) VALUES (?, ?)")
                 .bind(format!("User {}", i))
-                .bind(format!("user{}@lumina.dev", i))
+                .bind(format!("user{}@pakem.my.id", i))
                 .execute(&db.pool)
                 .await?;
         }
@@ -216,7 +216,7 @@ async fn test_query_builder_chunk_and_update_or_create() {
     for i in 1..=7 {
         sqlx::query("INSERT INTO test_contacts (name, email) VALUES (?, ?)")
             .bind(format!("Kontak {}", i))
-            .bind(format!("kontak{}@lumina.dev", i))
+            .bind(format!("kontak{}@pakem.my.id", i))
             .execute(&pool.pool)
             .await
             .unwrap();
@@ -248,17 +248,17 @@ async fn test_query_builder_chunk_and_update_or_create() {
 
     // 2. Uji .update_or_create (Kondisi belum ada -> INSERT)
     let created = TestContact::query(&pool)
-        .where_eq("email", "baru@lumina.dev")
-        .update_or_create([("name", "Kontak Baru"), ("email", "baru@lumina.dev")])
+        .where_eq("email", "baru@pakem.my.id")
+        .update_or_create([("name", "Kontak Baru"), ("email", "baru@pakem.my.id")])
         .await
         .unwrap();
 
     assert_eq!(created.name, "Kontak Baru");
-    assert_eq!(created.email, "baru@lumina.dev");
+    assert_eq!(created.email, "baru@pakem.my.id");
 
     // 3. Uji .update_or_create (Kondisi sudah ada -> UPDATE)
     let updated = TestContact::query(&pool)
-        .where_eq("email", "baru@lumina.dev")
+        .where_eq("email", "baru@pakem.my.id")
         .update_or_create([("name", "Kontak Baru (Terupdate)")])
         .await
         .unwrap();

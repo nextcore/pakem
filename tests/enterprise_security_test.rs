@@ -264,17 +264,17 @@ fn test_lumina_aurora_views_rendering() {
     let mut ctx = BladeContext::new();
     ctx.insert("user", &json!({
         "name": "Budi Pratama",
-        "email": "budi@lumina-framework.org",
+        "email": "budi@pakem.my.id",
         "role": "admin",
         "permissions": ["users.manage"]
     }));
     ctx.insert("total_users", &42);
-    ctx.insert("old_email", &"budi@lumina-framework.org");
+    ctx.insert("old_email", &"budi@pakem.my.id");
     ctx.insert("old_name", &"Budi Pratama");
 
     let login_html = engine.render("aurora/auth/login.blade.rs", &ctx);
     assert!(login_html.contains("Selamat Datang"));
-    assert!(login_html.contains("Lumina"));
+    assert!(login_html.contains("Pakem"));
     assert!(login_html.contains("name=\"csrf_token\""));
 
     let register_html = engine.render("aurora/auth/register.blade.rs", &ctx);

@@ -1,6 +1,6 @@
 # 📘 Modul 12: Deployment & DevOps
 
-Lumina dirancang agar sangat mudah dideploy ke lingkungan produksi (VPS, Docker, Cloud Container) dengan ukuran biner tunggal yang sangat kecil, konsumsi memori minimal (< 30 MB RAM), dan tanpa ketergantungan runtime eksternal.
+Pakem dirancang agar sangat mudah dideploy ke lingkungan produksi (VPS, Docker, Cloud Container) dengan ukuran biner tunggal yang sangat kecil, konsumsi memori minimal (< 30 MB RAM), dan tanpa ketergantungan runtime eksternal.
 
 ---
 
@@ -26,16 +26,16 @@ strip = true          # Otomatis menghapus debug symbols
 
 ---
 
-## 2. Docker & Containerization (`lumina make:docker`)
+## 2. Docker & Containerization (`canting make:docker`)
 
-Lumina menyediakan generator konfigurasi Dockerfile multi-stage production-ready:
+Pakem menyediakan generator konfigurasi Dockerfile multi-stage production-ready:
 
 ```bash
-lumina make:docker
+canting make:docker
 ```
 Perintah ini akan membuat:
 - `Dockerfile`: Multi-stage build menggunakan image Rust builder dan image Alpine/Debian slim untuk runtime akhir (ukuran container akhir biasanya hanya ~25-45 MB).
-- `docker-compose.yml`: Sudah menyertakan konfigurasi container aplikasi Lumina dan database (PostgreSQL / MySQL).
+- `docker-compose.yml`: Sudah menyertakan konfigurasi container aplikasi Pakem dan database (PostgreSQL / MySQL).
 
 ### Menjalankan Container:
 ```bash
@@ -44,12 +44,12 @@ docker compose up -d --build
 
 ---
 
-## 3. Reverse Proxy Nginx (`lumina make:nginx`)
+## 3. Reverse Proxy Nginx (`canting make:nginx`)
 
 Generate konfigurasi reverse proxy Nginx yang sudah dilengkapi dengan proxy header dan dukungan WebSocket:
 
 ```bash
-lumina make:nginx
+canting make:nginx
 ```
 File akan dibuat di `deploy/nginx.conf`:
 
@@ -65,7 +65,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        # Dukungan WebSocket Lumina Echo
+        # Dukungan WebSocket Pakem Echo
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -82,35 +82,35 @@ server {
 
 ---
 
-## 4. Process Manager Supervisor (`lumina make:supervisor`)
+## 4. Process Manager Supervisor (`canting make:supervisor`)
 
 Pastikan aplikasi web dan worker background job selalu berjalan dan restart otomatis jika terjadi kegagalan sistem:
 
 ```bash
-lumina make:supervisor
+canting make:supervisor
 ```
 File akan dibuat di `deploy/supervisor.conf`:
 
 ```ini
-[program:lumina-app]
+[program:pakem-app]
 command=/var/www/my-app/target/release/my-app-server
 directory=/var/www/my-app
 autostart=true
 autorestart=true
 user=www-data
 redirect_stderr=true
-stdout_logfile=/var/log/lumina-app.log
+stdout_logfile=/var/log/pakem-app.log
 environment=APP_ENV="production"
 ```
 
 ---
 
-## 5. Backup Database & Storage (`lumina backup:run`)
+## 5. Backup Database & Storage (`canting backup:run`)
 
-Lumina dilengkapi dengan toolchain backup mandiri:
+Pakem dilengkapi dengan toolchain backup mandiri:
 
 ```bash
-lumina backup:run
+pakem backup:run
 ```
 Perintah ini akan membuat snapshot cadangan database SQL dan arsip file dari `storage/app/public/` ke dalam folder `storage/backups/<timestamp>_backup.zip`.
 

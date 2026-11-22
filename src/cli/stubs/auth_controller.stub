@@ -1,14 +1,14 @@
 use axum::response::IntoResponse;
-use lumina::core::response::Redirect;
-use lumina::core::view::View;
+use pakem::core::response::Redirect;
+use pakem::core::view::View;
 use serde_json::json;
-use lumina::core::auth::Auth;
+use pakem::core::auth::Auth;
 use crate::app::models::user::User;
-use lumina::core::validation::ValidatedForm;
-use lumina::core::request::Request;
-use lumina::lumina_form;
+use pakem::core::validation::ValidatedForm;
+use pakem::core::request::Request;
+use pakem::pakem_form;
 
-#[lumina_form]
+#[pakem_form]
 pub struct RegisterForm {
     #[rule("required|min:3")]
     pub name: String,
@@ -23,7 +23,7 @@ pub struct RegisterForm {
     pub csrf_token: String,
 }
 
-#[lumina_form]
+#[pakem_form]
 pub struct LoginForm {
     #[rule("required|email")]
     pub email: String,
@@ -82,7 +82,7 @@ impl AuthController {
         }
 
         // 3. Proses Simpan
-        let hashed_password = lumina::core::auth::hash::make(&form.password);
+        let hashed_password = pakem::core::auth::hash::make(&form.password);
         
         let result = sqlx::query("INSERT INTO users (name, email, password, role, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
             .bind(&form.name).bind(&form.email).bind(&hashed_password).bind("user")

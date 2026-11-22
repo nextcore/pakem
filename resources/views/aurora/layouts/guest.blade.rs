@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Lumina Aurora — Auth')</title>
+    <title>@yield('title', 'Pakem Aurora — Auth')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +22,7 @@
                 </svg>
             </div>
             <div>
-                <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Lumina</span>
+                <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Pakem</span>
                 <span class="text-xs uppercase tracking-widest px-1.5 py-0.5 rounded-md font-semibold bg-indigo-500/20 text-indigo-300 ml-1 border border-indigo-500/30">Aurora</span>
             </div>
         </a>
@@ -60,7 +60,7 @@
 
     <!-- Footer -->
     <footer class="py-6 text-center text-xs text-slate-500">
-        &copy; 2026 Lumina Framework. Dilindungi oleh Lumina Enterprise Security & Zero-Panic Boundary.
+        &copy; 2026 Pakem Framework. Dilindungi oleh Pakem Enterprise Security & Zero-Panic Boundary.
     </footer>
 </body>
 </html>

@@ -407,7 +407,7 @@ impl BladeContext {
 /// conditional directives, integrasi Indonesian Script, serta Filter & Ekstensi WASM Sandbox.
 pub struct BladeEngine {
     pub templates: HashMap<String, String>,
-    pub plugin_manager: Arc<crate::core::sandbox::LuminaPluginManager>,
+    pub plugin_manager: Arc<crate::core::sandbox::PakemPluginManager>,
     pub wasm_filters: HashMap<String, (String, String)>,
 }
 
@@ -506,7 +506,7 @@ impl BladeEngine {
     pub fn empty() -> Self {
         Self {
             templates: HashMap::new(),
-            plugin_manager: Arc::new(crate::core::sandbox::LuminaPluginManager::new()),
+            plugin_manager: Arc::new(crate::core::sandbox::PakemPluginManager::new()),
             wasm_filters: HashMap::new(),
         }
     }
@@ -520,7 +520,7 @@ impl BladeEngine {
     }
 
     /// Pasang plugin_manager kustom/global (misal dari AppState)
-    pub fn with_plugin_manager(mut self, manager: Arc<crate::core::sandbox::LuminaPluginManager>) -> Self {
+    pub fn with_plugin_manager(mut self, manager: Arc<crate::core::sandbox::PakemPluginManager>) -> Self {
         self.plugin_manager = manager;
         self
     }
@@ -734,7 +734,7 @@ impl BladeEngine {
             }
         }).to_string();
 
-        // 13. Ekstensi Custom Directives (didukung oleh lumina-live atau plugin pihak ketiga - zero regex compilation)
+        // 13. Ekstensi Custom Directives (didukung oleh pakem-live atau plugin pihak ketiga - zero regex compilation)
         if s.contains('@') {
             if let Some(lock) = GLOBAL_DIRECTIVES.get() {
                 let directives = lock.read().unwrap();
@@ -1722,11 +1722,11 @@ mod tests {
         engine.templates.insert("home.blade.rs".to_string(), "@extends('layouts.app')\n@section('title', 'Halaman Utama')\n@section('content')<h1>Halo {{ $name }}</h1>@endsection".to_string());
 
         let mut ctx = BladeContext::new();
-        ctx.insert("name", "Lumina Pure Blade");
+        ctx.insert("name", "Pakem Pure Blade");
 
         let html = engine.render("home", &ctx);
         assert!(html.contains("<title>Halaman Utama</title>"));
-        assert!(html.contains("<h1>Halo Lumina Pure Blade</h1>"));
+        assert!(html.contains("<h1>Halo Pakem Pure Blade</h1>"));
     }
 
     #[test]
@@ -1913,13 +1913,13 @@ mod tests {
 
         let mut ctx = BladeContext::new();
         ctx.insert("harga", 150000);
-        ctx.insert("judul", "Lumina Web Framework Rust!");
+        ctx.insert("judul", "Pakem Web Framework Rust!");
         ctx.insert("deskripsi", "Ini adalah deskripsi yang sangat panjang sekali");
 
         let html = engine.render_string(tmpl, &ctx);
         assert!(html.contains("<p>Harga: Rp 150.000</p>"));
-        assert!(html.contains("<p>Slug: lumina-web-framework-rust</p>"));
-        assert!(html.contains("<p>Rantai: LUMINA-WEB-FRAMEWORK-RUST</p>"));
+        assert!(html.contains("<p>Slug: pakem-web-framework-rust</p>"));
+        assert!(html.contains("<p>Rantai: PAKEM-WEB-FRAMEWORK-RUST</p>"));
         assert!(html.contains("<p>Potong: Ini adalah...</p>"));
     }
 
@@ -2007,10 +2007,10 @@ mod tests {
 
         let tmpl = r#"<div>Hasil: @wasm('text_tool', 'kapital', $nama)</div>"#;
         let mut ctx = BladeContext::new();
-        ctx.insert("nama", "lumina hybrid");
+        ctx.insert("nama", "canting hybrid");
 
         let html = engine.render_string(tmpl, &ctx);
-        assert!(html.contains("<div>Hasil: LUMINA HYBRID</div>"));
+        assert!(html.contains("<div>Hasil: CANTING HYBRID</div>"));
     }
 
     #[test]

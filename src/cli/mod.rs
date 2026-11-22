@@ -119,7 +119,7 @@ use pakem::prelude::*;
 use serde::{{Deserialize, Serialize}};
 use serde_json::Value;
 
-/// Komponen Reaktif Lumina Live: {name}
+/// Komponen Reaktif Pakem Live: {name}
 /// Mendukung Tri-Dialect: `kilat:*` (Indonesia), `live:*` (Universal), `wire:*` (Laravel Legacy).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct {name} {{
@@ -162,7 +162,7 @@ impl LiveComponent for {name} {{
 r#"<div class="p-6 bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md mx-auto my-6 text-center">
     <div class="mb-4">
         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-            ⚡ Lumina Live ({name})
+            ⚡ Pakem Live ({name})
         </span>
     </div>
 
@@ -198,7 +198,7 @@ r#"<div class="p-6 bg-white rounded-2xl shadow-xl border border-slate-100 max-w-
             }
         }
     } else {
-        let _ = fs::write(mod_file, format!("// Lumina Live Components Registry\n{}", mod_line));
+        let _ = fs::write(mod_file, format!("// Pakem Live Components Registry\n{}", mod_line));
     }
 
     println!("✅ Live Component berhasil dibuat: {}", comp_path_str);
@@ -1023,7 +1023,7 @@ pub async fn handle_make_nginx() {
 pub async fn handle_make_supervisor() {
     let supervisor_dir = "supervisor";
     let _ = fs::create_dir_all(supervisor_dir);
-    let supervisor_conf_path = format!("{}/lumina.conf", supervisor_dir);
+    let supervisor_conf_path = format!("{}/pakem.conf", supervisor_dir);
 
     let content = include_str!("stubs/supervisor.stub");
     let _ = fs::write(&supervisor_conf_path, content);
@@ -1039,9 +1039,9 @@ async fn handle_make_deployment_guide() {
     let guide_path = "docs/DEPLOYMENT.md";
     let _ = fs::create_dir_all("docs");
 
-    let content = r#"# 🚀 Lumina Framework Deployment Guide
+    let content = r#"# 🚀 Pakem Framework Deployment Guide
 
-Panduan ini menjelaskan langkah-langkah untuk mendeploy aplikasi Lumina Framework ke lingkungan produksi dengan standar industri.
+Panduan ini menjelaskan langkah-langkah untuk mendeploy aplikasi Pakem Framework ke lingkungan produksi dengan standar industri.
 
 ---
 
@@ -1053,7 +1053,7 @@ Lumina dilengkapi dengan konfigurasi Docker yang siap pakai (production-ready).
 1. Pastikan Docker dan Docker Compose terinstall di server.
 2. Jalankan perintah scaffolding docker:
    ```bash
-   ./lumina make:docker
+   ./canting make:docker
    ```
 
 ### Menjalankan Aplikasi
@@ -1087,7 +1087,7 @@ sudo apt update && sudo apt install -y pkg-config libssl-dev build-essential pos
 2. Update `DATABASE_URL` dan `APP_ENV=production`.
 3. Jalankan migrasi:
    ```bash
-   ./target/release/lumina migrate
+   ./target/release/canting migrate
    ```
 
 ---
@@ -1096,7 +1096,7 @@ sudo apt update && sudo apt install -y pkg-config libssl-dev build-essential pos
 
 Gunakan Nginx untuk menangani traffic HTTP/HTTPS dan static files.
 
-1. Jalankan `./lumina make:nginx`.
+1. Jalankan `./canting make:nginx`.
 2. Salin isi `nginx/nginx.conf` ke `/etc/nginx/sites-available/lumina`.
 3. Aktifkan site dan restart Nginx:
    ```bash
@@ -1111,10 +1111,10 @@ Gunakan Nginx untuk menangani traffic HTTP/HTTPS dan static files.
 
 Gunakan Supervisor untuk memastikan aplikasi tetap berjalan (auto-restart) jika terjadi crash.
 
-1. Jalankan `./lumina make:supervisor`.
+1. Jalankan `./canting make:supervisor`.
 2. Salin konfigurasi ke folder Supervisor:
    ```bash
-   sudo cp supervisor/lumina.conf /etc/supervisor/conf.d/
+   sudo cp supervisor/pakem.conf /etc/supervisor/conf.d/
    sudo supervisorctl reread
    sudo supervisorctl update
    sudo supervisorctl start all
@@ -1131,7 +1131,7 @@ Gunakan Supervisor untuk memastikan aplikasi tetap berjalan (auto-restart) jika 
 
 ---
 
-Lumina Framework - *Advanced Agentic Coding*
+Pakem Framework - *Advanced Agentic Coding*
 "#;
 
     let _ = fs::write(guide_path, content);
@@ -1429,11 +1429,11 @@ pub extern "C" fn transform(ptr: i32, len: i32) -> i64 {{
     let readme = format!(
         r#"# Lumina WASM Plugin: {}
 
-Plugin WebAssembly untuk Lumina Framework.
+Plugin WebAssembly untuk Pakem Framework.
 
 ## Cara Kompilasi:
 ```bash
-lumina plugin:build {}
+canting plugin:build {}
 ```
 Binary output `.wasm` akan otomatis disalin ke `plugins/{}.wasm`.
 
@@ -1449,7 +1449,7 @@ Binary output `.wasm` akan otomatis disalin ke `plugins/{}.wasm`.
 
     println!("✨ Plugin WASM '{}' berhasil dibuat di folder plugins/{}/", clean_name, clean_name);
     println!("👉 Kompilasi dengan perintah:");
-    println!("   lumina plugin:build {}\n", clean_name);
+    println!("   canting plugin:build {}\n", clean_name);
 }
 
 pub async fn handle_plugin_build(name: Option<&str>) {
@@ -1475,7 +1475,7 @@ pub async fn handle_plugin_build(name: Option<&str>) {
 
     if plugins_to_build.is_empty() {
         println!("⚠️ Tidak ditemukan plugin crate untuk dikompilasi.");
-        println!("💡 Buat plugin baru dengan: lumina plugin:new <nama>");
+        println!("💡 Buat plugin baru dengan: canting plugin:new <nama>");
         return;
     }
 
@@ -1576,7 +1576,7 @@ pub async fn handle_plugin_list() {
                 let status = if wasm_exists {
                     "Terkonfigurasi & Terkompilasi".to_string()
                 } else {
-                    "Belum di-build (perlu lumina plugin:build)".to_string()
+                    "Belum di-build (perlu canting plugin:build)".to_string()
                 };
                 items.push(Item {
                     name: format!("{}/ (Crate)", folder_name),
@@ -1612,7 +1612,7 @@ pub async fn handle_plugin_list() {
 
     if items.is_empty() {
         println!("ℹ️  Tidak ditemukan plugin WASM atau skrip Indonesian Script.");
-        println!("💡 Buat plugin baru dengan: lumina plugin:new <nama>");
+        println!("💡 Buat plugin baru dengan: canting plugin:new <nama>");
         println!("💡 Buat skrip .is di folder app/scripts/<nama>.is\n");
         return;
     }

@@ -23,15 +23,15 @@ pub fn init_desktop_config_at(base: &Path, title: Option<&str>, width: u32, heig
             }
             None
         })
-        .unwrap_or_else(|| "Lumina Desktop".to_string());
+        .unwrap_or_else(|| "Pakem Desktop".to_string());
 
     let win_title = title.unwrap_or(&app_name);
 
-    println!("{}", format!("🖥️  Initializing Lumina Desktop Engine for [{}]...", win_title).bright_purple().bold());
+    println!("{}", format!("🖥️  Initializing Pakem Desktop Engine for [{}]...", win_title).bright_purple().bold());
 
     // 1. Generate desktop.toml
     let desktop_toml = format!(
-        r#"# Lumina Desktop Application Configuration
+        r#"# Pakem Desktop Application Configuration
 [app]
 name = "{app_name}"
 title = "{win_title}"
@@ -67,7 +67,7 @@ embedded_database = true
     fs::create_dir_all(&bin_dir).ok();
 
     let desktop_rs = format!(
-        r#"//! Lumina Desktop Application Entrypoint
+        r#"//! Pakem Desktop Application Entrypoint
 //! Runs internal Axum web server and opens a high-performance native WebView window.
 
 use std::net::TcpListener;
@@ -81,7 +81,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {{
     drop(listener);
 
     let target_url = format!("http://127.0.0.1:{{}}", port);
-    println!("🚀 [Lumina Desktop] Starting internal server on {{}}", target_url);
+    println!("🚀 [Pakem Desktop] Starting internal server on {{}}", target_url);
 
     // 2. Spawn Lumina server in background Tokio thread
     tokio::spawn(async move {{
@@ -94,7 +94,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {{
     }});
 
     // 3. Launch native system WebView or browser window
-    println!("🖥️  [Lumina Desktop] Opening native window: {{}}", target_url);
+    println!("🖥️  [Pakem Desktop] Opening native window: {{}}", target_url);
     #[cfg(target_os = "windows")]
     {{
         std::process::Command::new("cmd")
@@ -114,9 +114,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {{
             .spawn()?;
     }}
 
-    println!("✨ [Lumina Desktop] App running. Press Ctrl+C in this terminal to exit.");
+    println!("✨ [Pakem Desktop] App running. Press Ctrl+C in this terminal to exit.");
     tokio::signal::ctrl_c().await?;
-    println!("🛑 [Lumina Desktop] Shutting down.");
+    println!("🛑 [Pakem Desktop] Shutting down.");
     Ok(())
 }}
 "#,
@@ -128,8 +128,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {{
     println!("  {} {}", "✅".green(), format!("Generated {}", desktop_bin_path.display()).bright_green());
 
     println!("\n  ✨ Desktop mode initialized successfully!");
-    println!("  💡 Run your desktop app with: {}", "lumina desktop:run".bright_cyan());
-    println!("  💡 Compile standalone release with: {}", "lumina desktop:build".bright_cyan());
+    println!("  💡 Run your desktop app with: {}", "canting desktop:run".bright_cyan());
+    println!("  💡 Compile standalone release with: {}", "canting desktop:build".bright_cyan());
 }
 
 pub fn run_desktop(port: u16) {
@@ -143,7 +143,7 @@ pub fn run_desktop(port: u16) {
         init_desktop_config(None, 1200, 800);
     }
 
-    println!("{}", "🖥️  Starting Lumina Desktop Window...".bright_purple().bold());
+    println!("{}", "🖥️  Starting Pakem Desktop Window...".bright_purple().bold());
     let args = vec!["run", "--bin", "desktop"];
     if port > 0 {
         std::env::set_var("PORT", port.to_string());
@@ -166,7 +166,7 @@ pub fn build_desktop(release: bool) {
         init_desktop_config(None, 1200, 800);
     }
 
-    println!("{}", "📦 Compiling Standalone Lumina Desktop Executable...".bright_purple().bold());
+    println!("{}", "📦 Compiling Standalone Pakem Desktop Executable...".bright_purple().bold());
 
     let mut args = vec!["build", "--bin", "desktop"];
     if release {
@@ -215,7 +215,7 @@ mod tests {
         let bin_file = temp_dir.join("src/bin/desktop.rs");
         assert!(bin_file.exists());
         let bin_content = fs::read_to_string(bin_file).unwrap();
-        assert!(bin_content.contains("Lumina Desktop"));
+        assert!(bin_content.contains("Pakem Desktop"));
         assert!(bin_content.contains("kasir_pos"));
 
         let _ = fs::remove_dir_all(temp_dir);

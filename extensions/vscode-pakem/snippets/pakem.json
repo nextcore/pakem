@@ -1,45 +1,45 @@
 {
-  "Lumina If": {
+  "Pakem If": {
     "prefix": "@if",
     "body": [
       "@if(${1:condition})",
       "\t$0",
       "@endif"
     ],
-    "description": "Lumina If directive"
+    "description": "Pakem If directive"
   },
-  "Lumina Foreach": {
+  "Pakem Foreach": {
     "prefix": "@foreach",
     "body": [
       "@foreach(${1:items} as ${2:item})",
       "\t$0",
       "@endforeach"
     ],
-    "description": "Lumina Foreach directive"
+    "description": "Pakem Foreach directive"
   },
-  "Lumina Extends": {
+  "Pakem Extends": {
     "prefix": "@extends",
     "body": "@extends('${1:layout}')",
-    "description": "Lumina Extends layout"
+    "description": "Pakem Extends layout"
   },
-  "Lumina Section": {
+  "Pakem Section": {
     "prefix": "@section",
     "body": [
       "@section('${1:content}')",
       "\t$0",
       "@endsection"
     ],
-    "description": "Lumina Section block"
+    "description": "Pakem Section block"
   },
-  "Lumina Yield": {
+  "Pakem Yield": {
     "prefix": "@yield",
     "body": "@yield('${1:content}')",
-    "description": "Lumina Yield content"
+    "description": "Pakem Yield content"
   },
-  "Lumina CSRF": {
+  "Pakem CSRF": {
     "prefix": "@csrf",
     "body": "@csrf",
-    "description": "Lumina CSRF hidden input"
+    "description": "Pakem CSRF hidden input"
   },
   "Tera Print": {
     "prefix": "{{",

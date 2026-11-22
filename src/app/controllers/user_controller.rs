@@ -12,9 +12,9 @@ impl UserController {
 
         // Data dummy untuk demo template loop
         let users = vec![
-            json!({"id": 1, "name": "Slamet Sugandi", "email": "slamet@lumina.rs"}),
-            json!({"id": 2, "name": "Alice Rust", "email": "alice@lumina.rs"}),
-            json!({"id": 3, "name": "Bob Axum", "email": "bob@lumina.rs"}),
+            json!({"id": 1, "name": "Slamet Sugandi", "email": "slamet@pakem.rs"}),
+            json!({"id": 2, "name": "Alice Rust", "email": "alice@pakem.rs"}),
+            json!({"id": 3, "name": "Bob Axum", "email": "bob@pakem.rs"}),
         ];
 
         context.insert("users", &users);
@@ -28,10 +28,10 @@ impl UserController {
         let mut context = Context::new();
 
         let (name, email) = match id {
-            1 => ("Slamet Sugandi", "slamet@lumina.rs"),
-            2 => ("Alice Rust", "alice@lumina.rs"),
-            3 => ("Bob Axum", "bob@lumina.rs"),
-            _ => ("Unknown", "unknown@lumina.rs"),
+            1 => ("Slamet Sugandi", "slamet@pakem.rs"),
+            2 => ("Alice Rust", "alice@pakem.rs"),
+            3 => ("Bob Axum", "bob@pakem.rs"),
+            _ => ("Unknown", "unknown@pakem.rs"),
         };
 
         context.insert("id", &id);
@@ -73,8 +73,8 @@ impl UserController {
         use std::sync::Arc;
 
         let event = UserRegistered {
-            name: "Lumina User".to_string(),
-            email: "test@lumina.rs".to_string(),
+            name: "Pakem User".to_string(),
+            email: "test@pakem.rs".to_string(),
         };
 
         // Dispatch event secara asinkron
@@ -91,7 +91,7 @@ impl UserController {
         req: crate::core::request::Request,
     ) -> impl IntoResponse {
         crate::core::view::View::make("test_i18n")
-            .with("name", "Lumina Developer")
+            .with("name", "Pakem Developer")
             .render(&req)
             .await
     }

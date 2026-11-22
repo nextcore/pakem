@@ -1,17 +1,17 @@
-# ⚡ Lumina Live (`lumina-live`)
+# ⚡ Pakem Live (`pakem-live`)
 
 > **"Look like Laravel, Run at Rust Speed."**  
-> *Server-Driven Reactive Fullstack UI for Lumina Framework — Tulis Logika di Rust, Render di Blade, Nikmati Interaktivitas Setara SPA Tanpa Menulis JavaScript.*
+> *Server-Driven Reactive Fullstack UI for Pakem Framework — Tulis Logika di Rust, Render di Blade, Nikmati Interaktivitas Setara SPA Tanpa Menulis JavaScript.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-2021%20edition-orange.svg)](https://www.rust-lang.org)
-[![Lumina Framework](https://img.shields.io/badge/ecosystem-Lumina%20Framework-blue.svg)](https://github.com/lumina-java/framework)
+[![Pakem Framework](https://img.shields.io/badge/ecosystem-Pakem%20Framework-blue.svg)](https://github.com/pakem-rs/framework)
 
 ---
 
-## 🌟 Mengapa Lumina Live?
+## 🌟 Mengapa Pakem Live?
 
-Terinspirasi dari keindahan **Laravel Livewire 3** dan kecepatan **Phoenix LiveView**, `lumina-live` menghadirkan paradigma *Server-Driven Reactive UI* di atas performa mentah **Rust + Tokio + Axum**:
+Terinspirasi dari keindahan **Laravel Livewire 3** dan kecepatan **Phoenix LiveView**, `pakem-live` menghadirkan paradigma *Server-Driven Reactive UI* di atas performa mentah **Rust + Tokio + Axum**:
 
 - 🚀 **Sub-Milidetik Latency**: Komunikasi real-time melalui WebSocket Streaming murni (< 1 ms latency) dengan fallback otomatis ke HTTP Micro-RPC.
 - 🇮🇩 **Tri-Dialect Directives**: Bebas menggunakan dialek Indonesia (`kilat:*`), Universal (`live:*`), atau sintaks legasi (`wire:*`).
@@ -22,12 +22,12 @@ Terinspirasi dari keindahan **Laravel Livewire 3** dan kecepatan **Phoenix LiveV
 
 ## 📦 Instalasi
 
-Tambahkan `lumina-live` ke dalam berkas `Cargo.toml` proyek Lumina Anda:
+Tambahkan `pakem-live` ke dalam berkas `Cargo.toml` proyek Pakem Anda:
 
 ```toml
 [dependencies]
-lumina = { package = "lumina-framework", version = "0.4.0", git = "https://github.com/lumina-java/framework" }
-lumina-live = { git = "https://github.com/lumina-java/lumina-live" }
+pakem = { package = "pakem-framework", version = "0.4.0", git = "https://github.com/pakem-rs/framework" }
+pakem-live = { git = "https://github.com/pakem-rs/pakem-live" }
 ```
 
 ---
@@ -35,11 +35,11 @@ lumina-live = { git = "https://github.com/lumina-java/lumina-live" }
 ## 🚀 Panduan Cepat (Quickstart)
 
 ### 1. Aktifkan di `src/main.rs`
-Gunakan trait ekstensi `LiveApplicationExt` bawaan `lumina_live::prelude::*`:
+Gunakan trait ekstensi `LiveApplicationExt` bawaan `pakem_live::prelude::*`:
 
 ```rust
-use lumina::prelude::*;
-use lumina_live::prelude::*;
+use pakem::prelude::*;
+use pakem_live::prelude::*;
 
 #[tokio::main]
 async fn main() {
@@ -56,8 +56,8 @@ async fn main() {
 
 ```rust
 use async_trait::async_trait;
-use lumina::core::error::AppError;
-use lumina_live::prelude::*;
+use pakem::core::error::AppError;
+use pakem_live::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -129,7 +129,7 @@ impl LiveComponent for Counter {
     @kilat('counter', ['count' => 10, 'step' => 2])
 @endsection
 
-<!-- Menyematkan runtime lumina-live.js -->
+<!-- Menyematkan runtime pakem-live.js -->
 @kilatScripts
 ```
 
@@ -166,6 +166,6 @@ Kami sangat menyambut kontribusi dari komunitas Rust dan Web Developer!
 
 ## 📜 Lisensi
 
-Lumina Live dirilis di bawah lisensi [MIT License](LICENSE).  
-Dikembangkan dengan ❤️ oleh tim [Lumina Framework](https://github.com/lumina-java/framework).
+Pakem Live dirilis di bawah lisensi [MIT License](LICENSE).  
+Dikembangkan dengan ❤️ oleh tim [Pakem Framework](https://github.com/pakem-rs/framework).
 

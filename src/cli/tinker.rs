@@ -8,7 +8,7 @@ pub async fn run(pool: &DatabasePool) -> Result<(), Box<dyn std::error::Error>> 
     let _ = rl.load_history(".lumina_tinker_history");
 
     println!("--------------------------------------------------");
-    println!("   Lumina Tinker — Interactive Console");
+    println!("   Canting Tinker — Interactive Console");
     println!("--------------------------------------------------");
     println!("Type 'help' for available commands.");
     println!("Type 'exit' or 'quit' to close the session.");

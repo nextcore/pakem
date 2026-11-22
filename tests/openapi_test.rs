@@ -31,10 +31,10 @@ async fn test_openapi_spec_generation_and_metadata() {
                 .deprecated()
         });
 
-    let spec = router.openapi_spec("Lumina Core API", "1.0.0");
+    let spec = router.openapi_spec("Pakem Core API", "1.0.0");
 
     assert_eq!(spec.openapi, "3.0.3");
-    assert_eq!(spec.info.title, "Lumina Core API");
+    assert_eq!(spec.info.title, "Pakem Core API");
     assert_eq!(spec.info.version, "1.0.0");
 
     // Path /api/v1/users
@@ -62,19 +62,19 @@ async fn test_openapi_spec_generation_and_metadata() {
     assert_eq!(get_admin.deprecated, Some(true));
 
     // Test JSON Serialization
-    let json = router.openapi_json("Lumina Core API", "1.0.0");
-    assert!(json.contains("Lumina Core API"));
+    let json = router.openapi_json("Pakem Core API", "1.0.0");
+    assert!(json.contains("Pakem Core API"));
     assert!(json.contains("/api/v1/users"));
     assert!(json.contains("3.0.3"));
 
     // Test YAML Serialization
-    let yaml = router.openapi_yaml("Lumina Core API", "1.0.0");
+    let yaml = router.openapi_yaml("Pakem Core API", "1.0.0");
     assert!(yaml.contains("openapi: 3.0.3"));
-    assert!(yaml.contains("Lumina Core API"));
+    assert!(yaml.contains("Pakem Core API"));
 
     // Test Postman Collection Export
-    let postman = spec.to_postman_collection("Lumina Postman");
-    assert_eq!(postman["info"]["name"], "Lumina Postman");
+    let postman = spec.to_postman_collection("Pakem Postman");
+    assert_eq!(postman["info"]["name"], "Pakem Postman");
     let items = postman["item"].as_array().expect("Expected postman item array");
     assert!(items.len() >= 4);
 }
@@ -88,7 +88,7 @@ async fn test_swagger_ui_and_openapi_endpoints() {
         .get("/api/health", dummy_get)
         .summary("Health Check")
         .tag("System")
-        .swagger_ui("/docs", "Lumina Test API", "1.0.0");
+        .swagger_ui("/docs", "Pakem Test API", "1.0.0");
 
     app.router = custom_router.into_axum();
 
@@ -96,13 +96,13 @@ async fn test_swagger_ui_and_openapi_endpoints() {
     let res_ui = app.get("/docs/swagger").await;
     res_ui
         .assert_ok()
-        .assert_see("Lumina Test API — Swagger UI")
+        .assert_see("Pakem Test API — Swagger UI")
         .assert_see("swagger-ui-dist")
         .assert_see("/docs/openapi.json");
 
     // 2. Uji endpoint UI root /docs
     let res_root = app.get("/docs").await;
-    res_root.assert_ok().assert_see("Lumina Test API");
+    res_root.assert_ok().assert_see("Pakem Test API");
 
     // 3. Uji endpoint JSON spec /docs/openapi.json
     let res_json = app.get("/docs/openapi.json").await;
@@ -110,6 +110,6 @@ async fn test_swagger_ui_and_openapi_endpoints() {
         .assert_ok()
         .assert_header("content-type", "application/json")
         .assert_json_path("openapi", "3.0.3")
-        .assert_json_path("info.title", "Lumina Test API")
+        .assert_json_path("info.title", "Pakem Test API")
         .assert_json_has("paths./api/health");
 }

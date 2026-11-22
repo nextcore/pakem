@@ -1,24 +1,24 @@
 # 📘 Modul 06: WASM Sandbox & Plugin
 
-Lumina memperkenalkan arsitektur **WASM Native Hybrid** menggunakan engine WebAssembly `wasmi 2.0`. Fitur ini memungkinkan pengembang menambahkan plugin pihak ketiga atau filter kustom yang berjalan dalam lingkungan terisolasi (*sandboxed*), aman dari *memory-leak* atau *panic/crash* pada server utama.
+Pakem memperkenalkan arsitektur **WASM Native Hybrid** menggunakan engine WebAssembly `wasmi 2.0`. Fitur ini memungkinkan pengembang menambahkan plugin pihak ketiga atau filter kustom yang berjalan dalam lingkungan terisolasi (*sandboxed*), aman dari *memory-leak* atau *panic/crash* pada server utama.
 
 ---
 
 ## 1. Arsitektur Isolasi (Fault Isolation)
 
 Setiap plugin WASM dieksekusi di dalam ruang memori virtual terpisah:
-- **Zero Host Crash**: Jika plugin mengalami *panic* atau pembagian nol, engine menangkapnya sebagai `SandboxError::Trap` dan mengembalikan pesan error tanpa menghentikan aplikasi web Lumina.
+- **Zero Host Crash**: Jika plugin mengalami *panic* atau pembagian nol, engine menangkapnya sebagai `SandboxError::Trap` dan mengembalikan pesan error tanpa menghentikan aplikasi web Pakem.
 - **Hot-Reloading**: File `.wasm` baru yang diletakkan di folder `plugins/` dapat langsung dideteksi tanpa perlu mengompilasi ulang aplikasi Rust utama.
 - **Resource Guard**: Plugin tidak memiliki akses langsung ke filesystem atau socket jaringan host kecuali diizinkan secara eksplisit melalui Host State API.
 
 ---
 
-## 2. Membuat Plugin Baru (`lumina plugin:new`)
+## 2. Membuat Plugin Baru (`canting plugin:new`)
 
-Gunakan CLI Lumina untuk membuat starter crate plugin WebAssembly:
+Gunakan CLI Pakem untuk membuat starter crate plugin WebAssembly:
 
 ```bash
-lumina plugin:new sensor_kata
+canting plugin:new sensor_kata
 ```
 
 Perintah ini akan membuat struktur direktori di `plugins/sensor_kata/`:
@@ -26,7 +26,7 @@ Perintah ini akan membuat struktur direktori di `plugins/sensor_kata/`:
 plugins/sensor_kata/
 ├── Cargo.toml          # crate-type = ["cdylib"], target wasm32
 ├── src/
-│   └── lib.rs          # Template implementasi ABI Lumina
+│   └── lib.rs          # Template implementasi ABI Pakem
 └── README.md           # Panduan penggunaan
 ```
 
@@ -39,7 +39,7 @@ File `src/lib.rs` yang digenerate telah menyertakan fungsi manajemen memori `all
 ```rust
 use std::mem;
 
-/// Alokasikan buffer memori di heap guest untuk menerima input string dari host Lumina.
+/// Alokasikan buffer memori di heap guest untuk menerima input string dari host Pakem.
 #[no_mangle]
 pub extern "C" fn alloc(len: i32) -> i32 {
     let mut buf = Vec::with_capacity(len as usize);
@@ -80,16 +80,16 @@ pub extern "C" fn transform(ptr: i32, len: i32) -> i64 {
 
 ---
 
-## 4. Kompilasi Plugin (`lumina plugin:build`)
+## 4. Kompilasi Plugin (`canting plugin:build`)
 
 Kompilasikan sub-crate plugin ke biner WebAssembly berekstensi `.wasm`:
 
 ```bash
 # Kompilasi plugin tertentu
-lumina plugin:build sensor_kata
+canting plugin:build sensor_kata
 
 # Atau kompilasi seluruh plugin di folder plugins/ sekaligus
-lumina plugin:build
+canting plugin:build
 ```
 
 Alur kerja otomatis:
@@ -99,12 +99,12 @@ Alur kerja otomatis:
 
 ---
 
-## 5. Melihat Daftar Plugin Aktif (`lumina plugin:list`)
+## 5. Melihat Daftar Plugin Aktif (`canting plugin:list`)
 
 Periksa semua plugin dan skrip yang tersedia di proyek Anda:
 
 ```bash
-lumina plugin:list
+canting plugin:list
 ```
 Output:
 ```text

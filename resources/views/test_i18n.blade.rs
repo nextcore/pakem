@@ -5,7 +5,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-10 shadow-2xl">
         <div class="flex items-center gap-4 mb-8">
             <span class="text-4xl">🌐</span>
-            <h1 class="text-3xl font-bold">Lumina Localization Test</h1>
+            <h1 class="text-3xl font-bold">Pakem Localization Test</h1>
         </div>
 
         <div class="space-y-8">

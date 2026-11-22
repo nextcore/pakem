@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Error — Lumina Framework</title>
+    <title>Database Error — Pakem Framework</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
@@ -353,7 +353,7 @@
         <!-- Heading -->
         <h1>Whoops! <span>Something went wrong.</span></h1>
         <p class="subtitle">
-            Server Lumina tetap berjalan, namun koneksi ke database gagal.
+            Server Pakem tetap berjalan, namun koneksi ke database gagal.
             Semua fitur yang membutuhkan database sementara tidak tersedia.
         </p>
 
@@ -375,7 +375,7 @@
             </li>
             <li>
                 <span class="num">3</span>
-                <span>Jika menggunakan MySQL, buat database terlebih dahulu: <code>CREATE DATABASE db_lumina;</code></span>
+                <span>Jika menggunakan MySQL, buat database terlebih dahulu: <code>CREATE DATABASE db_pakem;</code></span>
             </li>
             <li>
                 <span class="num">4</span>
@@ -383,7 +383,7 @@
             </li>
             <li>
                 <span class="num">5</span>
-                <span>Setelah memperbaiki konfigurasi, restart server dengan <code>./lumina serve</code>.</span>
+                <span>Setelah memperbaiki konfigurasi, restart server dengan <code>./canting serve</code>.</span>
             </li>
         </ul>
 
@@ -395,7 +395,7 @@
                 </svg>
                 Coba Lagi
             </button>
-            <a class="btn btn-secondary" href="https://lumina-framework.dev/docs/database" target="_blank" rel="noopener">
+            <a class="btn btn-secondary" href="https://pakem-framework.dev/docs/database" target="_blank" rel="noopener">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.966 8.966 0 0 0-6 2.292m0-14.25v14.25"/>
                 </svg>
@@ -405,7 +405,7 @@
 
         <!-- Footer -->
         <div class="footer-note">
-            <span class="brand">✨ <strong>Lumina Framework</strong> — Built with Rust 🦀</span>
+            <span class="brand">✨ <strong>Pakem Framework</strong> — Built with Rust 🦀</span>
             <span class="status-pill">
                 <span class="dot"></span>
                 HTTP Server Active · DB Offline

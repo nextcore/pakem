@@ -73,12 +73,12 @@ fn mask_credentials(url: &str) -> String {
     url.to_string()
 }
 
-/// Memastikan tabel tracking migrasi (_lumina_migrations) tersedia
+/// Memastikan tabel tracking migrasi (_pakem_migrations) tersedia
 pub async fn ensure_migrations_table(pool: &AnyPool, driver: &str) -> Result<(), String> {
     let ddl = match driver {
         "postgresql" => {
             r#"
-            CREATE TABLE IF NOT EXISTS _lumina_migrations (
+            CREATE TABLE IF NOT EXISTS _pakem_migrations (
                 id SERIAL PRIMARY KEY,
                 migration_name VARCHAR(255) UNIQUE NOT NULL,
                 batch INTEGER NOT NULL DEFAULT 1,
@@ -88,7 +88,7 @@ pub async fn ensure_migrations_table(pool: &AnyPool, driver: &str) -> Result<(),
         }
         "mysql" => {
             r#"
-            CREATE TABLE IF NOT EXISTS _lumina_migrations (
+            CREATE TABLE IF NOT EXISTS _pakem_migrations (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 migration_name VARCHAR(255) UNIQUE NOT NULL,
                 batch INT NOT NULL DEFAULT 1,
@@ -98,7 +98,7 @@ pub async fn ensure_migrations_table(pool: &AnyPool, driver: &str) -> Result<(),
         }
         _ => {
             r#"
-            CREATE TABLE IF NOT EXISTS _lumina_migrations (
+            CREATE TABLE IF NOT EXISTS _pakem_migrations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 migration_name TEXT UNIQUE NOT NULL,
                 batch INTEGER NOT NULL DEFAULT 1,
@@ -119,8 +119,8 @@ pub async fn ensure_migrations_table(pool: &AnyPool, driver: &str) -> Result<(),
 pub async fn get_applied_migrations(pool: &AnyPool) -> Result<Vec<(String, i32, String)>, String> {
     let mut results = Vec::new();
 
-    // 1. Baca dari _lumina_migrations
-    let rows = sqlx::query("SELECT migration_name, batch, CAST(applied_at AS TEXT) as applied_at FROM _lumina_migrations ORDER BY id ASC")
+    // 1. Baca dari _pakem_migrations
+    let rows = sqlx::query("SELECT migration_name, batch, CAST(applied_at AS TEXT) as applied_at FROM _pakem_migrations ORDER BY id ASC")
         .fetch_all(pool)
         .await;
 
@@ -133,7 +133,16 @@ pub async fn get_applied_migrations(pool: &AnyPool) -> Result<Vec<(String, i32, 
         }
     }
 
-    // 2. Cek kompatibilitas balik dengan _app_migrations jika ada
+    // 2. Cek kompatibilitas balik dengan _lumina_migrations jika ada
+    if let Ok(lumina_rows) = sqlx::query("SELECT migration_name, batch, CAST(applied_at AS TEXT) as applied_at FROM _lumina_migrations ORDER BY id ASC").fetch_all(pool).await {
+        for row in lumina_rows {
+            let name: String = row.try_get("migration_name").unwrap_or_default();
+            if !results.iter().any(|(n, _, _)| n == &name) {
+                results.push((name, row.try_get("batch").unwrap_or(1), row.try_get("applied_at").unwrap_or_default()));
+            }
+        }
+    }
+    // 3. Cek kompatibilitas balik dengan _app_migrations jika ada
     let legacy_rows = sqlx::query("SELECT migration_name, CAST(applied_at AS TEXT) as applied_at FROM _app_migrations ORDER BY id ASC")
         .fetch_all(pool)
         .await;
@@ -151,9 +160,9 @@ pub async fn get_applied_migrations(pool: &AnyPool) -> Result<Vec<(String, i32, 
     Ok(results)
 }
 
-/// Eksekusi Perintah: lumina migrate
+/// Eksekusi Perintah: canting migrate
 pub async fn run_migrate_async() {
-    println!("{}", "🗄  LUMINA DATABASE MIGRATION ENGINE".bright_purple().bold());
+    println!("{}", "🗄  PAKEM DATABASE MIGRATION ENGINE".bright_purple().bold());
     println!("─────────────────────────────────────────────────────────────────");
 
     let (url, driver) = match resolve_database_url() {
@@ -240,11 +249,11 @@ pub async fn run_migrate_async() {
             return;
         }
 
-        // Catat ke _lumina_migrations
+        // Catat ke _pakem_migrations
         let insert_query = if driver == "postgresql" {
-            "INSERT INTO _lumina_migrations (migration_name, batch) VALUES ($1, $2)"
+            "INSERT INTO _pakem_migrations (migration_name, batch) VALUES ($1, $2)"
         } else {
-            "INSERT INTO _lumina_migrations (migration_name, batch) VALUES (?, ?)"
+            "INSERT INTO _pakem_migrations (migration_name, batch) VALUES (?, ?)"
         };
         if let Err(e) = sqlx::query(insert_query)
             .bind(&file_name)
@@ -281,7 +290,7 @@ pub async fn run_migrate_async() {
     }
 }
 
-/// Eksekusi Perintah: lumina migrate:rollback
+/// Eksekusi Perintah: canting migrate:rollback
 pub async fn run_rollback_async() {
     println!("{}", "🔄  LUMINA DATABASE ROLLBACK ENGINE".bright_purple().bold());
     println!("─────────────────────────────────────────────────────────────────");
@@ -336,11 +345,11 @@ pub async fn run_rollback_async() {
             }
         }
 
-        // Hapus dari _lumina_migrations
+        // Hapus dari _pakem_migrations
         let del_query = if driver == "postgresql" {
-            "DELETE FROM _lumina_migrations WHERE migration_name = $1"
+            "DELETE FROM _pakem_migrations WHERE migration_name = $1"
         } else {
-            "DELETE FROM _lumina_migrations WHERE migration_name = ?"
+            "DELETE FROM _pakem_migrations WHERE migration_name = ?"
         };
         let _ = sqlx::query(del_query).bind(&file_name).execute(&mut *tx).await;
 
@@ -352,9 +361,9 @@ pub async fn run_rollback_async() {
     println!("🎯 Rollback Batch #{} selesai.", max_batch);
 }
 
-/// Eksekusi Perintah: lumina migrate:status
+/// Eksekusi Perintah: canting migrate:status
 pub async fn run_status_async() {
-    println!("{}", "📊  LUMINA DATABASE MIGRATION STATUS".bright_purple().bold());
+    println!("{}", "📊  PAKEM DATABASE MIGRATION STATUS".bright_purple().bold());
     println!("─────────────────────────────────────────────────────────────────");
 
     let (url, _) = match resolve_database_url() {
@@ -422,7 +431,7 @@ pub async fn run_status_async() {
     println!("─────────────────────────────────────────────────────────────────");
 }
 
-/// Eksekusi Perintah: lumina db:seed [--class <Name>]
+/// Eksekusi Perintah: canting db:seed [--class <Name>]
 pub async fn run_seed_async(class_name: Option<&str>) {
     println!("{}", "🌱  LUMINA DATABASE SEEDER ENGINE".bright_purple().bold());
     println!("─────────────────────────────────────────────────────────────────");
@@ -521,7 +530,7 @@ pub async fn run_seed_async(class_name: Option<&str>) {
     println!("🎯 Sukses: {} berkas seeder berhasil dieksekusi.", count.to_string().bright_green().bold());
 }
 
-/// Eksekusi Perintah: lumina queue:work
+/// Eksekusi Perintah: canting queue:work
 pub async fn run_queue_worker_async(queue_name: &str) {
     println!("{}", "⚡  LUMINA PERSISTENT QUEUE WORKER".bright_purple().bold());
     println!("─────────────────────────────────────────────────────────────────");
