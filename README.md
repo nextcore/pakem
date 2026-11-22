@@ -18,6 +18,10 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-amber.svg" alt="License"></a>
 </p>
 
+<p align="center">
+  <img src="resources/images/demo-polyglot-clone.gif" alt="Pakem Polyglot System Cloner Demo" width="880">
+</p>
+
 ---
 
 ## 🌟 Mengapa Pakem?
@@ -30,9 +34,15 @@ Rust terkenal dengan kecepatan ekstrem dan keamanannya, namun sering kali memili
 
 ## 🚀 Fitur Utama
 
+- 🔄 **Polyglot System Cloning Suite (`canting clone:*`)** — Kloning dan migrasikan aplikasi warisan (*legacy*) ke Pakem Framework dalam sekejap tanpa memulai dari nol:
+  - `canting clone:laravel <path>` — Konversi otomatis Eloquent Model, Routes web/api, template Blade, dan Controller Laravel ke Rust.
+  - `canting clone:ci <path>` — Modernisasi instan aplikasi CodeIgniter 3 & 4 ke arsitektur MVC Pakem.
+  - `canting clone:api <spec>` — Scaffolding otomatis Rust Models & Axum handlers dari OpenAPI / Swagger JSON/YAML.
+  - `canting clone:db <dsn>` — Reverse engineering skema database live (PostgreSQL, MySQL, SQLite, MSSQL) menjadi Model Pakem lengkap dengan relasi `has_many` dan `belongs_to`.
+- 🔐 **Tri-Layer Legacy Auth & Sandi A-N Hybrid** — Transisi login mulus dengan auto-rehash bertahap dari hash lawas (Laravel Bcrypt, CI3 SHA1, MD5) ke Argon2id berkeamanan tinggi dengan Layer-0 Sandi A-N Cucuk Canting Interleaving.
 - 🎨 **Pakem Aurora Starter Kit (`canting aurora:install`)** — Official starter kit autentikasi & dashboard elegan berbasis Pure Native Blade + Tailwind CSS. Zero JS runtime bloat, respons instan < 0.5ms dengan performa murni 60 FPS.
 - 🛡️ **Enterprise Security & Zero-Panic Net** — Proteksi crash global via `catch_unwind`, granular RBAC (`@can`, `@role`, `req.authorize()`), Anti Brute-Force lockout cache (Moka), constant-time comparison, header keamanan OWASP, dan Audit Trail ISO 27001.
-- 📖 **Portal Dokumentasi Resmi & Benchmark** — Tersedia 16 modul dokumentasi interaktif dengan perbandingan performa terukur (Throughput 118.000+ RPS, latensi sub-milidetik, konsumsi RAM ~15-38MB) di [https://pakem.my.id/](https://pakem.my.id/).
+- 📖 **Portal Dokumentasi Resmi & Benchmark** — Tersedia 25 modul dokumentasi komprehensif dengan perbandingan performa terukur (Throughput 118.000+ RPS, latensi sub-milidetik, konsumsi RAM ~15-38MB) di [https://pakem.my.id/](https://pakem.my.id/).
 - ⚡ **Supercharged Tokio + Axum Core** — Performa HTTP async tinggi dengan konsumsi resource yang sangat hemat.
 - 🏗️ **Arsitektur MVC Lengkap** — Pembagian layer yang rapi: Controllers, Models, Services, Requests, Views, dan Providers.
 - 🗄️ **Human ORM & Macro-based Models** — Gunakan `#[derive(PakemModel)]` untuk mendapatkan fungsi CRUD otomatis, pagination (`LengthAwarePaginator`), eager loading, soft deletes, dan query builder lancar (*fluent*).
