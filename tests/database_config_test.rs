@@ -66,3 +66,21 @@ fn test_explicit_database_url_priority() {
     let url = config.get_db_url();
     assert_eq!(url, "postgres://custom_user:pass@remote:5432/db");
 }
+
+#[test]
+fn test_invalid_database_url_fallback() {
+    let mut config = ConfigManager::new();
+    config.set("DB_CONNECTION", "mysql");
+    config.set("DB_HOST", "127.0.0.1");
+    config.set("DB_PORT", "3306");
+    config.set("DB_DATABASE", "toko");
+    config.set("DB_USERNAME", "root");
+    config.set("DB_PASSWORD", "secret");
+
+    // Jika user salah ketik DATABASE_URL=mysql (tanpa scheme ://)
+    config.set("DATABASE_URL", "mysql");
+
+    let url = config.get_db_url();
+    // Harus otomatis fallback merakit URL dari DB_*
+    assert_eq!(url, "mysql://root:secret@127.0.0.1:3306/toko");
+}

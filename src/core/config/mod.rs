@@ -55,10 +55,15 @@ impl ConfigManager {
     }
     /// Membangun DATABASE_URL dari variabel DB_* ala Laravel atau mengambil langsung dari DATABASE_URL.
     pub fn get_db_url(&self) -> String {
-        // 1. Jika DATABASE_URL sudah ada di .env secara eksplisit dan tidak kosong, gunakan itu (prioritas).
+        // 1. Jika DATABASE_URL sudah ada di .env secara eksplisit dan valid (memiliki skema), gunakan itu (prioritas).
         if let Some(url) = self.get("DATABASE_URL") {
             let trimmed = url.trim();
-            if !trimmed.is_empty() {
+            if !trimmed.is_empty()
+                && (trimmed.contains("://")
+                    || trimmed.starts_with("sqlite:")
+                    || trimmed.starts_with("jdbc:")
+                    || trimmed.to_ascii_lowercase().starts_with("server="))
+            {
                 return trimmed.to_string();
             }
         }

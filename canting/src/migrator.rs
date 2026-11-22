@@ -13,7 +13,12 @@ pub fn resolve_database_url() -> Result<(String, String), String> {
 
     if let Ok(url) = std::env::var("DATABASE_URL") {
         let trimmed = url.trim();
-        if !trimmed.is_empty() {
+        if !trimmed.is_empty()
+            && (trimmed.contains("://")
+                || trimmed.starts_with("sqlite:")
+                || trimmed.starts_with("jdbc:")
+                || trimmed.to_ascii_lowercase().starts_with("server="))
+        {
             let driver = if trimmed.starts_with("postgres") || trimmed.starts_with("postgresql") {
                 "postgresql".to_string()
             } else if trimmed.starts_with("mysql") {
