@@ -28,6 +28,10 @@ sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio",
 rustyline = "14"
 pakem = { path = "..", package = "pakem", version = "1.0.0" }
 
+[lib]
+name = "canting"
+path = "src/lib.rs"
+
 [[bin]]
 name = "canting"
 path = "src/main.rs"

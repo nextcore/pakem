@@ -22,7 +22,13 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
   - `pakem-framework v1.0.0`: Crate companion / alias re-export.
   - `canting v1.0.0`: Official Artisan-like CLI Toolchain binary (`cargo install canting`).
   - `pakem_macros v1.0.1`: Procedural macro derivation `#[derive(PakemModel)]` dan `#[pakem_form]` yang langsung terhubung ke namespace `::pakem::database::model::Model` (dengan backward-compatible alias `LuminaModel`).
-- **Pembaruan Canting CLI Scaffolding**:
+- **Pembaruan Canting CLI Scaffolding & Reverse Engineering**:
+  - **Fitur Baru `canting clone:db` (Database Reverse Engineering)**:
+    - Menganalisis skema fisik database aktif (SQLite, PostgreSQL, MySQL/MariaDB).
+    - Menghasilkan Model Rust lengkap dengan derive `#[derive(PakemModel)]`, kolom bertipe kuat, dan penanganan `Option<T>`.
+    - **Smart Relation Inference**: Otomatis mendeteksi relasi Foreign Key menjadi `has_many!`, `belongs_to!`, serta tabel pivot junction menjadi `belongs_to_many!`.
+    - Otomatis membangkitkan file migrasi SQLx, model factories, dan RESTful API CRUD controllers.
+    - Opsi `--dry-run` untuk pratinjau kode tanpa menulis ke disk.
   - Perintah `canting new <nama>` otomatis mengkloning starter kit `pakem-rs/pakem` atau membuat skeleton offline mandiri yang siap produksi.
   - Terminal REPL Interaktif `canting tinker` dengan prompt `pakem >` dan persistent command history `.pakem_tinker_history`.
   - Generator controller, model, migrasi, dan authentication kini menggunakan namespace `use pakem::prelude::*;`, `PakemResult`, dan `PakemModel`.

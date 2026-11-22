@@ -12,6 +12,7 @@ mod upgrader;
 mod tinker;
 mod ai_context;
 mod desktop;
+mod cloner;
 
 #[derive(Parser)]
 #[command(
@@ -201,6 +202,40 @@ enum Commands {
         /// Specific seeder class to run (e.g., UserSeeder)
         #[arg(long, short)]
         class: Option<String>,
+    },
+
+    // ─── Reverse Engineering & Logic Cloning ─────────────────────────────────
+    /// Reverse engineer an existing database into Pakem Models, Relations, and Migrations
+    #[command(name = "clone:db", alias = "db:reverse")]
+    CloneDb {
+        /// Database URL (e.g., sqlite://./database.sqlite, postgres://..., mysql://...)
+        /// If omitted, reads DB_CONNECTION / DATABASE_URL from .env
+        #[arg(short, long)]
+        url: Option<String>,
+
+        /// Comma-separated list of specific tables to clone (e.g. users,orders,products)
+        #[arg(short, long)]
+        tables: Option<String>,
+
+        /// Perform a dry-run without writing any files to disk
+        #[arg(long)]
+        dry_run: bool,
+
+        /// Also generate RESTful API CRUD Controllers for cloned models
+        #[arg(long)]
+        with_controllers: bool,
+
+        /// Also generate Model Factories for testing and seeding
+        #[arg(long)]
+        with_factories: bool,
+
+        /// Output directory for models (default: src/app/models)
+        #[arg(long, default_value = "src/app/models")]
+        models_dir: String,
+
+        /// Output directory for migrations (default: database/migrations)
+        #[arg(long, default_value = "database/migrations")]
+        migrations_dir: String,
     },
 
     // ─── DevOps / Deployment ──────────────────────────────────────────────────
@@ -401,6 +436,33 @@ fn main() {
             tokio::runtime::Runtime::new()
                 .expect("Failed to start Tokio runtime for seeding")
                 .block_on(migrator::run_seed_async(class.as_deref()));
+        }
+        Commands::CloneDb {
+            url,
+            tables,
+            dry_run,
+            with_controllers,
+            with_factories,
+            models_dir,
+            migrations_dir,
+        } => {
+            let options = cloner::CloneDbOptions {
+                url,
+                tables,
+                dry_run,
+                with_controllers,
+                with_factories,
+                models_dir,
+                migrations_dir,
+            };
+            tokio::runtime::Runtime::new()
+                .expect("Failed to start Tokio runtime for db cloner")
+                .block_on(async {
+                    if let Err(e) = cloner::DbCloner::run(options).await {
+                        eprintln!("{} {}", "❌ Error:".bold().red(), e);
+                        std::process::exit(1);
+                    }
+                });
         }
         Commands::MakeDocker { name, port } => {
             generator::generate_docker(name, port);
