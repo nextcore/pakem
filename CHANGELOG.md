@@ -4,7 +4,7 @@ Semua perubahan penting pada proyek **Pakem Framework** didokumentasikan di dala
 
 Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) dan mengikuti standar [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1] - 2026-11-22
+## [1.0.2] - 2026-11-22
 
 ### 🌐 Universal OpenAPI & Swagger Contract Cloner (`canting clone:api`)
 - **Transpiler Kontrak REST API (.NET / Golang / Java / Node) ke Pakem Framework**:
