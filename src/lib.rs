@@ -34,7 +34,7 @@ pub mod prelude {
     pub use crate::core::openapi::{OpenApiSpec, RouteDoc};
     pub use crate::core::testing::{TestApp, TestResponse, TestRequestBuilder};
     pub use crate::http::kernel::HttpKernel;
-    // axum re-exports — available in every controller via `use lumina::prelude::*`
+    // axum re-exports — available in every controller via `use pakem::prelude::*`
     pub use axum::extract::{Path, Query, State};
     pub use axum::response::{Html, IntoResponse, Json, Response};
     pub use axum::Form;

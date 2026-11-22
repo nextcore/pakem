@@ -6,13 +6,13 @@ use rustyline::DefaultEditor;
 use std::path::Path;
 use std::sync::Arc;
 
-/// Menjalankan sesi terminal interaktif Lumina Tinker REPL
+/// Menjalankan sesi terminal interaktif Pakem Tinker REPL
 pub async fn run() {
     dotenv::dotenv().ok();
 
     println!();
     println!("{}", "=========================================================".cyan());
-    println!("{}", "   ⚡ Lumina Framework — Interactive Tinker Shell (REPL)   ".cyan().bold());
+    println!("{}", "   ⚡ Pakem Framework — Interactive Tinker Shell (REPL)   ".cyan().bold());
     println!("{}", "=========================================================".cyan());
 
     // Coba hubungkan ke basis data aktif dari .env
@@ -48,13 +48,13 @@ pub async fn run() {
         }
     };
 
-    let history_file = ".lumina_tinker_history";
+    let history_file = ".pakem_tinker_history";
     if Path::new(history_file).exists() {
         let _ = rl.load_history(history_file);
     }
 
     loop {
-        let prompt = format!("{} ", "lumina >".cyan().bold());
+        let prompt = format!("{} ", "pakem >".cyan().bold());
         let readline = rl.readline(&prompt);
 
         match readline {
@@ -69,7 +69,7 @@ pub async fn run() {
                 let res = Tinker::eval(&line, pool.clone()).await;
                 match res {
                     TinkerResult::Exit => {
-                        println!("{}", "👋 Goodbye! Leaving Lumina Tinker.\n".green());
+                        println!("{}", "👋 Goodbye! Leaving Pakem Tinker.\n".green());
                         break;
                     }
                     _ => {
@@ -82,7 +82,7 @@ pub async fn run() {
                 continue;
             }
             Err(ReadlineError::Eof) => {
-                println!("{}", "👋 Goodbye! Leaving Lumina Tinker.\n".green());
+                println!("{}", "👋 Goodbye! Leaving Pakem Tinker.\n".green());
                 break;
             }
             Err(err) => {

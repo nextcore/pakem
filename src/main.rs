@@ -1,4 +1,4 @@
-use lumina::prelude::*;
+use pakem::prelude::*;
 
 #[tokio::main]
 async fn main() {
@@ -15,7 +15,7 @@ async fn main() {
             .map(|l| format!("{}:{}", l.file(), l.line()))
             .unwrap_or_else(|| "Unknown location".to_string());
 
-        lumina::support::debug::PANIC_INFO.with(|p| {
+        pakem::support::debug::PANIC_INFO.with(|p| {
             *p.borrow_mut() = Some((msg, loc));
         });
     }));
@@ -41,7 +41,7 @@ async fn main() {
 
     // Inisialisasi Lumina Logger: dual output ke stdout + file (storage/logs/)
     // Guard HARUS di-hold agar background writer tidak berhenti
-    let _log_guard = lumina::core::logging::init();
+    let _log_guard = pakem::core::logging::init();
 
     let app = Application::new();
 

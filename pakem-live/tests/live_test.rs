@@ -1,10 +1,10 @@
 use async_trait::async_trait;
-use lumina::core::blade::{BladeContext, BladeEngine};
-use lumina::core::error::AppError;
-use lumina_live::component::LiveComponent;
-use lumina_live::registry::LiveRegistry;
-use lumina_live::snapshot::{LiveSnapshot, SnapshotManager};
-use lumina_live::transport::LUMINA_LIVE_JS;
+use pakem::core::blade::{BladeContext, BladeEngine};
+use pakem::core::error::AppError;
+use pakem_live::component::LiveComponent;
+use pakem_live::registry::LiveRegistry;
+use pakem_live::snapshot::{LiveSnapshot, SnapshotManager};
+use pakem_live::transport::PAKEM_LIVE_JS;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -89,8 +89,8 @@ async fn test_live_registry_and_component_action_dispatch() {
 }
 
 #[test]
-fn test_blade_engine_kilat_directives_via_lumina_live() {
-    lumina_live::init();
+fn test_blade_engine_kilat_directives_via_pakem_live() {
+    pakem_live::init();
 
     let mut engine = BladeEngine::new();
     engine.templates.insert(
@@ -121,9 +121,9 @@ fn test_blade_engine_kilat_directives_via_lumina_live() {
 }
 
 #[test]
-fn test_lumina_live_js_contains_tri_dialect_support() {
-    assert!(LUMINA_LIVE_JS.contains("kilat:"));
-    assert!(LUMINA_LIVE_JS.contains("live:"));
-    assert!(LUMINA_LIVE_JS.contains("wire:"));
-    assert!(LUMINA_LIVE_JS.contains("'klik': 'click'"));
+fn test_pakem_live_js_contains_tri_dialect_support() {
+    assert!(PAKEM_LIVE_JS.contains("kilat:"));
+    assert!(PAKEM_LIVE_JS.contains("live:"));
+    assert!(PAKEM_LIVE_JS.contains("wire:"));
+    assert!(PAKEM_LIVE_JS.contains("'klik': 'click'"));
 }

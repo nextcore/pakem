@@ -77,7 +77,7 @@ struct RateLimitError {
 /// Cara penggunaan sebagai global middleware:
 /// ```rust,ignore
 /// // Di application.rs atau route builder:
-/// use lumina::core::rate_limit::{RateLimitConfig, rate_limit_middleware};
+/// use pakem::core::rate_limit::{RateLimitConfig, rate_limit_middleware};
 /// use axum::middleware;
 ///
 /// let config = RateLimitConfig::from_env();

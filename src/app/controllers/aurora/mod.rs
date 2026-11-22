@@ -6,7 +6,7 @@ pub use auth_controller::AuroraAuthController;
 pub use dashboard_controller::AuroraDashboardController;
 pub use profile_controller::AuroraProfileController;
 
-use lumina::prelude::*;
+use pakem::prelude::*;
 
 
 /// Menghasilkan Router lengkap untuk seluruh alur Lumina Aurora:

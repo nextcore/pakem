@@ -115,7 +115,7 @@ pub async fn handle_make_live(name: &str) {
 
     let comp_content = format!(
 r#"use async_trait::async_trait;
-use lumina::prelude::*;
+use pakem::prelude::*;
 use serde::{{Deserialize, Serialize}};
 use serde_json::Value;
 
@@ -685,7 +685,7 @@ pub async fn handle_make_auth() {
 use async_trait::async_trait;
 use serde::{Serialize, Deserialize};
 use sqlx::FromRow;
-use lumina::database::{connection::DatabasePool, model::Model};
+use pakem::database::{connection::DatabasePool, model::Model};
 
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default)]
 pub struct User {

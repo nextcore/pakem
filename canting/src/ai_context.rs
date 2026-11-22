@@ -5,7 +5,7 @@ use std::path::Path;
 /// Generate universal `AGENTS.md` context instructions for any AI agent (Antigravity, Cline, Windsurf, ChatGPT, etc.)
 pub fn generate_agents_md(app_name: &str) -> String {
     format!(
-        r#"# 🤖 Lumina Framework — Developer & AI Agent Guidelines ({app_name})
+        r#"# 🤖 Pakem Framework — Developer & AI Agent Guidelines ({app_name})
 
 > **Visi Inti Lumina:**  
 > *"Look like Laravel, Run at Rust Speed. Cuantik, elegan, tercepat, dan menghadirkan pengalaman pengembangan (Developer Experience) paling menyenangkan di dunia backend."*
@@ -48,7 +48,7 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
     ```
 
 - **Controller RESTful API (JSON)**:
-  - **WAJIB** mengembalikan `LuminaResult` (alias untuk `Result<Response, AppError>`).
+  - **WAJIB** mengembalikan `PakemResult` (alias untuk `Result<Response, AppError>`).
   - **WAJIB** memanfaatkan shortcut helper response bawaan `Request`:
     - `req.ok(data)` ➔ HTTP 200 `{{ "success": true, "data": ... }}`
     - `req.success(data, "Pesan sukses")` ➔ HTTP 200 `{{ "success": true, "message": "...", "data": ... }}`
@@ -59,7 +59,7 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
     - `req.unauthorized("Pesan error")` ➔ HTTP 401
   - Contoh:
     ```rust
-    pub async fn api_index(req: Request) -> LuminaResult {{
+    pub async fn api_index(req: Request) -> PakemResult {{
         let (page, per_page) = req.pagination();
         let paginator = Product::paginate(req.db(), page, per_page).await?;
         req.paginate(paginator)
@@ -67,7 +67,7 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
     ```
 
 ### C. Validasi Input Otomatis
-- **Form Web**: Gunakan `ValidatedForm<T>`. Jika validasi gagal, engine Lumina otomatis me-redirect balik dengan flash error dan input lama (*old input*).
+- **Form Web**: Gunakan `ValidatedForm<T>`. Jika validasi gagal, engine Pakem otomatis me-redirect balik dengan flash error dan input lama (*old input*).
 - **REST API**: Gunakan `ValidatedJson<T>`. Jika validasi gagal, engine otomatis mengembalikan HTTP 422 Unprocessable Entity berformat JSON.
 
 ### D. Akses Data Kontekstual via `Request`
@@ -85,7 +85,7 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
 1. **Macro Derivation**:
    Setiap entitas model **WAJIB** menambahkan derive:
    ```rust
-   #[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel)]
+   #[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel)]
    #[table("products")]
    pub struct Product {{
        pub id: i64,
@@ -137,12 +137,12 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
 
 ---
 
-## ⚡ 5. Lumina Live (Reactive Server-Driven UI)
+## ⚡ 5. Pakem Live (Reactive Server-Driven UI)
 
 Jika membuat komponen interaktif tanpa menulis JavaScript/SPA:
 - Gunakan direktif `kilat:*`, `wire:*`, atau `live:*`.
 - Contoh: `<button wire:click="increment">+</button>` atau `<input wire:model="search" />`.
-- Komponen backend mengimplementasikan trait `LuminaLiveComponent`.
+- Komponen backend mengimplementasikan trait `PakemLiveComponent`.
 
 ---
 
@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS products (
 ```rust
 use pakem::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel)]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel)]
 #[table("products")]
 pub struct Product {{
     pub id: i64,
@@ -281,13 +281,13 @@ impl ProductController {{
     }}
 
     // --- RESTful API Handlers (JSON) ---
-    pub async fn api_index(req: Request) -> LuminaResult {{
+    pub async fn api_index(req: Request) -> PakemResult {{
         let (page, per_page) = req.pagination();
         let paginator = Product::paginate(req.db(), page, per_page).await?;
         req.paginate(paginator)
     }}
 
-    pub async fn api_store(req: Request) -> LuminaResult {{
+    pub async fn api_store(req: Request) -> PakemResult {{
         let payload = req.validate_json::<CreateProductRequest>().await?;
         let product = Product {{
             name: payload.name,
@@ -325,7 +325,7 @@ router = router
 
 ---
 
-*Lumina Framework: Keringat performa Rust di balik keindahan dan kemudahan Laravel.*
+*Pakem Framework: Keringat performa Rust di balik keindahan dan kemudahan Laravel.*
 "#,
         app_name = app_name
     )
@@ -334,7 +334,7 @@ router = router
 /// Generate `.cursorrules` optimized for Cursor IDE AI Agent and Composer
 pub fn generate_cursorrules(app_name: &str) -> String {
     format!(
-        r#"# Cursor Rules for Lumina Framework ({app_name})
+        r#"# Cursor Rules for Pakem Framework ({app_name})
 # Philosophy: "Look like Laravel, Run at Rust Speed"
 
 ## Core Controller Rules
@@ -344,11 +344,11 @@ pub fn generate_cursorrules(app_name: &str) -> String {
   - Return `impl IntoResponse`.
   - Render with `View::make("view.name").with("key", val).render(req).await`.
 - REST API Controllers:
-  - Return `LuminaResult` (alias for `Result<Response, AppError>`).
+  - Return `PakemResult` (alias for `Result<Response, AppError>`).
   - Use helpers: `req.ok(data)`, `req.created_with(data, msg)`, `req.paginate(paginator)`, `req.not_found(msg)`.
 
 ## Model & ORM Rules
-- Entities MUST derive: `#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel)]`.
+- Entities MUST derive: `#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel)]`.
 - Entities MUST specify table: `#[table("table_name")]`.
 - Always use the fluent query builder: `Model::query(req.db()).where_eq("col", val).get().await?`.
 - Relationships: `has_many!(Child, "parent_id");`, `belongs_to!(Parent, "parent_id");`.
@@ -361,15 +361,15 @@ pub fn generate_cursorrules(app_name: &str) -> String {
 ## Blade Views & Livewire
 - Files in `resources/views/` must end in `.blade.rs`.
 - Form methods POST require `@csrf`.
-- Reactive UI components use Lumina Live directives: `kilat:*`, `wire:*`, `live:*`.
+- Reactive UI components use Pakem Live directives: `kilat:*`, `wire:*`, `live:*`.
 
 ## CLI Commands
-- `lumina serve` : Run app
-- `lumina watch` : Run app with hot auto-reload
-- `lumina tinker` : Interactive REPL shell
-- `lumina migrate` : Run database migrations
-- `lumina make:crud <Name>` : Scaffold complete CRUD
-- `lumina make:ai-context` : Refresh AI instructions
+- `canting serve` : Run app
+- `canting watch` : Run app with hot auto-reload
+- `canting tinker` : Interactive REPL shell
+- `canting migrate` : Run database migrations
+- `canting make:crud <Name>` : Scaffold complete CRUD
+- `canting make:ai-context` : Refresh AI instructions
 "#
     )
 }
@@ -377,19 +377,19 @@ pub fn generate_cursorrules(app_name: &str) -> String {
 /// Generate `.github/copilot-instructions.md` for GitHub Copilot Workspace
 pub fn generate_copilot_instructions(app_name: &str) -> String {
     format!(
-        r#"# GitHub Copilot Instructions for {app_name} (Lumina Framework)
+        r#"# GitHub Copilot Instructions for {app_name} (Pakem Framework)
 
-You are an expert Lumina Framework developer. Lumina is an enterprise Rust web framework that combines Laravel's DX and elegance with Rust's raw speed and memory safety.
+You are an expert Pakem Framework developer. Lumina is an enterprise Rust web framework that combines Laravel's DX and elegance with Rust's raw speed and memory safety.
 
 ## Architectural Mandates
 1. **Controllers**:
-   - Single signature: `pub async fn handler_name(req: Request) -> impl IntoResponse` (or `-> LuminaResult` for JSON APIs).
+   - Single signature: `pub async fn handler_name(req: Request) -> impl IntoResponse` (or `-> PakemResult` for JSON APIs).
    - Do NOT suggest raw Axum extractors like `State(state)`, `Path(id)`. Access context via `req.db()`, `req.id_or_fail()?`, `req.user()`, `req.query_val()`.
    - Render views with `View::make("path").with("key", value).render(req).await`.
    - Return API responses with `req.ok(data)`, `req.paginate(paginator)`, or `req.created_with(data, msg)`.
 
 2. **Models & Database**:
-   - Must derive `LuminaModel`: `#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel)]`.
+   - Must derive `PakemModel`: `#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel)]`.
    - Fluent queries: `User::query(req.db()).where_eq("is_active", true).get().await?`.
    - Relationship macros: `has_many!(Post, "user_id")` and `belongs_to!(User, "user_id")`.
 
@@ -407,22 +407,22 @@ You are an expert Lumina Framework developer. Lumina is an enterprise Rust web f
 /// Generate `CLAUDE.md` for Anthropic Claude Code CLI
 pub fn generate_claude_md(app_name: &str) -> String {
     format!(
-        r#"# CLAUDE.md — {app_name} (Lumina Framework)
+        r#"# CLAUDE.md — {app_name} (Pakem Framework)
 
 This document guides Claude Code when working in this Lumina repository.
 
 ## Commands
-- Run server: `lumina serve` (or `cargo run`)
-- Watch server (auto-reload): `lumina watch`
-- Interactive REPL shell: `lumina tinker`
-- Database migrations: `lumina migrate` (rollback: `lumina migrate:rollback`)
-- Database seeding: `lumina db:seed`
-- Generate CRUD: `lumina make:crud <ModelName>`
+- Run server: `canting serve` (or `cargo run`)
+- Watch server (auto-reload): `canting watch`
+- Interactive REPL shell: `canting tinker`
+- Database migrations: `canting migrate` (rollback: `canting migrate:rollback`)
+- Database seeding: `canting db:seed`
+- Generate CRUD: `canting make:crud <ModelName>`
 - Run tests: `cargo test`
 
 ## Architecture & Code Conventions
-- **Controller signature**: Always `pub async fn action(req: Request) -> impl IntoResponse` (Web) or `-> LuminaResult` (API). Never use raw Axum extractors.
-- **ORM**: Derive `LuminaModel` on all models. Use `Model::query(req.db())` for queries.
+- **Controller signature**: Always `pub async fn action(req: Request) -> impl IntoResponse` (Web) or `-> PakemResult` (API). Never use raw Axum extractors.
+- **ORM**: Derive `PakemModel` on all models. Use `Model::query(req.db())` for queries.
 - **Views**: Blade templates live in `resources/views/` as `.blade.rs`.
 - **Validation**: `req.validate_form::<T>()` for HTML forms, `req.validate_json::<T>()` for REST APIs.
 - **Error Handling**: Use `AppError` and the `?` operator instead of `unwrap()`.
@@ -461,11 +461,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_generate_agents_md_contains_lumina_rules_and_crud() {
+    fn test_generate_agents_md_contains_canting_rules_and_crud() {
         let content = generate_agents_md("TokoApp");
-        assert!(content.contains("Lumina Framework — Developer & AI Agent Guidelines (TokoApp)"));
+        assert!(content.contains("Pakem Framework — Developer & AI Agent Guidelines (TokoApp)"));
         assert!(content.contains("req: Request"));
-        assert!(content.contains("LuminaModel"));
+        assert!(content.contains("PakemModel"));
         assert!(content.contains("Standard CRUD Blueprint"));
         assert!(content.contains("View::make"));
         assert!(content.contains("req.paginate"));
@@ -475,7 +475,7 @@ mod tests {
     #[test]
     fn test_generate_cursorrules_contains_rules() {
         let content = generate_cursorrules("TokoApp");
-        assert!(content.contains("Cursor Rules for Lumina Framework (TokoApp)"));
+        assert!(content.contains("Cursor Rules for Pakem Framework (TokoApp)"));
         assert!(content.contains("ALWAYS use a single parameter for controllers: `req: Request`"));
         assert!(content.contains("NEVER use raw Axum extractors"));
     }
@@ -483,22 +483,22 @@ mod tests {
     #[test]
     fn test_generate_copilot_instructions_contains_mandates() {
         let content = generate_copilot_instructions("TokoApp");
-        assert!(content.contains("GitHub Copilot Instructions for TokoApp (Lumina Framework)"));
+        assert!(content.contains("GitHub Copilot Instructions for TokoApp (Pakem Framework)"));
         assert!(content.contains("Do NOT suggest raw Axum extractors"));
     }
 
     #[test]
     fn test_generate_claude_md_contains_commands_and_conventions() {
         let content = generate_claude_md("TokoApp");
-        assert!(content.contains("CLAUDE.md — TokoApp (Lumina Framework)"));
-        assert!(content.contains("lumina serve"));
-        assert!(content.contains("lumina tinker"));
-        assert!(content.contains("lumina make:crud"));
+        assert!(content.contains("CLAUDE.md — TokoApp (Pakem Framework)"));
+        assert!(content.contains("canting serve"));
+        assert!(content.contains("canting tinker"));
+        assert!(content.contains("canting make:crud"));
     }
 
     #[test]
     fn test_scaffold_ai_context_creates_all_files() {
-        let temp_dir = std::env::temp_dir().join(format!("lumina_ai_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        let temp_dir = std::env::temp_dir().join(format!("canting_ai_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
         fs::create_dir_all(&temp_dir).expect("Failed to create temp dir");
 
         let res = scaffold_ai_context(&temp_dir, "TestApp");
@@ -518,7 +518,7 @@ mod tests {
 
     #[test]
     fn test_skeleton_includes_ai_context() {
-        let temp_dir = std::env::temp_dir().join(format!("lumina_skel_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        let temp_dir = std::env::temp_dir().join(format!("canting_skel_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
         fs::create_dir_all(&temp_dir).expect("Failed to create temp dir");
 
         crate::skeleton::create_full_skeleton(&temp_dir, "SkelApp", "sqlite");
@@ -535,7 +535,7 @@ mod tests {
 
     #[test]
     fn test_generate_ai_context_command() {
-        let temp_dir = std::env::temp_dir().join(format!("lumina_ctx_cmd_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        let temp_dir = std::env::temp_dir().join(format!("canting_ctx_cmd_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
         fs::create_dir_all(temp_dir.join("src/app")).expect("Failed to create src/app");
         fs::write(temp_dir.join("Cargo.toml"), "[package]\nname = \"test_ctx_app\"\nversion = \"0.1.0\"\n").unwrap();
 
@@ -554,7 +554,7 @@ mod tests {
 
     #[test]
     fn test_generate_ai_skill_creates_schemas_and_stubs() {
-        let temp_dir = std::env::temp_dir().join(format!("lumina_skill_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        let temp_dir = std::env::temp_dir().join(format!("canting_skill_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
         fs::create_dir_all(temp_dir.join("src/app")).expect("Failed to create src/app");
         fs::write(temp_dir.join("Cargo.toml"), "[package]\nname = \"test_skill_app\"\nversion = \"0.1.0\"\n").unwrap();
 
@@ -581,7 +581,7 @@ mod tests {
 
     #[test]
     fn test_generate_ai_skill_reverse_engineer() {
-        let temp_dir = std::env::temp_dir().join(format!("lumina_rev_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        let temp_dir = std::env::temp_dir().join(format!("canting_rev_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
         fs::create_dir_all(temp_dir.join("src/app")).expect("Failed to create src/app");
         fs::write(temp_dir.join("Cargo.toml"), "[package]\nname = \"test_rev_app\"\nversion = \"0.1.0\"\n").unwrap();
 
@@ -593,7 +593,7 @@ mod tests {
 
         let skill_doc = fs::read_to_string(temp_dir.join("app/ai/skills/reverse_engineer/SKILL.md")).unwrap();
         assert!(skill_doc.contains("Reverse Engineer"));
-        assert!(skill_doc.contains("Lumina Live"));
+        assert!(skill_doc.contains("Pakem Live"));
         assert!(skill_doc.contains("Tailwind"));
 
         let rust_code = fs::read_to_string(temp_dir.join("src/app/services/ai/reverse_engineer_tool.rs")).unwrap();

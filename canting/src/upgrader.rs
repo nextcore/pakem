@@ -4,17 +4,17 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
-/// Eksekusi perintah: lumina upgrade
+/// Eksekusi perintah: canting upgrade
 pub fn run_upgrade(cli_only: bool, project_only: bool, local_path: Option<String>) {
-    println!("{}", "⚡ LUMINA FRAMEWORK UPGRADE ENGINE".bright_purple().bold());
+    println!("{}", "⚡ PAKEM FRAMEWORK UPGRADE ENGINE".bright_purple().bold());
     println!("─────────────────────────────────────────────────────────────────");
     println!("  Current CLI Version : v{}", env!("CARGO_PKG_VERSION").bright_cyan());
 
-    let in_project = is_lumina_project();
+    let in_project = is_pakem_project();
 
     // 1. Upgrade CLI Toolchain
     if !project_only {
-        println!("\n[+] Meng-upgrade Lumina CLI Toolchain...");
+        println!("\n[+] Meng-upgrade Canting CLI Toolchain...");
         let pb = ProgressBar::new_spinner();
         pb.set_style(
             ProgressStyle::default_spinner()
@@ -27,7 +27,7 @@ pub fn run_upgrade(cli_only: bool, project_only: bool, local_path: Option<String
         prepare_windows_binary_for_replacement();
 
         let install_status = if let Some(local) = local_path {
-            let cli_folder = Path::new(&local).join("lumina-cli");
+            let cli_folder = Path::new(&local).join("canting");
             let target = if cli_folder.exists() {
                 cli_folder
             } else {
@@ -38,9 +38,9 @@ pub fn run_upgrade(cli_only: bool, project_only: bool, local_path: Option<String
                 .args(["install", "--path", target.to_str().unwrap(), "--force"])
                 .output()
         } else {
-            pb.set_message("Mengunduh & mengompilasi rilis terbaru dari GitHub (lumina-java/framework)...");
+            pb.set_message("Mengunduh & mengompilasi rilis terbaru dari GitHub (pakem-rs/framework)...");
             Command::new("cargo")
-                .args(["install", "--git", "https://github.com/lumina-java/framework.git", "lumina-cli", "--force"])
+                .args(["install", "--git", "https://github.com/pakem-rs/framework.git", "canting", "--force"])
                 .output()
         };
 
@@ -56,7 +56,7 @@ pub fn run_upgrade(cli_only: bool, project_only: bool, local_path: Option<String
                     println!("    {}", line.dimmed());
                 }
                 println!("\n  {} Anda dapat mencoba manual:", "Saran:".cyan());
-                println!("    cargo install --git https://github.com/lumina-java/framework.git lumina-cli --force\n");
+                println!("    cargo install --git https://github.com/pakem-rs/framework.git canting --force\n");
             }
             Err(e) => {
                 pb.finish_with_message("✖ [ERROR]".red().to_string());
@@ -65,13 +65,13 @@ pub fn run_upgrade(cli_only: bool, project_only: bool, local_path: Option<String
         }
     }
 
-    // 2. Upgrade Project Dependencies (jika dijalankan di dalam proyek Lumina)
+    // 2. Upgrade Project Dependencies (jika dijalankan di dalam proyek Pakem)
     if !cli_only {
         if in_project {
-            println!("\n[+] Menyinkronkan Dependensi Proyek Lumina...");
+            println!("\n[+] Menyinkronkan Dependensi Proyek Pakem...");
             upgrade_project_dependencies();
         } else if project_only {
-            println!("\n{} Tidak ditemukan berkas Cargo.toml proyek Lumina di direktori aktif.", "ℹ [INFO]".blue());
+            println!("\n{} Tidak ditemukan berkas Cargo.toml proyek Pakem di direktori aktif.", "ℹ [INFO]".blue());
         }
     }
 
@@ -79,13 +79,13 @@ pub fn run_upgrade(cli_only: bool, project_only: bool, local_path: Option<String
     println!("✨ Proses upgrade selesai. Build fast, build beautiful! 🦀");
 }
 
-fn is_lumina_project() -> bool {
+fn is_pakem_project() -> bool {
     let cargo_path = Path::new("Cargo.toml");
     if !cargo_path.exists() {
         return false;
     }
     if let Ok(content) = fs::read_to_string(cargo_path) {
-        return content.contains("lumina-framework") || content.contains("lumina");
+        return content.contains("pakem") || content.contains("lumina");
     }
     false
 }
@@ -105,14 +105,14 @@ fn upgrade_project_dependencies() {
     pb.set_message("Memeriksa pembaruan paket via 'cargo update'...");
     pb.enable_steady_tick(std::time::Duration::from_millis(120));
 
-    // Coba update spesifik package lumina-framework dahulu
+    // Coba update spesifik package pakem dahulu
     let output = Command::new("cargo")
-        .args(["update", "-p", "lumina-framework"])
+        .args(["update", "-p", "pakem"])
         .output();
 
     match output {
         Ok(out) if out.status.success() => {
-            pb.finish_with_message("✔ [PROJECT SYNCED] Dependensi lumina-framework berhasil diperbarui!".green().to_string());
+            pb.finish_with_message("✔ [PROJECT SYNCED] Dependensi pakem berhasil diperbarui!".green().to_string());
         }
         _ => {
             // Fallback ke general cargo update
@@ -137,19 +137,19 @@ fn upgrade_project_dependencies() {
 fn prepare_windows_binary_for_replacement() {
     if let Ok(current_exe) = std::env::current_exe() {
         if let Some(parent) = current_exe.parent() {
-            let old_exe = parent.join("lumina.exe.old");
+            let old_exe = parent.join("canting.exe.old");
             let _ = fs::remove_file(&old_exe);
             let _ = fs::rename(&current_exe, &old_exe);
         }
     }
 }
 
-/// Membersihkan lumina.exe.old jika ada dari sesi update sebelumnya
+/// Membersihkan canting.exe.old jika ada dari sesi update sebelumnya
 pub fn cleanup_old_binary() {
     #[cfg(windows)]
     if let Ok(current_exe) = std::env::current_exe() {
         if let Some(parent) = current_exe.parent() {
-            let old_exe = parent.join("lumina.exe.old");
+            let old_exe = parent.join("canting.exe.old");
             if old_exe.exists() {
                 let _ = fs::remove_file(&old_exe);
             }

@@ -8,7 +8,7 @@
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-900/60 via-slate-900 to-violet-900/40 border border-indigo-500/20 p-6 md:p-8 shadow-xl">
         <div class="relative z-10 max-w-2xl">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3 border border-indigo-500/30">
-                <span>⚡ Lumina Aurora</span>
+                <span>⚡ Pakem Aurora</span>
                 <span>&bull;</span>
                 <span>Official Starter Kit</span>
             </span>
@@ -148,7 +148,7 @@
                 <h2 class="text-base font-bold text-white flex items-center gap-2">
                     <span>🛡️ Sistem Peran & Hak Akses (Role & Permission Guide)</span>
                 </h2>
-                <p class="text-xs text-slate-400 mt-1">Penjelasan hak akses dan wewenang akun pengguna di dalam ekosistem Lumina Framework.</p>
+                <p class="text-xs text-slate-400 mt-1">Penjelasan hak akses dan wewenang akun pengguna di dalam ekosistem Pakem Framework.</p>
             </div>
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">
                 <span>Peran Anda saat ini:</span>

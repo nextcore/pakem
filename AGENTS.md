@@ -62,7 +62,7 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
     ```
 
 ### C. Validasi Input Otomatis
-- Form Web: Gunakan `ValidatedForm<T>`. Jika validasi gagal, engine Lumina otomatis me-redirect balik dengan flash error dan input lama (*old input*).
+- Form Web: Gunakan `ValidatedForm<T>`. Jika validasi gagal, engine Pakem otomatis me-redirect balik dengan flash error dan input lama (*old input*).
 - REST API: Gunakan `ValidatedJson<T>`. Jika validasi gagal, engine otomatis mengembalikan HTTP 422 Unprocessable Entity berformat JSON.
 
 ### D. Akses Data Kontekstual via `Request`
@@ -121,7 +121,7 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
    let posts = Post::query(req.db()).with("user").get().await?;
    ```
 5. **Model Factory & Faker (Testing & Seeding)**:
-   Gunakan Model Factory (`lumina make:factory <Model>Factory`) untuk keperluan seeding data dan unit testing. Manfaatkan generator `Faker` untuk membangkitkan data realistis Indonesia (nama, telepon, email, alamat, rupiah) dengan method chaining yang fluen:
+   Gunakan Model Factory (`canting make:factory <Model>Factory`) untuk keperluan seeding data dan unit testing. Manfaatkan generator `Faker` untuk membangkitkan data realistis Indonesia (nama, telepon, email, alamat, rupiah) dengan method chaining yang fluen:
    ```rust
    User::factory().count(50).state(|u| u.is_active = true).create(req.db()).await?;
    ```

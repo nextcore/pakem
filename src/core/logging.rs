@@ -2,7 +2,7 @@ use std::path::Path;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
-/// Setup logger Lumina dengan dukungan:
+/// Setup logger Pakem dengan dukungan:
 /// - File logging rolling harian ke `storage/logs/`
 /// - Filter level via env `LOG_LEVEL` (default: `info`)
 /// - Dual output: stdout (dev) + file (production)
@@ -13,7 +13,7 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 /// # Contoh
 /// ```rust
 /// // Di main.rs:
-/// let _log_guard = lumina::core::logging::init();
+/// let _log_guard = pakem::core::logging::init();
 /// ```
 pub fn init() -> WorkerGuard {
     // Buat direktori logs jika belum ada
@@ -23,7 +23,7 @@ pub fn init() -> WorkerGuard {
     }
 
     // Rolling file appender: satu file baru per hari
-    let file_appender = tracing_appender::rolling::daily("storage/logs", "lumina.log");
+    let file_appender = tracing_appender::rolling::daily("storage/logs", "pakem.log");
     let (non_blocking_writer, guard) = tracing_appender::non_blocking(file_appender);
 
     // Level filter dari env: LOG_LEVEL=debug,info,warn,error

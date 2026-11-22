@@ -130,7 +130,7 @@ edition = "2021"
 default-run = "{}-server"
 
 [dependencies]
-lumina = {{ package = "lumina-framework", version = "0.7.0", git = "https://github.com/lumina-java/framework.git", branch = "0.x" }}
+lumina = {{ package = "lumina-framework", version = "0.7.0", git = "https://github.com/pakem-rs/framework.git", branch = "0.x" }}
 tokio = {{ version = "1", features = ["full"] }}
 axum = {{ version = "0.7", features = ["macros", "multipart"] }}
 serde = {{ version = "1", features = ["derive"] }}
@@ -153,14 +153,14 @@ path = "src/main.rs"
 
     // 3. .env.example
     let env_example = format!(
-        r#"# ─── LUMINA FRAMEWORK CONFIGURATION ──────────────────────────────────────────
+        r#"# ─── PAKEM FRAMEWORK CONFIGURATION ──────────────────────────────────────────
 
 # Application Settings
-APP_NAME=Lumina
+APP_NAME=Pakem
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost:8000
-APP_KEY=lumina-super-secret-key-change-me-in-production
+APP_KEY=pakem-super-secret-key-change-me-in-production
 
 # Logging
 LOG_LEVEL=info
@@ -192,7 +192,7 @@ QUEUE_CONNECTION=database
 BROADCAST_DRIVER=log
 
 # Session Configuration
-JWT_SECRET=lumina-jwt-secret-key-change-me-in-production
+JWT_SECRET=pakem-jwt-secret-key-change-me-in-production
 
 # ──────────────────────────────────────────────────────────────────────────────
 "#,
@@ -209,12 +209,12 @@ JWT_SECRET=lumina-jwt-secret-key-change-me-in-production
     let main_rs = r#"mod app;
 mod routes;
 
-use lumina::prelude::*;
+use pakem::prelude::*;
 
 // =========================================================================
-//                  LUMINA FRAMEWORK APPLICATION ENTRYPOINT
+//                  PAKEM FRAMEWORK APPLICATION ENTRYPOINT
 // =========================================================================
-// This is the core entrypoint of your Lumina application.
+// This is the core entrypoint of your Pakem application.
 // Here, we load environment variables, register routes, and launch the server.
 
 #[tokio::main]
@@ -226,7 +226,7 @@ async fn main() {
     let app = Application::new()
         .with_web(routes::web::router());
 
-    println!("✨ Welcome to the Lumina Framework");
+    println!("✨ Welcome to the Pakem Framework");
     println!("🚀 Starting server at http://127.0.0.1:8000");
 
     // 3. Serve the application
@@ -246,13 +246,13 @@ async fn main() {
 
     // 7. src/app/controllers/welcome_controller.rs
     let welcome_ctrl = r#"use axum::response::IntoResponse;
-use lumina::core::request::Request;
+use pakem::core::request::Request;
 
 // =========================================================================
 //                        WELCOME CONTROLLER
 // =========================================================================
 // Controllers handle incoming HTTP requests and return responses.
-// In Lumina, controllers are simple async functions. They can receive Request
+// In Pakem, controllers are simple async functions. They can receive Request
 // automatically which provides access to views, database, and session.
 
 pub struct WelcomeController;
@@ -261,8 +261,8 @@ impl WelcomeController {
     // Renders the main welcoming landing page
     pub async fn index(req: Request) -> impl IntoResponse {
         req.view("welcome")
-            .with("title", "Welcome to Lumina")
-            .with("app_name", "Lumina Framework")
+            .with("title", "Welcome to Pakem")
+            .with("app_name", "Pakem Framework")
             .with("version", "0.3.0")
             .render(req)
             .await
@@ -271,7 +271,7 @@ impl WelcomeController {
     // Renders the Login page
     pub async fn login(req: Request) -> impl IntoResponse {
         req.view("auth.login")
-            .with("title", "Login - Lumina")
+            .with("title", "Login - Pakem")
             .render(req)
             .await
     }
@@ -279,7 +279,7 @@ impl WelcomeController {
     // Renders the Register page
     pub async fn register(req: Request) -> impl IntoResponse {
         req.view("auth.register")
-            .with("title", "Register - Lumina")
+            .with("title", "Register - Pakem")
             .render(req)
             .await
     }
@@ -289,7 +289,7 @@ impl WelcomeController {
 
     // 7b. src/app/controllers/dashboard_controller.rs
     let dashboard_ctrl = r#"use axum::response::IntoResponse;
-use lumina::core::request::Request;
+use pakem::core::request::Request;
 
 pub struct DashboardController;
 
@@ -308,7 +308,7 @@ impl DashboardController {
     // 8. routes/mod.rs & routes/web.rs
     fs::write(base.join("src/routes/mod.rs"), "pub mod web;\n").ok();
 
-    let web_routes = r#"use lumina::prelude::*;
+    let web_routes = r#"use pakem::prelude::*;
 use crate::app::controllers::welcome_controller::WelcomeController;
 use crate::app::controllers::dashboard_controller::DashboardController;
 
@@ -332,7 +332,7 @@ pub fn router() -> Router<AppState> {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title | default(value="Lumina Framework") }}</title>
+    <title>{{ title | default(value="Pakem Framework") }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -466,7 +466,7 @@ pub fn router() -> Router<AppState> {
     <!-- Footer Segment -->
     <footer style="border-top:1px solid var(--color-border-bg);background:rgba(17,24,39,0.40);padding:10px 0;">
         <div style="max-width:1280px;margin:0 auto;padding:0 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-            <div style="color:#64748b;font-size:0.7rem;">&copy; 2026 Lumina. Premium Desktop Webbase.</div>
+            <div style="color:#64748b;font-size:0.7rem;">&copy; 2026 Pakem. Premium Desktop Webbase.</div>
             <div style="color:#94a3b8;font-size:0.7rem;display:flex;align-items:center;gap:4px;">Engineered with <span style="color:var(--color-danger);">❤️</span> in Rust for elegant speed.</div>
         </div>
     </footer>
@@ -486,7 +486,7 @@ pub fn router() -> Router<AppState> {
         <div>
             <h1 class="code-font" style="font-size:1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;margin:0 0 4px 0;">
                 <span class="pulse" style="width:10px;height:10px;border-radius:50%;background:var(--color-success);display:inline-block;"></span>
-                Lumina Framework Console
+                Pakem Framework Console
             </h1>
             <p style="color:#94a3b8;font-size:0.7rem;margin:0;">Welcome to your enterprise-ready desktop environment.</p>
         </div>
@@ -528,7 +528,7 @@ pub fn router() -> Router<AppState> {
                     <h2 class="code-font" style="font-size:0.8rem;font-weight:700;color:#fff;margin:0;">System Information</h2>
                 </div>
                 <div style="font-size:0.7rem;display:flex;flex-direction:column;gap:8px;">
-                    <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--color-border-bg);padding-bottom:6px;"><span style="color:#94a3b8;">Framework:</span><span style="color:#fff;font-weight:700;">Lumina Rust Core</span></div>
+                    <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--color-border-bg);padding-bottom:6px;"><span style="color:#94a3b8;">Framework:</span><span style="color:#fff;font-weight:700;">Pakem Rust Core</span></div>
                     <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--color-border-bg);padding-bottom:6px;"><span style="color:#94a3b8;">Database:</span><span style="color:#fff;font-weight:700;">SQLite 3.x</span></div>
                     <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--color-border-bg);padding-bottom:6px;"><span style="color:#94a3b8;">Templates:</span><span style="color:#fff;font-weight:700;">Native Blade Engine</span></div>
                     <div style="display:flex;justify-content:space-between;"><span style="color:#94a3b8;">Sessions:</span><span style="color:#fff;font-weight:700;">SQLite Pool</span></div>
@@ -552,7 +552,7 @@ pub fn router() -> Router<AppState> {
                 <tbody>
                     <tr><td class="code-font" style="color:#64748b;">2026-05-19 08:34:12</td><td style="font-weight:600;">User Authentication</td><td style="color:#94a3b8;">Scaffolded registration views.</td><td><span class="badge badge-success">SUCCESS</span></td></tr>
                     <tr><td class="code-font" style="color:#64748b;">2026-05-19 08:32:05</td><td style="font-weight:600;">Database Schema</td><td style="color:#94a3b8;">Ran all outstanding migrations.</td><td><span class="badge badge-success">SUCCESS</span></td></tr>
-                    <tr><td class="code-font" style="color:#64748b;">2026-05-19 08:30:00</td><td style="font-weight:600;">Lumina Engine</td><td style="color:#94a3b8;">Bootstrapped new project instance.</td><td><span class="badge badge-primary">INITIALIZED</span></td></tr>
+                    <tr><td class="code-font" style="color:#64748b;">2026-05-19 08:30:00</td><td style="font-weight:600;">Pakem Engine</td><td style="color:#94a3b8;">Bootstrapped new project instance.</td><td><span class="badge badge-primary">INITIALIZED</span></td></tr>
                 </tbody>
             </table>
         </div>
@@ -613,7 +613,7 @@ pub fn router() -> Router<AppState> {
                 <span style="color:#0b0f19;font-weight:900;font-size:18px;font-family:'JetBrains Mono',monospace;">L</span>
             </div>
             <h2 class="code-font" style="font-size:0.875rem;font-weight:800;color:#fff;margin:0 0 4px 0;">Create Account</h2>
-            <p style="color:#94a3b8;font-size:0.6875rem;margin:0;">Get started with the Lumina ecosystem</p>
+            <p style="color:#94a3b8;font-size:0.6875rem;margin:0;">Get started with the Pakem ecosystem</p>
         </div>
         <form action="/register" method="POST" style="display:flex;flex-direction:column;gap:12px;">
             <div>
@@ -727,7 +727,7 @@ pub fn router() -> Router<AppState> {
             <div style="display:flex;flex-direction:column;gap:8px;font-size:0.7rem;">
                 <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--color-border-bg);padding-bottom:6px;">
                     <span style="color:#94a3b8;">Framework</span>
-                    <span style="color:var(--color-success);font-weight:700;">Lumina v0.1</span>
+                    <span style="color:var(--color-success);font-weight:700;">Pakem v0.1</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--color-border-bg);padding-bottom:6px;">
                     <span style="color:#94a3b8;">Database</span>
@@ -771,13 +771,13 @@ CREATE TABLE IF NOT EXISTS users (
 use async_trait::async_trait;
 use serde::{Serialize, Deserialize};
 use sqlx::FromRow;
-use lumina::database::{connection::DatabasePool, model::Model};
+use pakem::database::{connection::DatabasePool, model::Model};
 
 // =========================================================================
 //                            USER MODEL
 // =========================================================================
 // Models map structural database records into Rust types.
-// The `Model` trait tells Lumina what SQLite database table to fetch from.
+// The `Model` trait tells Pakem what SQLite database table to fetch from.
 
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default)]
 pub struct User {
@@ -853,9 +853,9 @@ impl Model for User {
 
     // 15. Auto-generate comprehensive, educational README.md
     let readme = format!(
-        r#"# ⚡ Welcome to Your New Lumina Project: {}
+        r#"# ⚡ Welcome to Your New Pakem Project: {}
 
-Congratulations! You have successfully scaffolded a fresh project with the **Lumina Framework** — the highly ergonomic, high-performance web framework designed for developers who love the speed & memory-safety of **Rust** mixed with the clean, elegant MVC patterns of **Laravel**.
+Congratulations! You have successfully scaffolded a fresh project with the **Pakem Framework** — the highly ergonomic, high-performance web framework designed for developers who love the speed & memory-safety of **Rust** mixed with the clean, elegant MVC patterns of **Laravel**.
 
 ---
 
@@ -884,7 +884,7 @@ Your server is now active! Open your browser and navigate to:
 
 ## 📁 Understanding the Folder Structure
 
-Lumina follows a clean, intuitive MVC layout to make it incredibly easy for beginners and laypeople to explore:
+Pakem follows a clean, intuitive MVC layout to make it incredibly easy for beginners and laypeople to explore:
 
 *   **`src/`** — Houses all Rust source logic.
     *   **`src/main.rs`** — The entrypoint of your server where everything is loaded.
@@ -908,8 +908,8 @@ Create a file at `resources/views/about.blade.rs` and write standard HTML:
 
 @section('content')
 <div class="max-w-4xl mx-auto px-4 py-20 text-center">
-    <h1 class="text-4xl font-extrabold heading-font text-white">About Lumina</h1>
-    <p class="text-slate-400 mt-4 text-lg">This is my first Lumina custom view!</p>
+    <h1 class="text-4xl font-extrabold heading-font text-white">About Pakem</h1>
+    <p class="text-slate-400 mt-4 text-lg">This is my first Pakem custom view!</p>
 </div>
 @endsection
 ```
@@ -938,7 +938,7 @@ Compile and run again! Your new page will be live at `http://localhost:8000/abou
 ---
 
 ## 🦀 Built with Pride in Rust
-Enjoy building something incredibly fast, secure, and beautiful with **Lumina**!
+Enjoy building something incredibly fast, secure, and beautiful with **Pakem**!
 "#,
         name
     );

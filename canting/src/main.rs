@@ -28,7 +28,7 @@ struct CantingCli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Create a new Lumina project
+    /// Create a new Pakem project
     New {
         /// The name of the new project
         name: String,
@@ -46,7 +46,7 @@ enum Commands {
     /// Start the server with auto-reload on code change (cargo-watch)
     Watch,
 
-    /// Start interactive REPL shell (Lumina Tinker)
+    /// Start interactive REPL shell (Pakem Tinker)
     Tinker,
 
     /// Clean unused build artifacts, compiler cache, and temporary files
@@ -56,7 +56,7 @@ enum Commands {
         purge: bool,
     },
 
-    /// Upgrade Lumina CLI toolchain and current project dependencies
+    /// Upgrade Canting CLI toolchain and current project dependencies
     #[command(name = "upgrade", alias = "update")]
     Upgrade {
         /// Upgrade only the CLI toolchain without updating the current project
@@ -106,7 +106,7 @@ enum Commands {
     #[command(name = "make:auth")]
     MakeAuth,
 
-    /// Install Lumina Aurora starter kit (Auth, Dashboard, Profile, Blade views & Tailwind)
+    /// Install Pakem Aurora starter kit (Auth, Dashboard, Profile, Blade views & Tailwind)
     #[command(name = "aurora:install")]
     AuroraInstall,
 
@@ -138,7 +138,7 @@ enum Commands {
         name: String,
     },
 
-    /// Generate a new Lumina Live reactive component
+    /// Generate a new Pakem Live reactive component
     #[command(name = "make:live")]
     MakeLive {
         /// The name of the live component (e.g., Counter, SearchUser)
@@ -180,7 +180,7 @@ enum Commands {
     },
 
     // ─── Security & Auditing ──────────────────────────────────────────────────
-    /// Run Lumina Shield to audit security, secrets, and environment configuration
+    /// Run Pakem Shield to audit security, secrets, and environment configuration
     Audit,
 
     // ─── Database ─────────────────────────────────────────────────────────────
@@ -260,7 +260,7 @@ enum Commands {
         #[arg(short, long, default_value = "json")]
         format: String,
         /// Project API title
-        #[arg(long, default_value = "Lumina Application API")]
+        #[arg(long, default_value = "Pakem Application API")]
         title: String,
         /// API version
         #[arg(long, default_value = "1.0.0")]
@@ -271,10 +271,10 @@ enum Commands {
     #[command(name = "export:postman")]
     ExportPostman {
         /// Output file path (default: lumina_collection.json)
-        #[arg(short, long, default_value = "lumina_collection.json")]
+        #[arg(short, long, default_value = "pakem_collection.json")]
         output: String,
         /// Name of the Postman collection
-        #[arg(long, default_value = "Lumina API Collection")]
+        #[arg(long, default_value = "Pakem API Collection")]
         name: String,
         /// API version
         #[arg(long, default_value = "1.0.0")]
@@ -451,7 +451,7 @@ fn handle_new_project(name: &str, db: &str, offline: bool) {
     let db_normalized = db.to_lowercase();
     println!(
         "{}",
-        "✨ Welcome to Lumina Framework".bright_purple().bold()
+        "✨ Welcome to Pakem Framework".bright_purple().bold()
     );
     println!("🚀 Creating new project: {} (Database: {})\n", name.bright_blue(), db_normalized.bright_yellow());
 
@@ -462,7 +462,7 @@ fn handle_new_project(name: &str, db: &str, offline: bool) {
             .unwrap(),
     );
 
-    pb.set_message("Preparing Lumina project...");
+    pb.set_message("Preparing Pakem project...");
     pb.enable_steady_tick(std::time::Duration::from_millis(120));
 
     let path = Path::new(name);

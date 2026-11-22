@@ -89,7 +89,7 @@ DATABASE_URL=mysql://root:@127.0.0.1:3306/{}_db"#,
 sqlite = []
 postgres = []
 mysql = []
-mssql = ["lumina/mssql"]"#,
+mssql = ["pakem/mssql"]"#,
             format!(
                 r#"# Database Configuration (Microsoft SQL Server / MSSQL)
 DB_CONNECTION=mssql
@@ -194,14 +194,14 @@ strip = true
 
     // 3. .env.example & .env
     let env_example = format!(
-        r#"# ─── LUMINA FRAMEWORK CONFIGURATION ──────────────────────────────────────────
+        r#"# ─── PAKEM FRAMEWORK CONFIGURATION ──────────────────────────────────────────
 
 # Application Settings
-APP_NAME=Lumina
+APP_NAME=Pakem
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost:8000
-APP_KEY=lumina-super-secret-key-change-me-in-production
+APP_KEY=pakem-super-secret-key-change-me-in-production
 
 # Logging
 LOG_LEVEL=info
@@ -224,7 +224,7 @@ QUEUE_CONNECTION=database
 BROADCAST_DRIVER=log
 
 # Session Configuration
-JWT_SECRET=lumina-jwt-secret-key-change-me-in-production
+JWT_SECRET=pakem-jwt-secret-key-change-me-in-production
 
 # ──────────────────────────────────────────────────────────────────────────────
 "#,
@@ -249,7 +249,7 @@ mod routes;
 
 use pakem::prelude::*;
 
-//                  LUMINA FRAMEWORK APPLICATION ENTRYPOINT
+//                  PAKEM FRAMEWORK APPLICATION ENTRYPOINT
 // High-performance, elegant Rust web backend & API engine.
 
 #[tokio::main]
@@ -262,7 +262,7 @@ async fn main() {
         .with_web(routes::web::router())
         .with_api(routes::api::router());
 
-    println!("⚡ Welcome to Lumina Framework");
+    println!("⚡ Welcome to Pakem Framework");
     println!("🚀 Server running at http://127.0.0.1:8000");
     println!("📖 API Endpoints ready at http://127.0.0.1:8000/api");
 
@@ -309,7 +309,7 @@ pub mod prelude {
 use serde_json::json;
 
 //                        WELCOME CONTROLLER
-// Controller halaman utama aplikasi Lumina.
+// Controller halaman utama aplikasi Pakem.
 // Mendukung Dual-Mode Response:
 // 1. Browser Request (Accept: text/html) -> Mengembalikan Dashboard HTML modern ala Laravel.
 // 2. API / cURL Request (Accept: application/json atau ?format=json) -> Mengembalikan JSON ala Lumen!
@@ -335,9 +335,9 @@ impl WelcomeController {
 
         if wants_json {
             return axum::Json(json!({
-                "name": "Lumina Framework",
-                "tagline": "The High-Performance Rust Backend for Modern APIs",
-                "version": "0.3.0",
+                "name": "Pakem Framework",
+                "tagline": "Look like Laravel, Run at Rust Speed",
+                "version": "1.0.1",
                 "rust_edition": "2021",
                 "engine": "Axum 0.7 + Tokio Async",
                 "environment": "local",
@@ -345,7 +345,7 @@ impl WelcomeController {
                     "driver": db_info.0,
                     "status": db_info.1
                 },
-                "documentation": "https://github.com/lumina-java/framework",
+                "documentation": "https://pakem.my.id",
                 "endpoints": {
                     "home": "/",
                     "health": "/health",
@@ -357,8 +357,8 @@ impl WelcomeController {
 
         // 2. Jika diakses via Web Browser biasa, render Blade HTML Dashboard
         req.view("welcome")
-            .with("title", "Lumina Framework - High Performance Rust Backend")
-            .with("app_name", "Lumina Framework")
+            .with("title", "Pakem Framework - Look like Laravel, Run at Rust Speed")
+            .with("app_name", "Pakem Framework")
             .with("version", "0.3.0")
             .with("rust_edition", "2021")
             .with("db_driver", db_info.0)
@@ -373,7 +373,7 @@ impl WelcomeController {
     #[allow(dead_code)]
     pub async fn login(req: Request) -> impl IntoResponse {
         req.view("auth.login")
-            .with("title", "Login - Lumina")
+            .with("title", "Login - Pakem")
             .render(req)
             .await
             .into_response()
@@ -383,7 +383,7 @@ impl WelcomeController {
     #[allow(dead_code)]
     pub async fn register(req: Request) -> impl IntoResponse {
         req.view("auth.register")
-            .with("title", "Register - Lumina")
+            .with("title", "Register - Pakem")
             .render(req)
             .await
             .into_response()
@@ -412,7 +412,7 @@ use crate::app::controllers::welcome_controller::WelcomeController;
 
 pub fn router() -> Router<AppState> {
     Router::new()
-        // Halaman Utama Lumina (Dual Mode: HTML Dashboard di browser / JSON di API)
+        // Halaman Utama Pakem (Dual Mode: HTML Dashboard di browser / JSON di API)
         .get("/", WelcomeController::index)
         
         // Rute autentikasi
@@ -437,11 +437,11 @@ pub fn router() -> Router<AppState> {
 }
 
 /// Endpoint: GET /api
-async fn api_index(req: Request) -> LuminaResult {
+async fn api_index(req: Request) -> PakemResult {
     req.ok(json!({
-        "framework": "Lumina Framework",
-        "tagline": "The High-Performance Rust Backend for Modern APIs",
-        "version": "0.3.0",
+        "framework": "Pakem Framework",
+        "tagline": "Look like Laravel, Run at Rust Speed",
+        "version": "1.0.1",
         "status": "online",
         "endpoints": {
             "health": "/api/health",
@@ -451,7 +451,7 @@ async fn api_index(req: Request) -> LuminaResult {
 }
 
 /// Endpoint: GET /api/health
-async fn api_health(req: Request) -> LuminaResult {
+async fn api_health(req: Request) -> PakemResult {
     let db_status = if let Some(pool) = &req.state.db {
         if sqlx::query("SELECT 1").execute(&pool.pool).await.is_ok() {
             "connected"
@@ -470,10 +470,10 @@ async fn api_health(req: Request) -> LuminaResult {
 }
 
 /// Endpoint: GET /api/v1
-async fn api_v1_index(req: Request) -> LuminaResult {
+async fn api_v1_index(req: Request) -> PakemResult {
     req.ok(json!({
         "version": "v1",
-        "message": "Lumina API v1 is ready. Register your controllers in src/routes/api.rs!"
+        "message": "Pakem API v1 is ready. Register your controllers in src/routes/api.rs!"
     }))
 }
 "#;
@@ -485,7 +485,7 @@ async fn api_v1_index(req: Request) -> LuminaResult {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title | default("Lumina Framework") }}</title>
+    <title>{{ title | default("Pakem Framework") }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -529,7 +529,7 @@ async fn api_v1_index(req: Request) -> LuminaResult {
                             <span class="text-white font-black heading-font text-xl">⚡</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xl font-bold tracking-tight text-white heading-font">Lumina</span>
+                            <span class="text-xl font-bold tracking-tight text-white heading-font">Pakem</span>
                             <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Backend</span>
                         </div>
                     </a>
@@ -555,7 +555,7 @@ async fn api_v1_index(req: Request) -> LuminaResult {
     <footer class="border-t border-slate-900 bg-black/60 py-8">
         <div class="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-2">
-                <span>&copy; 2026 <strong>Lumina Framework</strong>. All rights reserved.</span>
+                <span>&copy; 2026 <strong>Pakem Framework</strong>. All rights reserved.</span>
             </div>
             <div class="flex items-center gap-1.5 text-slate-400">
                 Engineered with <span class="text-red-500">❤️</span> in <strong>Rust</strong> (Axum 0.7 + Tokio) for ultra-fast APIs.
@@ -582,14 +582,14 @@ async fn api_v1_index(req: Request) -> LuminaResult {
         <div class="text-center max-w-4xl mx-auto">
             <div class="inline-flex items-center gap-2 py-1 px-3.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/25 mb-6 uppercase tracking-wider shadow-inner">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                <span>Lumina v{{ version }} • High-Performance Rust Backend Engine</span>
+                <span>Pakem v{{ version }} • High-Performance Rust Backend Engine</span>
             </div>
             <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6 heading-font leading-tight">
                 The <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400">Elegance</span> of Laravel.<br>
                 The <span class="text-white underline decoration-indigo-500 decoration-wavy decoration-2">Raw Speed</span> of Rust.
             </h1>
             <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
-                Lumina is a developer-first Rust web framework specifically built for modern <strong>Backend APIs</strong>, microservices, and enterprise applications. Enjoy seamless routing, unified database pooling, and rapid scaffolding.
+                Pakem is a developer-first Rust web framework specifically built for modern <strong>Backend APIs</strong>, microservices, and enterprise applications. Enjoy seamless routing, unified database pooling, and rapid scaffolding.
             </p>
             <div class="flex flex-wrap justify-center gap-4">
                 <a href="/api" target="_blank" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-7 py-3.5 rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
@@ -607,7 +607,7 @@ async fn api_v1_index(req: Request) -> LuminaResult {
             <div class="glass-card rounded-2xl p-5 text-left">
                 <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Framework Version</div>
                 <div class="text-xl font-bold text-white heading-font flex items-center gap-2">
-                    <span>Lumina {{ version }}</span>
+                    <span>Pakem {{ version }}</span>
                 </div>
                 <div class="text-xs text-indigo-400 mt-1">Rust {{ rust_edition }} Edition</div>
             </div>
@@ -672,7 +672,7 @@ async fn api_v1_index(req: Request) -> LuminaResult {
                     <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">2. JSON Response yang Dihasilkan:</div>
                     <pre class="bg-black/90 rounded-2xl p-4 border border-slate-800 mono-font text-xs text-emerald-400 overflow-x-auto leading-relaxed">
 {
-  <span class="text-slate-400">"name"</span>: <span class="text-amber-300">"Lumina Framework"</span>,
+  <span class="text-slate-400">"name"</span>: <span class="text-amber-300">"Pakem Framework"</span>,
   <span class="text-slate-400">"version"</span>: <span class="text-amber-300">"{{ version }}"</span>,
   <span class="text-slate-400">"engine"</span>: <span class="text-amber-300">"Axum 0.7 + Tokio Async"</span>,
   <span class="text-slate-400">"database"</span>: {
@@ -719,7 +719,7 @@ async fn api_v1_index(req: Request) -> LuminaResult {
                 </div>
                 <h3 class="text-xl font-bold text-white heading-font mb-2">Active Record Models</h3>
                 <p class="text-slate-400 text-sm leading-relaxed mb-4">
-                    Tulis model database semudah di Laravel Eloquent dengan makro sakti <code class="mono-font bg-slate-900 text-indigo-300 px-1 rounded">#[derive(LuminaModel)]</code>. Otomatis menyediakan <code class="mono-font text-indigo-300">all()</code>, <code class="mono-font text-indigo-300">find(id)</code>, dan CRUD.
+                    Tulis model database semudah di Laravel Eloquent dengan makro sakti <code class="mono-font bg-slate-900 text-indigo-300 px-1 rounded">#[derive(PakemModel)]</code>. Otomatis menyediakan <code class="mono-font text-indigo-300">all()</code>, <code class="mono-font text-indigo-300">find(id)</code>, dan CRUD.
                 </p>
                 <a href="https://github.com/lumina-java/framework#models" target="_blank" class="text-xs font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1">
                     Pelajari Makro Model <span>&rarr;</span>
@@ -755,7 +755,7 @@ pub fn router() -> Router&lt;AppState&gt; {
 async fn get_products() -> impl IntoResponse {
     Json(serde_json::json!({
         "status": "success",
-        "data": ["Rust", "Axum", "Lumina"]
+        "data": ["Rust", "Axum", "Pakem"]
     }))
 }</pre>
                     </div>
@@ -815,7 +815,7 @@ async fn get_products() -> impl IntoResponse {
     <div class="max-w-md w-full bg-slate-900/60 border border-slate-800/80 rounded-3xl p-10 backdrop-filter backdrop-blur-md shadow-2xl relative z-10">
         <div class="text-center mb-8">
             <h2 class="text-3xl font-extrabold heading-font text-white">Create Account</h2>
-            <p class="text-slate-400 mt-2 text-sm">Get started with the Lumina ecosystem</p>
+            <p class="text-slate-400 mt-2 text-sm">Get started with the Pakem ecosystem</p>
         </div>
         
         <form action="/register" method="POST" class="space-y-6">
@@ -870,12 +870,12 @@ CREATE TABLE IF NOT EXISTS users (
     .ok();
 
     // 14a. database/seeders/0001_users_seeder.sql
-    let default_seeder = r#"-- Lumina Default Users Seeder (Admin, Editor, Member)
+    let default_seeder = r#"-- Pakem Default Users Seeder (Admin, Editor, Member)
 -- Password default: password123 (bcrypt cost 12)
 DELETE FROM users WHERE email IN ('admin@lumina.dev', 'editor@lumina.dev', 'member@lumina.dev');
 
 INSERT INTO users (name, email, password, role) VALUES 
-('Administrator Lumina', 'admin@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'admin'),
+('Administrator Pakem', 'admin@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'admin'),
 ('Editor Konten', 'editor@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'editor'),
 ('Member Komunitas', 'member@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'member');
 "#;
@@ -896,7 +896,7 @@ INSERT INTO users (name, email, password, role) VALUES
 use crate::app::models::user::User;
 
 // =========================================================================
-//  UserFactory (Lumina Model Factory)
+//  UserFactory (Pakem Model Factory)
 // =========================================================================
 
 pub struct UserFactory;
@@ -942,9 +942,9 @@ use pakem::prelude::*;
 
 //                            USER MODEL
 // Di Laravel, ini adalah class Eloquent (`User extends Model`).
-// Cukup tambahkan `#[derive(LuminaModel)]` untuk mendapatkan fungsi CRUD otomatis:
+// Cukup tambahkan `#[derive(PakemModel)]` untuk mendapatkan fungsi CRUD otomatis:
 // `User::find(id)`, `User::all()`, dll.
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel)]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel)]
 #[table("users")]
 pub struct User {
     pub id: i64,
@@ -967,9 +967,9 @@ impl User {
 
     // 16. Auto-generate comprehensive README.md
     let readme = format!(
-        r#"# ⚡ Welcome to Your Lumina Backend Application: {}
+        r#"# ⚡ Welcome to Your Pakem Backend Application: {}
 
-Selamat! Anda telah berhasil menginisialisasi project baru dengan **Lumina Framework** — Web & RESTful API framework modern berbasis Rust (Axum 0.7 & Tokio Async) yang memadukan kecepatan komputasi sistem Rust dengan elegansi dan ergonomi sintaks **Laravel** dan **Lumen**.
+Selamat! Anda telah berhasil menginisialisasi project baru dengan **Pakem Framework** — Web & RESTful API framework modern berbasis Rust (Axum 0.7 & Tokio Async) yang memadukan kecepatan komputasi sistem Rust dengan elegansi dan ergonomi sintaks **Laravel** dan **Lumen**.
 
 ---
 
@@ -994,7 +994,7 @@ Akses di browser atau API client Anda:
 
 ## 🗄️ Beralih ke PostgreSQL atau MySQL
 
-Lumina mendukung multi-driver database secara native. Cukup sesuaikan variabel di `.env`:
+Pakem mendukung multi-driver database secara native. Cukup sesuaikan variabel di `.env`:
 
 ### Contoh PostgreSQL:
 ```env
@@ -1017,7 +1017,7 @@ lumina migrate
 ## 📁 Struktur Folder Proyek
 
 ```text
-├── Cargo.toml                  # Konfigurasi dependensi (Axum, Tokio, SQLx, Lumina)
+├── Cargo.toml                  # Konfigurasi dependensi (Axum, Tokio, SQLx, Pakem)
 ├── .env                        # Variabel environment (Database, App Secret, Port)
 ├── src/
 │   ├── main.rs                 # Application entrypoint & HTTP server bootstrap
@@ -1027,7 +1027,7 @@ lumina migrate
 │   │   └── api.rs              # Route RESTful API (prefix /api)
 │   └── app/
 │       ├── controllers/        # Request handling & responses
-│       ├── models/             # Active Record models (#[derive(LuminaModel)])
+│       ├── models/             # Active Record models (#[derive(PakemModel)])
 │       └── services/           # Business logic layer
 ├── resources/views/            # Blade template views (.blade.rs)
 ├── database/migrations/        # Migrasi skema database SQL
@@ -1036,7 +1036,7 @@ lumina migrate
 
 ---
 
-## 🦀 Selamat Berkarya dengan Lumina Framework!
+## 🦀 Selamat Berkarya dengan Pakem Framework!
 Dokumentasi lengkap dan update framework: [github.com/lumina-java/framework](https://github.com/lumina-java/framework)
 "#,
         name

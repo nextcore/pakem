@@ -44,7 +44,7 @@ pub async fn zero_panic_boundary(req: Request, next: Next) -> Response {
             };
 
             tracing::error!(
-                target: "lumina::panic_boundary",
+                target: "pakem::panic_boundary",
                 method = %method,
                 uri = %uri,
                 panic = %panic_msg,

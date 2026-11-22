@@ -9,21 +9,21 @@ use std::process::Command;
 //  HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
 
-fn is_lumina_project() -> bool {
+fn is_pakem_project() -> bool {
     Path::new("Cargo.toml").exists() && Path::new("src/app").exists()
 }
 
 fn guard_project() -> bool {
-    if !is_lumina_project() {
+    if !is_pakem_project() {
         println!(
             "{}",
-            "❌ Error: This command must be run inside a Lumina project root."
+            "❌ Error: This command must be run inside a Pakem project root."
                 .red()
                 .bold()
         );
         println!(
             "   Hint: Create a project first with {}",
-            "lumina new <name>".bright_cyan()
+            "canting new <name>".bright_cyan()
         );
         false
     } else {
@@ -69,7 +69,7 @@ pub fn cmd_serve() {
     if !guard_project() {
         return;
     }
-    println!("{}", "🚀 Starting Lumina Server...".bright_purple().bold());
+    println!("{}", "🚀 Starting Pakem Server...".bright_purple().bold());
     println!("   Press {} to stop.\n", "Ctrl+C".bright_red());
     let status = Command::new("cargo").arg("run").status();
     if let Err(e) = status {
@@ -83,7 +83,7 @@ pub fn cmd_watch() {
     }
     println!(
         "{}",
-        "👁  Starting Lumina Watch (auto-reload)..."
+        "👁  Starting Pakem Watch (auto-reload)..."
             .bright_purple()
             .bold()
     );
@@ -115,7 +115,7 @@ pub fn cmd_clean(purge: bool) {
         return;
     }
 
-    println!("{}", "✨ Menjalankan Lumina Smart Clean (Optimasi Cache)...".bright_purple().bold());
+    println!("{}", "✨ Menjalankan Pakem Smart Clean (Optimasi Cache)...".bright_purple().bold());
 
     // 1. Jalankan cargo sweep jika terinstall
     let sweep_status = Command::new("cargo")
@@ -179,7 +179,7 @@ pub fn cmd_clean(purge: bool) {
                 let path = entry.path();
                 if path.is_file() {
                     if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                        if name.starts_with("lumina.log.") {
+                        if name.starts_with("pakem.log.") {
                             count += 1;
                         }
                     }
@@ -222,7 +222,7 @@ pub struct {class};
 
 impl {class} {{
     /// GET /{lower} — Ambil semua data
-    pub async fn index(req: Request) -> LuminaResult {{
+    pub async fn index(req: Request) -> PakemResult {{
         req.ok(serde_json::json!({{
             "message": "List of {base}",
             "status": "success"
@@ -230,7 +230,7 @@ impl {class} {{
     }}
 
     /// GET /{lower}/paged — Paginasi data otomatis dari ?page=X&per_page=Y
-    pub async fn paginate(req: Request) -> LuminaResult {{
+    pub async fn paginate(req: Request) -> PakemResult {{
         let (page, per_page) = req.pagination();
         req.ok(serde_json::json!({{
             "page": page,
@@ -240,14 +240,14 @@ impl {class} {{
     }}
 
     /// POST /{lower} — Simpan data baru
-    pub async fn store(req: Request) -> LuminaResult {{
+    pub async fn store(req: Request) -> PakemResult {{
         req.created(serde_json::json!({{
             "message": "{base} created successfully"
         }}))
     }}
 
     /// GET /{lower}/:id — Ambil satu detail data
-    pub async fn show(req: Request) -> LuminaResult {{
+    pub async fn show(req: Request) -> PakemResult {{
         let id = req.id_or_fail()?;
         req.ok(serde_json::json!({{
             "id": id,
@@ -256,7 +256,7 @@ impl {class} {{
     }}
 
     /// PUT /{lower}/:id — Update data
-    pub async fn update(req: Request) -> LuminaResult {{
+    pub async fn update(req: Request) -> PakemResult {{
         let id = req.id_or_fail()?;
         req.ok(serde_json::json!({{
             "id": id,
@@ -265,7 +265,7 @@ impl {class} {{
     }}
 
     /// DELETE /{lower}/:id — Hapus data
-    pub async fn destroy(req: Request) -> LuminaResult {{
+    pub async fn destroy(req: Request) -> PakemResult {{
         let id = req.id_or_fail()?;
         req.ok(serde_json::json!({{
             "id": id,
@@ -312,8 +312,8 @@ use sqlx::FromRow;
 //  {class} MODEL (Eloquent / Active Record)
 // =========================================================================
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel)]
-#[lumina(table = "{table}")]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel)]
+#[table("{table}")]
 pub struct {class} {{
     pub id: i64,
     // Add custom fields here, e.g.:
@@ -680,10 +680,10 @@ services:
       - APP_PORT={port}
       - APP_URL=http://{raw_name}
     networks:
-      - lumina-net
+      - pakem-net
 
 networks:
-  lumina-net:
+  pakem-net:
     driver: bridge
 "#,
         safe_name = safe_name,
@@ -694,7 +694,7 @@ networks:
 
     // 4. deploy/nginx.conf (aaPanel / Nginx ready reverse proxy)
     let nginx_conf = format!(
-        r#"# Lumina Framework — Nginx / aaPanel Reverse Proxy Configuration
+        r#"# Pakem Framework — Nginx / aaPanel Reverse Proxy Configuration
 # Domain: {raw_name} -> Container Port: {port}
 
 server {{
@@ -768,7 +768,7 @@ pub fn generate_nginx() {
     let project_name = get_project_name();
 
     let nginx_conf = format!(
-        r#"# Lumina Framework — Nginx Reverse Proxy Configuration
+        r#"# Pakem Framework — Nginx Reverse Proxy Configuration
 # Place this file in /etc/nginx/sites-available/{name}
 # Then: sudo ln -s /etc/nginx/sites-available/{name} /etc/nginx/sites-enabled/
 # sudo nginx -t && sudo systemctl reload nginx
@@ -835,7 +835,7 @@ pub fn generate_supervisor() {
     let project_name = get_project_name();
 
     let supervisor_conf = format!(
-        r#"; Lumina Framework — Supervisor Configuration
+        r#"; Pakem Framework — Supervisor Configuration
 ; Place this file in /etc/supervisor/conf.d/{name}.conf
 ; Then: sudo supervisorctl reread && sudo supervisorctl update
 
@@ -882,7 +882,7 @@ fn get_project_name() -> String {
             }
         }
     }
-    "lumina-app".to_string()
+    "pakem-app".to_string()
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -977,11 +977,11 @@ pub extern "C" fn transform(ptr: i32, len: i32) -> i64 {{
     let readme = format!(
         r#"# Lumina WASM Plugin: {}
 
-Plugin WebAssembly untuk Lumina Framework.
+Plugin WebAssembly untuk Pakem Framework.
 
 ## Cara Kompilasi:
 ```bash
-lumina plugin:build {}
+canting plugin:build {}
 ```
 Binary output `.wasm` akan otomatis disalin ke `plugins/{}.wasm`.
 
@@ -1002,11 +1002,11 @@ Binary output `.wasm` akan otomatis disalin ke `plugins/{}.wasm`.
             .bold()
     );
     println!("👉 Next step: Compile the plugin with:");
-    println!("   {}\n", format!("lumina plugin:build {}", clean_name).bright_cyan());
+    println!("   {}\n", format!("canting plugin:build {}", clean_name).bright_cyan());
 }
 
 pub fn cmd_plugin_build(name: Option<&str>) {
-    println!("{}", "🔨 Compiling Lumina WebAssembly Plugin(s)...".bright_blue().bold());
+    println!("{}", "🔨 Compiling Pakem WebAssembly Plugin(s)...".bright_blue().bold());
 
     let plugins_to_build: Vec<String> = if let Some(n) = name {
         vec![n.trim().to_lowercase().replace("-", "_")]
@@ -1027,7 +1027,7 @@ pub fn cmd_plugin_build(name: Option<&str>) {
 
     if plugins_to_build.is_empty() {
         println!("{}", "⚠️  No plugin crates found to compile.".yellow());
-        println!("💡 Tip: Create a new plugin with: {}", "lumina plugin:new <name>".bright_cyan());
+        println!("💡 Tip: Create a new plugin with: {}", "canting plugin:new <name>".bright_cyan());
         return;
     }
 
@@ -1099,7 +1099,7 @@ pub fn cmd_plugin_build(name: Option<&str>) {
 }
 
 pub fn cmd_plugin_list() {
-    println!("{}", "🔍 Scanning for Lumina Plugins & Indonesian Scripts...\n".bright_blue().bold());
+    println!("{}", "🔍 Scanning for Pakem Plugins & Indonesian Scripts...\n".bright_blue().bold());
 
     struct Item {
         name: String,
@@ -1144,7 +1144,7 @@ pub fn cmd_plugin_list() {
                 let status = if wasm_exists {
                     "Configured & Compiled".to_string()
                 } else {
-                    "Not built (run lumina plugin:build)".to_string()
+                    "Not built (run canting plugin:build)".to_string()
                 };
                 items.push(Item {
                     name: format!("{}/ (Crate)", folder_name),
@@ -1180,7 +1180,7 @@ pub fn cmd_plugin_list() {
 
     if items.is_empty() {
         println!("{}", "ℹ️  No WASM plugins or Indonesian Scripts found.".yellow());
-        println!("💡 Tip: Create a new plugin with: {}", "lumina plugin:new <name>".bright_cyan());
+        println!("💡 Tip: Create a new plugin with: {}", "canting plugin:new <name>".bright_cyan());
         println!("💡 Tip: Place .is scripts in folder {} or {}\n", "app/scripts/".bright_cyan(), "plugins/".bright_cyan());
         return;
     }
@@ -1195,9 +1195,9 @@ pub fn cmd_plugin_list() {
 }
 
 pub fn cmd_plugin_metrics() {
-    println!("{}", "📊 Lumina WASM Sandbox & Plugin Metrics Dashboard\n".bright_cyan().bold());
+    println!("{}", "📊 Pakem WASM Sandbox & Plugin Metrics Dashboard\n".bright_cyan().bold());
 
-    let manager = pakem::core::sandbox::LuminaPluginManager::new();
+    let manager = pakem::core::sandbox::PakemPluginManager::new();
     let loaded = manager.load_directory("plugins").unwrap_or(0);
 
     let metrics = manager.get_metrics();
@@ -1208,8 +1208,8 @@ pub fn cmd_plugin_metrics() {
 
     if loaded == 0 {
         println!("{}", "ℹ️  Tidak ada biner .wasm aktif di direktori plugins/.".yellow());
-        println!("💡 Tip: Buat plugin baru dengan: {}", "lumina plugin:new <name>".bright_cyan());
-        println!("💡 Tip: Kompilasi plugin dengan: {}\n", "lumina plugin:build".bright_cyan());
+        println!("💡 Tip: Buat plugin baru dengan: {}", "canting plugin:new <name>".bright_cyan());
+        println!("💡 Tip: Kompilasi plugin dengan: {}\n", "canting plugin:build".bright_cyan());
         return;
     }
 
@@ -1231,10 +1231,10 @@ pub fn cmd_plugin_metrics() {
 }
 
 pub fn cmd_plugin_reload() {
-    println!("{}", "🔄 Reloading Lumina WASM Plugins (Zero-Downtime Hot-Reload)...".bright_purple().bold());
+    println!("{}", "🔄 Reloading Pakem WASM Plugins (Zero-Downtime Hot-Reload)...".bright_purple().bold());
     let start = std::time::Instant::now();
 
-    let manager = pakem::core::sandbox::LuminaPluginManager::new();
+    let manager = pakem::core::sandbox::PakemPluginManager::new();
     match manager.reload("plugins") {
         Ok(count) => {
             let dur = start.elapsed().as_secs_f64() * 1000.0;
@@ -1275,7 +1275,7 @@ pub fn generate_factory(name: &str) {
 use crate::app::models::{snake_model}::{model_name};
 
 // =========================================================================
-//  {factory_name} (Lumina Model Factory)
+//  {factory_name} (Pakem Model Factory)
 // =========================================================================
 
 pub struct {factory_name};
@@ -1325,7 +1325,7 @@ impl HasFactory<{factory_name}> for {model_name} {{
             append_to_file(mod_file, &mod_line);
         }
     } else {
-        let _ = fs::write(mod_file, format!("// Lumina Database Factories\n{}", mod_line));
+        let _ = fs::write(mod_file, format!("// Pakem Database Factories\n{}", mod_line));
     }
 
     print_success(&format!("Factory created: {}", file_path.bright_green()));
@@ -1360,7 +1360,7 @@ pub fn generate_seeder(name: &str) {
         r#"use pakem::prelude::*;
 
 // =========================================================================
-//  {seeder_name} (Lumina Database Seeder Class)
+//  {seeder_name} (Pakem Database Seeder Class)
 // =========================================================================
 
 #[derive(Default)]
@@ -1399,7 +1399,7 @@ impl Seeder for {seeder_name} {{
             append_to_file(mod_file, &mod_line);
         }
     } else {
-        let _ = fs::write(mod_file, format!("// Lumina Database Seeders\n{}", mod_line));
+        let _ = fs::write(mod_file, format!("// Pakem Database Seeders\n{}", mod_line));
     }
 
     let sql_dir = "database/seeders";
@@ -1409,7 +1409,7 @@ impl Seeder for {seeder_name} {{
     let _ = fs::write(&sql_path, sql_content);
 
     print_success(&format!("Seeder created: {}", file_path.bright_green()));
-    print_hint(&format!("Run this seeder with: lumina db:seed --class {}\n", seeder_name));
+    print_hint(&format!("Run this seeder with: canting db:seed --class {}\n", seeder_name));
 }
 
 pub fn generate_view(name: &str) {
@@ -1465,7 +1465,7 @@ r#"@extends('layouts.app')
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">{title}</h1>
         <p class="text-gray-600 dark:text-gray-300">
-            Halaman view baru Lumina: <code class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-purple-600 dark:text-purple-400 font-mono text-sm">{view_dot}</code>
+            Halaman view baru Pakem: <code class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-purple-600 dark:text-purple-400 font-mono text-sm">{view_dot}</code>
         </p>
     </div>
 </div>
@@ -1565,7 +1565,7 @@ impl Job for {job_name} {{
             append_to_file(mod_file, &mod_line);
         }
     } else {
-        let _ = fs::write(mod_file, format!("// Lumina Background Jobs Registry\n{}", mod_line));
+        let _ = fs::write(mod_file, format!("// Pakem Background Jobs Registry\n{}", mod_line));
     }
 
     print_success(&format!("Job class created: {}", file_path.bright_green()));
@@ -1576,7 +1576,7 @@ pub fn generate_live(name: &str) {
     if !guard_project() {
         return;
     }
-    println!("{}", "⚡ Generating Lumina Live Component...".bright_purple().bold());
+    println!("{}", "⚡ Generating Pakem Live Component...".bright_purple().bold());
 
     let comp_name = capitalize_first(name);
     let snake = to_snake_case(&comp_name);
@@ -1600,7 +1600,7 @@ use pakem::prelude::*;
 use serde::{{Deserialize, Serialize}};
 use serde_json::Value;
 
-/// Komponen Reaktif Lumina Live: {comp_name}
+/// Komponen Reaktif Pakem Live: {comp_name}
 /// Mendukung Tri-Dialect: `kilat:*` (Indonesia), `live:*` (Universal), `wire:*` (Laravel Legacy).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct {comp_name} {{
@@ -1646,7 +1646,7 @@ impl LiveComponent for {comp_name} {{
 r#"<div class="p-6 bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md mx-auto my-6 text-center">
     <div class="mb-4">
         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-            ⚡ Lumina Live ({comp_name})
+            ⚡ Pakem Live ({comp_name})
         </span>
     </div>
 
@@ -1688,7 +1688,7 @@ r#"<div class="p-6 bg-white rounded-2xl shadow-xl border border-slate-100 max-w-
             append_to_file(mod_file, &mod_line);
         }
     } else {
-        let _ = fs::write(mod_file, format!("// Lumina Live Components Registry\n{}", mod_line));
+        let _ = fs::write(mod_file, format!("// Pakem Live Components Registry\n{}", mod_line));
     }
 
     print_success(&format!("Live component created: {}", comp_path.bright_green()));
@@ -1697,14 +1697,14 @@ r#"<div class="p-6 bg-white rounded-2xl shadow-xl border border-slate-100 max-w-
 }
 
 
-/// Generate complete Lumina Aurora starter kit
+/// Generate complete Pakem Aurora starter kit
 pub fn generate_aurora() {
     if !guard_project() {
         return;
     }
     println!(
         "{}",
-        "⚡ Installing Lumina Aurora Starter Kit..."
+        "⚡ Installing Pakem Aurora Starter Kit..."
             .bright_purple()
             .bold()
     );
@@ -1735,7 +1735,7 @@ pub fn generate_aurora() {
     let prof_ctrl = include_str!("../templates/controllers/aurora/profile_controller.rs");
     let mod_ctrl = include_str!("../templates/controllers/aurora/mod.rs");
 
-    let aurora_migration = r#"-- Users Table Migration for Lumina Aurora (RBAC Ready)
+    let aurora_migration = r#"-- Users Table Migration for Pakem Aurora (RBAC Ready)
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(255) NOT NULL,
@@ -1747,18 +1747,18 @@ CREATE TABLE IF NOT EXISTS users (
 );
 "#;
 
-    let aurora_seeder = r#"-- Lumina Aurora: Default RBAC Users Seeder
+    let aurora_seeder = r#"-- Pakem Aurora: Default RBAC Users Seeder
 -- Akun Bawaan untuk pengujian hak akses peran:
--- 1. admin@lumina.dev   (Administrator) | Password: password123
--- 2. editor@lumina.dev  (Editor)        | Password: password123
--- 3. member@lumina.dev  (Member)        | Password: password123
+-- 1. admin@pakem.my.id   (Administrator) | Password: password123
+-- 2. editor@pakem.my.id  (Editor)        | Password: password123
+-- 3. member@pakem.my.id  (Member)        | Password: password123
 
-DELETE FROM users WHERE email IN ('admin@lumina.dev', 'editor@lumina.dev', 'member@lumina.dev');
+DELETE FROM users WHERE email IN ('admin@pakem.my.id', 'editor@pakem.my.id', 'member@pakem.my.id');
 
 INSERT INTO users (name, email, password, role) VALUES 
-('Administrator Lumina', 'admin@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'admin'),
-('Editor Konten', 'editor@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'editor'),
-('Member Komunitas', 'member@lumina.dev', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'member');
+('Administrator Pakem', 'admin@pakem.my.id', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'admin'),
+('Editor Konten', 'editor@pakem.my.id', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'editor'),
+('Member Komunitas', 'member@pakem.my.id', '$2b$12$9PoqqsF9tgdGa57MX.JIA.ejM3WzhUR.2qslio9xbRzxVWnB9rhSu', 'member');
 "#;
 
     let files = [
@@ -1784,16 +1784,16 @@ INSERT INTO users (name, email, password, role) VALUES
         }
     }
 
-    println!("\n{}", "🎉 Lumina Aurora Starter Kit installed successfully!".bright_green().bold());
+    println!("\n{}", "🎉 Pakem Aurora Starter Kit installed successfully!".bright_green().bold());
     println!("{}", "Langkah selanjutnya untuk migrasi & seeding akun bawaan:".bright_cyan());
-    println!("  1. Jalankan Migrasi : {}", "lumina migrate".yellow());
-    println!("  2. Jalankan Seeder  : {}", "lumina db:seed".yellow());
+    println!("  1. Jalankan Migrasi : {}", "canting migrate".yellow());
+    println!("  2. Jalankan Seeder  : {}", "canting db:seed".yellow());
     println!("  3. Daftarkan router :");
     println!("     {}", "router.merge(pakem::app::controllers::aurora::routes())".yellow());
     println!("\n{}", "🔐 Akun Bawaan (Default Accounts - Password: password123):".bright_magenta().bold());
-    println!("  👑 Admin  : admin@lumina.dev  (Role: admin)");
-    println!("  ✍️  Editor : editor@lumina.dev (Role: editor)");
-    println!("  👤 Member : member@lumina.dev (Role: member)");
+    println!("  👑 Admin  : admin@pakem.my.id  (Role: admin)");
+    println!("  ✍️  Editor : editor@pakem.my.id (Role: editor)");
+    println!("  👤 Member : member@pakem.my.id (Role: member)");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1944,7 +1944,7 @@ fn build_openapi_spec(routes: &[ScannedRoute], title: &str, version: &str) -> se
         "info": {
             "title": title,
             "version": version,
-            "description": "REST API documentation generated automatically by Lumina CLI."
+            "description": "REST API documentation generated automatically by Canting CLI."
         },
         "servers": [
             {
@@ -2101,7 +2101,7 @@ pub fn export_postman(output: &str, name: &str, version: &str) {
         "info": {
             "_postman_id": uuid::Uuid::new_v4().to_string(),
             "name": name,
-            "description": format!("Collection exported from Lumina project (v{})", version),
+            "description": format!("Collection exported from Pakem project (v{})", version),
             "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
         },
         "item": items,
@@ -2161,7 +2161,7 @@ pub fn generate_ai_context_at(base: &Path, target: &str, force: bool) {
     if !base.join("Cargo.toml").exists() || !base.join("src/app").exists() {
         println!(
             "{}",
-            "❌ Error: This command must be run inside a Lumina project root."
+            "❌ Error: This command must be run inside a Pakem project root."
                 .red()
                 .bold()
         );
@@ -2183,7 +2183,7 @@ pub fn generate_ai_context_at(base: &Path, target: &str, force: bool) {
             }
             None
         })
-        .unwrap_or_else(|| "LuminaApp".to_string());
+        .unwrap_or_else(|| "PakemApp".to_string());
 
     println!(
         "{}",
@@ -2279,7 +2279,7 @@ pub fn generate_ai_skill_at(base: &Path, name: &str, fields: &[String], _provide
     if !base.join("Cargo.toml").exists() || !base.join("src/app").exists() {
         println!(
             "{}",
-            "❌ Error: This command must be run inside a Lumina project root."
+            "❌ Error: This command must be run inside a Pakem project root."
                 .red()
                 .bold()
         );
@@ -2418,18 +2418,18 @@ name: {snake_name}
 description: {description}
 ---
 
-# 🛠️ AI Skill: Lumina UI & System Reverse Engineer
+# 🛠️ AI Skill: Pakem UI & System Reverse Engineer
 
-Skill ini digunakan ketika pengguna ingin meniru, mereplikasi, atau merekayasa balik (*reverse-engineer*) website, tampilan HTML, atau alur aplikasi target ke dalam Lumina Framework.
+Skill ini digunakan ketika pengguna ingin meniru, mereplikasi, atau merekayasa balik (*reverse-engineer*) website, tampilan HTML, atau alur aplikasi target ke dalam Pakem Framework.
 
 ## 📋 Langkah Eksekusi Reverse Engineering
 1. **Analisis DOM & Visual Target**:
    - Dekonstruksi layout menjadi template Blade di `resources/views/`.
    - Gunakan utility classes Tailwind CSS murni.
 2. **Rekonstruksi Interaktivitas (Lumina Live)**:
-   - Jika terdapat pencarian instan, filter live, atau modal dinamis: buat komponen Lumina Live di `src/app/live/` dengan atribut `kilat:*` atau `wire:*`.
+   - Jika terdapat pencarian instan, filter live, atau modal dinamis: buat komponen Pakem Live di `src/app/live/` dengan atribut `kilat:*` atau `wire:*`.
 3. **Penyusunan Skema Data & ORM**:
-   - Bentuk Model `#[derive(LuminaModel)]` di `src/app/models/`.
+   - Bentuk Model `#[derive(PakemModel)]` di `src/app/models/`.
    - Buat migrasi SQL yang sesuai di `database/migrations/`.
 4. **Penyusunan Controller**:
    - Wajib menggunakan satu parameter tunggal: `req: Request`.
@@ -2445,7 +2445,7 @@ description: {description}
 
 # 🛠️ AI Skill: {pascal_name}
 
-Gunakan skill ini untuk memanggil tool `{snake_name}` dengan parameter terverifikasi pada Lumina Framework.
+Gunakan skill ini untuk memanggil tool `{snake_name}` dengan parameter terverifikasi pada Pakem Framework.
 "#
         )
     };
@@ -2473,11 +2473,11 @@ pub struct {pascal_name}Input {{
 pub struct {pascal_name}Tool;
 
 impl {pascal_name}Tool {{
-    /// Execute reverse engineering of target page/component into Lumina code
+    /// Execute reverse engineering of target page/component into Pakem code
     pub async fn execute(_db: &DatabasePool, input: {pascal_name}Input) -> Result<serde_json::Value, AppError> {{
         tracing::info!("Running AI Reverse Engineering for component: {{}}", input.component_name);
 
-        // Return hasil dekonstruksi arsitektur Lumina
+        // Return hasil dekonstruksi arsitektur Pakem
         let output = serde_json::json!({{
             "status": "success",
             "component": input.component_name,

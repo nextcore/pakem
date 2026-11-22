@@ -1,8 +1,38 @@
 # 📝 Changelog
 
-Semua perubahan penting pada proyek **Lumina Framework** didokumentasikan di dalam berkas ini.
+Semua perubahan penting pada proyek **Pakem Framework** didokumentasikan di dalam berkas ini.
 
 Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) dan mengikuti standar [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.1] - 2026-11-22
+
+### 🎨 Rebranding Bersejarah: Pakem Framework & Canting CLI
+- **Transformasi Identitas Resmi (`pakem-rs`)**:
+  - Transisi penuh dari nama rintisan *Lumina* menjadi **Pakem Framework** (`pakem` di crates.io).
+  - Mengusung filosofi *Convention over Configuration* ("Pakem") yang memadukan keindahan karya batik Pekalongan dan kecepatan murni Rust:  
+    > *"Look like Laravel, Run at Rust Speed. Menenun mahakarya perangkat lunak modern dengan ketelitian canting dan kekuatan pakem berkecepatan Rust."*
+  - Peluncuran domain resmi: **[https://pakem.my.id](https://pakem.my.id)**.
+  - Penyelarasan ekosistem organisasi GitHub **[pakem-rs](https://github.com/pakem-rs)**:
+    - `pakem-rs/framework`: Monorepo core framework (`pakem`, `canting`, `pakem_macros`, `pakem-live`).
+    - `pakem-rs/pakem`: Starter Application Skeleton resmi (batteries-included).
+    - `pakem-rs/docs`: Portal dokumentasi interaktif VitePress ber-domain kustom `pakem.my.id`.
+    - `pakem-rs/.github`: Profil organisasi GitHub publik dengan branding visual modern.
+- **Rilis & Publikasi Crate Resmi di Crates.io**:
+  - `pakem v1.0.1`: Crate core framework utama dengan unified `Request` bundle, zero-ampersand routing, Blade engine, dan multi-database connection pooling.
+  - `pakem-framework v1.0.0`: Crate companion / alias re-export.
+  - `canting v1.0.0`: Official Artisan-like CLI Toolchain binary (`cargo install canting`).
+  - `pakem_macros v1.0.1`: Procedural macro derivation `#[derive(PakemModel)]` dan `#[pakem_form]` yang langsung terhubung ke namespace `::pakem::database::model::Model` (dengan backward-compatible alias `LuminaModel`).
+- **Pembaruan Canting CLI Scaffolding**:
+  - Perintah `canting new <nama>` otomatis mengkloning starter kit `pakem-rs/pakem` atau membuat skeleton offline mandiri yang siap produksi.
+  - Terminal REPL Interaktif `canting tinker` dengan prompt `pakem >` dan persistent command history `.pakem_tinker_history`.
+  - Generator controller, model, migrasi, dan authentication kini menggunakan namespace `use pakem::prelude::*;`, `PakemResult`, dan `PakemModel`.
+- **Desain Logo & Visual Branding Baru**:
+  - Pembuatan logo monogram "P" berpadu dengan motif Canting tembaga Pekalongan (cucuk malam cair bergradasi Rust Orange, Batik Crimson, Amber Gold, dan Deep Indigo).
+  - Distribusi logo SVG vektor dan PNG resolusi tinggi pada `docs_portal/src/public/`, `resources/images/`, dan `storage/app/public/assets/`.
+- **Standarisasi Pedoman Developer & AI Agent (`AGENTS.md`)**:
+  - Sinkronisasi aturan baku arsitektur: Unified `Request` parameter tunggal di controller, return type `PakemResult` / `impl IntoResponse`, larangan raw Axum extractors pada application layer, dan macro derivation `PakemModel`.
+
+---
 
 ## [1.1.0] - 2026-11-21
 

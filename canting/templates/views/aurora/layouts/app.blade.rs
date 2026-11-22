@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard — Lumina Aurora')</title>
+    <title>@yield('title', 'Dashboard — Pakem Aurora')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -129,7 +129,7 @@
 
         <!-- Footer -->
         <footer class="py-4 px-6 border-t border-slate-800/80 text-xs text-slate-500 flex items-center justify-between">
-            <span>&copy; 2026 Lumina Aurora Starter Kit</span>
+            <span>&copy; 2026 Pakem Aurora Starter Kit</span>
             <span class="text-slate-400 font-mono">Fast &bull; Beauty &bull; Safety</span>
         </footer>
     </div>
