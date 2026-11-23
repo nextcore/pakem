@@ -152,23 +152,36 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
     let primary_key_field = fields
         .iter()
         .find(|f| f.attrs.iter().any(|attr| attr.path().is_ident("primary_key")))
-        .and_then(|f| f.ident.as_ref().map(|i| i.to_string()))
+        .and_then(|f| f.ident.as_ref().map(|i| {
+            let s = i.to_string();
+            s.strip_prefix("r#").unwrap_or(&s).to_string()
+        }))
         .unwrap_or_else(|| "id".to_string());
 
-    let field_names: Vec<String> = fields
+    let primary_key_ident = fields
+        .iter()
+        .find(|f| f.attrs.iter().any(|attr| attr.path().is_ident("primary_key")))
+        .and_then(|f| f.ident.clone())
+        .unwrap_or_else(|| syn::Ident::new("id", proc_macro2::Span::call_site()));
+
+    let field_metas: Vec<(String, syn::Ident)> = fields
         .iter()
         .map(|f| {
-            // Cek jika ada atribut #[column("...")]
-            f.attrs
+            let ident = f.ident.as_ref().unwrap().clone();
+            let col_name = f.attrs
                 .iter()
                 .find(|attr| attr.path().is_ident("column"))
                 .and_then(|attr| attr.parse_args::<LitStr>().ok())
                 .map(|lit| lit.value())
-                .unwrap_or_else(|| f.ident.as_ref().unwrap().to_string())
+                .unwrap_or_else(|| {
+                    let s = ident.to_string();
+                    s.strip_prefix("r#").unwrap_or(&s).to_string()
+                });
+            (col_name, ident)
         })
         .collect();
 
-    let primary_key_ident = syn::Ident::new(&primary_key_field, proc_macro2::Span::call_site());
+    let field_names: Vec<String> = field_metas.iter().map(|(c, _)| c.clone()).collect();
 
     // Field names untuk SELECT SQLite / MySQL (CAST timestamp ke TEXT agar selalu cocok dengan Option<String>)
     let select_fields = field_names
@@ -197,11 +210,12 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
         .join(", ");
 
     // Field names untuk INSERT (lewati primary key & timestamp auto)
-    let insert_fields: Vec<String> = field_names
+    let insert_metas: Vec<&(String, syn::Ident)> = field_metas
         .iter()
-        .filter(|&n| n != &primary_key_field && n != "created_at" && n != "updated_at" && n != "deleted_at")
-        .cloned()
+        .filter(|(col, _)| col != &primary_key_field && col != "created_at" && col != "updated_at" && col != "deleted_at")
         .collect();
+
+    let insert_fields: Vec<String> = insert_metas.iter().map(|(col, _)| col.clone()).collect();
 
     let insert_placeholders = vec!["?"; insert_fields.len()].join(", ");
     let insert_sql_fields = insert_fields.join(", ");
@@ -213,15 +227,13 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
         .join(", ");
 
     // Bindings untuk INSERT & UPDATE
-    let insert_bindings_pg: Vec<_> = insert_fields.iter().map(|n| {
-        let ident = syn::Ident::new(n, proc_macro2::Span::call_site());
+    let insert_bindings_pg: Vec<_> = insert_metas.iter().map(|(_, ident)| {
         quote! { .bind(&self.#ident) }
     }).collect();
 
     let insert_bindings_other = insert_bindings_pg.clone();
 
-    let update_bindings = insert_fields.iter().map(|n| {
-        let ident = syn::Ident::new(n, proc_macro2::Span::call_site());
+    let update_bindings = insert_metas.iter().map(|(_, ident)| {
         quote! { .bind(&self.#ident) }
     });
 

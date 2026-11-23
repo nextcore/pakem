@@ -49,7 +49,7 @@ pub mod prelude {
     pub use crate::database::connection::{DatabasePool, Db};
     pub use crate::database::facade::DB;
     pub use crate::database::transaction::{Transaction, TableQueryBuilder};
-    pub use crate::database::model::Model;
+    pub use crate::database::model::{Model, IntoForeignKey};
     pub use crate::database::orm::{LengthAwarePaginator, OrmResult, QueryBuilder};
     pub use crate::database::factory::{Factory, FactoryBuilder, HasFactory};
     pub use crate::database::faker::Faker;
