@@ -1,9 +1,9 @@
 use regex::Regex;
 use serde_json::{json, Value};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
-use std::sync::{Arc, LazyLock};
+use std::sync::{Arc, LazyLock, Mutex};
 
 
 mod html_escape {
@@ -22,12 +22,49 @@ mod html_escape {
 #[derive(Clone, Debug, Default)]
 pub struct BladeContext {
     data: HashMap<String, Value>,
+    stacks: Arc<Mutex<HashMap<String, Vec<String>>>>,
+    once_set: Arc<Mutex<HashSet<String>>>,
 }
 
 impl BladeContext {
     pub fn new() -> Self {
         Self {
             data: HashMap::new(),
+            stacks: Arc::new(Mutex::new(HashMap::new())),
+            once_set: Arc::new(Mutex::new(HashSet::new())),
+        }
+    }
+
+    /// Push konten ke stack tertentu (Laravel: @push('name'))
+    pub fn push_to_stack(&self, name: &str, content: String) {
+        if let Ok(mut lock) = self.stacks.lock() {
+            lock.entry(name.to_string()).or_default().push(content);
+        }
+    }
+
+    /// Prepend konten ke stack tertentu (Laravel: @prepend('name'))
+    pub fn prepend_to_stack(&self, name: &str, content: String) {
+        if let Ok(mut lock) = self.stacks.lock() {
+            lock.entry(name.to_string()).or_default().insert(0, content);
+        }
+    }
+
+    /// Ambil akumulasi konten stack tertentu (Laravel: @stack('name'))
+    pub fn get_stack(&self, name: &str) -> String {
+        if let Ok(lock) = self.stacks.lock() {
+            if let Some(list) = lock.get(name) {
+                return list.join("\n");
+            }
+        }
+        String::new()
+    }
+
+    /// Cek dan tandai eksekusi blok @once
+    pub fn check_and_mark_once(&self, id: &str) -> bool {
+        if let Ok(mut lock) = self.once_set.lock() {
+            lock.insert(id.to_string())
+        } else {
+            true
         }
     }
 
@@ -519,6 +556,10 @@ static RE_SECTION: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"(?s)@section
 static RE_YIELD_DEFAULT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@yield\s*\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
 static RE_YIELD: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@yield\s*\(\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
 static RE_HAS_SEC: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@hasSection\s*\(\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
+static RE_PUSH: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"(?s)@push\s*\(\s*['"]([^'"]+)['"]\s*\)(.*?)@endpush"#).unwrap());
+static RE_PREPEND: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"(?s)@prepend\s*\(\s*['"]([^'"]+)['"]\s*\)(.*?)@endprepend"#).unwrap());
+static RE_STACK: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@stack\s*\(\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
+static RE_ONCE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"(?s)@once(.*?)@endonce"#).unwrap());
 static RE_INC_WHEN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@includeWhen\s*\((.*?)\s*,\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
 static RE_INC_UNLESS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@includeUnless\s*\((.*?)\s*,\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
 static RE_INC_IF: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@includeIf\s*\(\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
@@ -710,11 +751,48 @@ impl BladeEngine {
         // 0. {{-- Comment --}}
         s = RE_COMMENT.replace_all(&s, "").to_string();
 
+        // 0b. @once ... @endonce
+        if s.contains("@once") {
+            s = RE_ONCE.replace_all(&s, |caps: &regex::Captures| {
+                let inner = &caps[1];
+                let trimmed = inner.trim();
+                if context.check_and_mark_once(trimmed) {
+                    inner.to_string()
+                } else {
+                    String::new()
+                }
+            }).to_string();
+        }
+
         // 1. Template Inheritance: @extends, @section, @yield, @hasSection
         s = self.process_inheritance(&s, context, depth);
 
         // 2. Includes: @include, @includeIf, @includeWhen, @includeUnless
         s = self.process_includes(&s, context, depth);
+
+        // 2b. Stacks: @push, @prepend, @stack
+        if s.contains("@push") {
+            for caps in RE_PUSH.captures_iter(&s) {
+                let name = caps[1].trim();
+                let body = caps[2].to_string();
+                context.push_to_stack(name, body);
+            }
+            s = RE_PUSH.replace_all(&s, "").to_string();
+        }
+        if s.contains("@prepend") {
+            for caps in RE_PREPEND.captures_iter(&s) {
+                let name = caps[1].trim();
+                let body = caps[2].to_string();
+                context.prepend_to_stack(name, body);
+            }
+            s = RE_PREPEND.replace_all(&s, "").to_string();
+        }
+        if s.contains("@stack") {
+            s = RE_STACK.replace_all(&s, |caps: &regex::Captures| {
+                let name = caps[1].trim();
+                context.get_stack(name)
+            }).to_string();
+        }
 
         // 3. Normalisasi direktif varian kondisional ke @if ... @endif standar
         s = self.normalize_conditionals(&s);
@@ -1090,6 +1168,22 @@ impl BladeEngine {
                 let sec_content = sec_caps[2].to_string();
                 sections.insert(sec_name, sec_content);
             }
+
+            // Extract @push in child template
+            for push_caps in RE_PUSH.captures_iter(&s) {
+                let name = push_caps[1].trim();
+                let body = push_caps[2].to_string();
+                context.push_to_stack(name, body);
+            }
+            s = RE_PUSH.replace_all(&s, "").to_string();
+
+            // Extract @prepend in child template
+            for prep_caps in RE_PREPEND.captures_iter(&s) {
+                let name = prep_caps[1].trim();
+                let body = prep_caps[2].to_string();
+                context.prepend_to_stack(name, body);
+            }
+            s = RE_PREPEND.replace_all(&s, "").to_string();
 
             // Load parent layout
             if let Some(parent_content) = layout_content {
@@ -2188,6 +2282,45 @@ mod tests {
         assert!(html.contains("src=\"/img/gege/logogegefun.avif\""));
         assert!(html.contains("src=\"/storage/images/meals/meals_123.jpg\""));
         assert!(html.contains("src=\"/storage/images/event/party.png\""));
+    }
+
+    #[test]
+    fn test_blade_stack_and_push() {
+        let engine = BladeEngine::empty();
+        let tmpl = r#"
+            <head>
+                @stack('css')
+            </head>
+            <body>
+                @push('scripts')
+                    <script src="/js/app.js"></script>
+                @endpush
+
+                @prepend('scripts')
+                    <script src="/js/jquery.js"></script>
+                @endprepend
+
+                @stack('scripts')
+            </body>
+        "#;
+
+        let ctx = BladeContext::new();
+        let html = engine.render_string(tmpl, &ctx);
+
+        // 1. @stack('css') yang kosong harus bersih (tidak tampil teks @stack('css'))
+        assert!(!html.contains("@stack('css')"));
+        assert!(!html.contains("@stack"));
+
+        // 2. @prepend harus muncul sebelum @push
+        let jquery_pos = html.find("jquery.js").unwrap();
+        let app_pos = html.find("app.js").unwrap();
+        assert!(jquery_pos < app_pos);
+
+        // 3. Teks direktif @push, @prepend, dan @stack tidak boleh ada di HTML output
+        assert!(!html.contains("@push"));
+        assert!(!html.contains("@prepend"));
+        assert!(!html.contains("@endpush"));
+        assert!(!html.contains("@endprepend"));
     }
 }
 
