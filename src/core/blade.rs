@@ -152,6 +152,60 @@ impl BladeContext {
         }
     }
 
+    /// Tokenizer untuk operator titik (konkatenasi string ala PHP/Laravel).
+    /// Contoh: `'storage/images/meals/' . $meal.image` -> `["'storage/images/meals/'", "$meal.image"]`
+    pub fn split_concat_tokens(expr: &str) -> Option<Vec<String>> {
+        let mut tokens = Vec::new();
+        let mut current = String::new();
+        let mut in_single = false;
+        let mut in_double = false;
+        let chars: Vec<char> = expr.chars().collect();
+        let len = chars.len();
+        let mut has_concat = false;
+
+        let mut i = 0;
+        while i < len {
+            let c = chars[i];
+            if c == '\'' && !in_double {
+                in_single = !in_single;
+                current.push(c);
+            } else if c == '"' && !in_single {
+                in_double = !in_double;
+                current.push(c);
+            } else if c == '.' && !in_single && !in_double {
+                let prev_is_space = i > 0 && chars[i - 1].is_whitespace();
+                let next_is_space = i + 1 < len && chars[i + 1].is_whitespace();
+                let prev_is_quote = current.trim().ends_with('\'') || current.trim().ends_with('"');
+                let next_is_quote = i + 1 < len && (chars[i + 1] == '\'' || chars[i + 1] == '"');
+
+                if prev_is_space || next_is_space || prev_is_quote || next_is_quote {
+                    let trimmed = current.trim();
+                    if !trimmed.is_empty() {
+                        tokens.push(trimmed.to_string());
+                    }
+                    current.clear();
+                    has_concat = true;
+                } else {
+                    current.push(c);
+                }
+            } else {
+                current.push(c);
+            }
+            i += 1;
+        }
+
+        let trimmed = current.trim();
+        if !trimmed.is_empty() {
+            tokens.push(trimmed.to_string());
+        }
+
+        if has_concat && tokens.len() > 1 {
+            Some(tokens)
+        } else {
+            None
+        }
+    }
+
     /// Evaluasi nilai ekspresi variabel/literal menjadi String.
     /// Mendukung null coalescing: `$name ?? 'Default'`
     pub fn eval_val(&self, expr: &str) -> String {
@@ -221,7 +275,9 @@ impl BladeContext {
 
         // Helper Laravel: asset('path')
         if expr.starts_with("asset(") && expr.ends_with(')') {
-            let raw = expr[6..expr.len() - 1].trim().trim_matches('\'').trim_matches('"');
+            let inner = expr[6..expr.len() - 1].trim();
+            let raw_eval = self.eval_val(inner);
+            let raw = raw_eval.trim().trim_matches('\'').trim_matches('"');
             if raw.starts_with("http://") || raw.starts_with("https://") || raw.starts_with("//") {
                 return raw.to_string();
             }
@@ -232,12 +288,24 @@ impl BladeContext {
         // Helper Laravel: url('path') / route('path')
         if (expr.starts_with("url(") && expr.ends_with(')')) || (expr.starts_with("route(") && expr.ends_with(')')) {
             let open_paren = expr.find('(').unwrap();
-            let raw = expr[open_paren + 1..expr.len() - 1].trim().trim_matches('\'').trim_matches('"');
+            let inner = expr[open_paren + 1..expr.len() - 1].trim();
+            let raw_eval = self.eval_val(inner);
+            let raw = raw_eval.trim().trim_matches('\'').trim_matches('"');
             if raw.starts_with("http://") || raw.starts_with("https://") {
                 return raw.to_string();
             }
             let clean = raw.trim_start_matches('/');
             return format!("/{}", clean);
+        }
+
+        // Konkatenasi string gaya Laravel/PHP dengan operator titik (.)
+        // Contoh: 'storage/images/meals/' . $meal.image
+        if let Some(tokens) = Self::split_concat_tokens(expr) {
+            let mut res = String::new();
+            for tok in tokens {
+                res.push_str(&self.eval_val(&tok));
+            }
+            return res;
         }
 
         // Variable lookup
@@ -2100,6 +2168,26 @@ mod tests {
         assert!(html.contains("Formulir memiliki error validasi."));
         // 7. Verifikasi @csrf terisi
         assert!(html.contains("value=\"sec-token-123\""));
+    }
+
+    #[test]
+    fn test_blade_asset_concatenation() {
+        let engine = BladeEngine::empty();
+        let tmpl = r#"
+            <img src="{{ asset('img/gege/logogegefun.avif') }}">
+            <img src="{{ asset('storage/images/meals/' . $meal.image) }}">
+            <img src="{{ asset('storage/images/' . $folder . '/' . $filename) }}">
+        "#;
+
+        let mut ctx = BladeContext::new();
+        ctx.insert("meal", serde_json::json!({ "image": "meals_123.jpg" }));
+        ctx.insert("folder", "event");
+        ctx.insert("filename", "party.png");
+
+        let html = engine.render_string(tmpl, &ctx);
+        assert!(html.contains("src=\"/img/gege/logogegefun.avif\""));
+        assert!(html.contains("src=\"/storage/images/meals/meals_123.jpg\""));
+        assert!(html.contains("src=\"/storage/images/event/party.png\""));
     }
 }
 
