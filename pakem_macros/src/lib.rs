@@ -208,6 +208,8 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
                 format!("NULL as {}", n)
             } else if lower == "content" || lower == "body" || lower == "details" || lower == "description" {
                 format!("SUBSTRING({}, 1) as {}", n, n)
+            } else if lower.starts_with("is_") || lower.starts_with("has_") {
+                format!("CAST({} AS SIGNED) as {}", n, n)
             } else if lower == "created_at"
                 || lower == "updated_at"
                 || lower == "deleted_at"
