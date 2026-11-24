@@ -46,7 +46,7 @@ postgres = []
 mysql = []"#,
             format!(
                 r#"# Database Configuration (PostgreSQL - Laravel Style)
-DB_CONNECTION=pgsql
+DB_CONNECTION=postgres
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_DATABASE={}_db

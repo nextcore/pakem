@@ -10,6 +10,21 @@ fn test_sqlite_laravel_style_config() {
     assert_eq!(url, "sqlite:./my_app.sqlite");
 }
 
+#[tokio::test]
+async fn test_sqlite_connect_resolution() {
+    use pakem::database::connection::DatabasePool;
+    for test_url in [
+        "sqlite://target/test_norm1.db",
+        "sqlite:target/test_norm2.db",
+        "sqlite:./target/test_norm3.db",
+        "target/test_norm4.db",
+        "./target/test_norm5.db",
+    ] {
+        let res = DatabasePool::connect(test_url).await;
+        assert!(res.is_ok(), "Failed to connect with {}: {:?}", test_url, res.err());
+    }
+}
+
 #[test]
 fn test_mysql_laravel_style_config() {
     let mut config = ConfigManager::new();

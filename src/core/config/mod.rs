@@ -55,28 +55,48 @@ impl ConfigManager {
     }
     /// Membangun DATABASE_URL dari variabel DB_* ala Laravel atau mengambil langsung dari DATABASE_URL.
     pub fn get_db_url(&self) -> String {
-        // 1. Jika DATABASE_URL sudah ada di .env secara eksplisit dan valid (memiliki skema), gunakan itu (prioritas).
-        if let Some(url) = self.get("DATABASE_URL") {
-            let trimmed = url.trim();
-            if !trimmed.is_empty()
-                && (trimmed.contains("://")
+        // 1. Jika DATABASE_URL sudah ada di .env secara eksplisit dan valid, gunakan itu (prioritas).
+        if let Some(explicit) = self.get("DATABASE_URL") {
+            let trimmed = explicit.trim();
+            if !trimmed.is_empty() {
+                if trimmed.contains("://")
                     || trimmed.starts_with("sqlite:")
                     || trimmed.starts_with("jdbc:")
-                    || trimmed.to_ascii_lowercase().starts_with("server="))
-            {
-                return trimmed.to_string();
+                    || trimmed.to_ascii_lowercase().starts_with("server=")
+                {
+                    return trimmed.to_string();
+                } else if trimmed.ends_with(".sqlite")
+                    || trimmed.ends_with(".db")
+                    || trimmed.starts_with("./")
+                    || trimmed.starts_with('/')
+                    || trimmed.contains(":\\")
+                    || trimmed.contains(":/")
+                {
+                    // Fallback jika user menulis DATABASE_URL=database.sqlite tanpa prefix sqlite:
+                    return if trimmed.starts_with("./") || trimmed.starts_with('/') || trimmed.contains(":\\") || trimmed.contains(":/") {
+                        format!("sqlite:{}", trimmed)
+                    } else {
+                        format!("sqlite:./{}", trimmed)
+                    };
+                }
             }
         }
 
         // 2. Format dinamis ala Laravel (DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD)
-        let connection = self.get_or("DB_CONNECTION", "sqlite").to_lowercase();
+        let raw_conn = self.get_or("DB_CONNECTION", "sqlite");
+        let connection = if raw_conn.trim().is_empty() {
+            "sqlite".to_string()
+        } else {
+            raw_conn.trim().to_lowercase()
+        };
 
         match connection.as_str() {
             "sqlite" | "sqlite3" => {
-                let db = self.get_or("DB_DATABASE", "./database.sqlite");
+                let raw_db = self.get_or("DB_DATABASE", "./database.sqlite");
+                let db = if raw_db.trim().is_empty() { "./database.sqlite" } else { raw_db.trim() };
                 if db.starts_with("sqlite:") {
-                    db
-                } else if db.starts_with("./") || db.starts_with("/") || db.contains(":\\") || db.contains(":/") {
+                    db.to_string()
+                } else if db.starts_with("./") || db.starts_with('/') || db.contains(":\\") || db.contains(":/") {
                     format!("sqlite:{}", db)
                 } else {
                     format!("sqlite:./{}", db)
@@ -112,7 +132,21 @@ impl ConfigManager {
                     host, port, user, pass, db, trust
                 )
             }
-            _ => self.get_or("DATABASE_URL", "sqlite:./database.sqlite"),
+            _ => {
+                let fallback = self.get_or("DATABASE_URL", "sqlite:./database.sqlite");
+                let trimmed = fallback.trim();
+                if trimmed.contains("://")
+                    || trimmed.starts_with("sqlite:")
+                    || trimmed.starts_with("jdbc:")
+                    || trimmed.to_ascii_lowercase().starts_with("server=")
+                {
+                    trimmed.to_string()
+                } else if trimmed.starts_with("./") || trimmed.starts_with('/') || trimmed.contains(":\\") || trimmed.contains(":/") {
+                    format!("sqlite:{}", trimmed)
+                } else {
+                    format!("sqlite:./{}", trimmed)
+                }
+            }
         }
     }
 }

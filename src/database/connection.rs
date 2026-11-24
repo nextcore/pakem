@@ -31,7 +31,7 @@ impl DatabasePool {
     pub async fn connect(database_url: &str) -> Result<Self, sqlx::Error> {
         sqlx::any::install_default_drivers();
 
-        // Tentukan jenis database dari URL
+        // 1. Tentukan jenis database dari URL
         let kind = if database_url.starts_with("sqlite:") {
             DatabaseKind::Sqlite
         } else if database_url.starts_with("postgres:") || database_url.starts_with("postgresql:") {
@@ -45,8 +45,48 @@ impl DatabasePool {
         {
             DatabaseKind::Mssql
         } else {
-            // Default atau fallback (misal SQLite)
+            // Default atau fallback (misal SQLite file tanpa prefix sqlite:)
             DatabaseKind::Sqlite
+        };
+
+        // 2. Normalisasi URL agar aman dari relative URL tanpa skema
+        let normalized_url = if database_url.contains("://")
+            || database_url.starts_with("sqlite:")
+            || database_url.starts_with("jdbc:")
+            || database_url.to_ascii_lowercase().starts_with("server=")
+        {
+            database_url.to_string()
+        } else {
+            let trimmed = database_url.trim();
+            if trimmed.starts_with("./") || trimmed.starts_with('/') || trimmed.contains(":\\") || trimmed.contains(":/") {
+                format!("sqlite:{}", trimmed)
+            } else {
+                format!("sqlite:./{}", trimmed)
+            }
+        };
+
+        // 3. Khusus SQLite: pastikan mode=rwc dan direktori induk dibuat otomatis
+        let effective_url = if kind == DatabaseKind::Sqlite {
+            let mut u = normalized_url;
+            if !u.contains(":memory:") && !u.contains("mode=") {
+                if u.contains('?') {
+                    u.push_str("&mode=rwc");
+                } else {
+                    u.push_str("?mode=rwc");
+                }
+            }
+            if let Some(path_part) = u.strip_prefix("sqlite:") {
+                let clean_path = path_part.split('?').next().unwrap_or(path_part);
+                let p = std::path::Path::new(clean_path);
+                if let Some(parent) = p.parent() {
+                    if !parent.as_os_str().is_empty() && !parent.exists() {
+                        let _ = std::fs::create_dir_all(parent);
+                    }
+                }
+            }
+            u
+        } else {
+            normalized_url
         };
 
         // Inisialisasi pool sqlx::Any (SQLite, Postgres, MySQL)
@@ -61,34 +101,34 @@ impl DatabasePool {
         } else {
             AnyPoolOptions::new()
                 .max_connections(5)
-                .connect(database_url)
+                .connect(&effective_url)
                 .await?
         };
 
         #[cfg(feature = "postgres")]
         let pg_pool = if kind == DatabaseKind::Postgres {
-            sqlx::PgPool::connect(database_url).await.ok()
+            sqlx::PgPool::connect(&effective_url).await.ok()
         } else {
             None
         };
 
         #[cfg(feature = "sqlite")]
         let sqlite_pool = if kind == DatabaseKind::Sqlite {
-            sqlx::SqlitePool::connect(database_url).await.ok()
+            sqlx::SqlitePool::connect(&effective_url).await.ok()
         } else {
             None
         };
 
         #[cfg(feature = "mysql")]
         let mysql_pool = if kind == DatabaseKind::MySql {
-            sqlx::MySqlPool::connect(database_url).await.ok()
+            sqlx::MySqlPool::connect(&effective_url).await.ok()
         } else {
             None
         };
 
         #[cfg(feature = "mssql")]
         let mssql_pool = if kind == DatabaseKind::Mssql {
-            match Self::connect_mssql(database_url).await {
+            match Self::connect_mssql(&effective_url).await {
                 Ok(p) => {
                     println!("  🚀 MSSQL Connection Pool (Tiberius TDS) connected successfully!");
                     Some(p)
