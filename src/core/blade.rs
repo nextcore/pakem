@@ -85,11 +85,33 @@ impl BladeContext {
     /// Ambil nilai variabel. Mendukung dot-notation (misal: "user.profile.name" atau "items.0.title").
     pub fn get(&self, key: &str) -> Option<&Value> {
         let key = key.trim().trim_start_matches('$');
-        if !key.contains('.') {
-            return self.data.get(key);
+        let normalized;
+        let effective_key = if key.contains('[') || key.contains(".first()") || key.contains("->") {
+            normalized = key
+                .replace(".first()->", ".0.")
+                .replace(".first().", ".0.")
+                .replace("->first()->", ".0.")
+                .replace("->first().", ".0.")
+                .replace("->", ".")
+                .replace("['", ".")
+                .replace("[\"", ".")
+                .replace("']", "")
+                .replace("\"]", "")
+                .replace('[', ".")
+                .replace(']', "");
+            &normalized
+        } else {
+            key
+        };
+
+        if !effective_key.contains('.') {
+            return self.data.get(effective_key);
         }
 
-        let parts: Vec<&str> = key.split('.').collect();
+        let parts: Vec<&str> = effective_key.split('.').filter(|p| !p.is_empty()).collect();
+        if parts.is_empty() {
+            return None;
+        }
         let mut curr = self.data.get(parts[0])?;
         for part in &parts[1..] {
             if let Some(obj) = curr.as_object() {
@@ -243,6 +265,166 @@ impl BladeContext {
         }
     }
 
+    /// Helper mencari posisi pemisah koma terluar pada pemanggilan fungsi berargumen banyak.
+    pub fn find_argument_split(s: &str) -> Option<usize> {
+        let mut in_single = false;
+        let mut in_double = false;
+        let mut bracket_depth = 0;
+        let mut paren_depth = 0;
+        for (i, c) in s.char_indices() {
+            match c {
+                '\'' if !in_double => in_single = !in_single,
+                '"' if !in_single => in_double = !in_double,
+                '[' if !in_single && !in_double => bracket_depth += 1,
+                ']' if !in_single && !in_double && bracket_depth > 0 => bracket_depth -= 1,
+                '(' if !in_single && !in_double => paren_depth += 1,
+                ')' if !in_single && !in_double && paren_depth > 0 => paren_depth -= 1,
+                ',' if !in_single && !in_double && bracket_depth == 0 && paren_depth == 0 => return Some(i),
+                _ => {}
+            }
+        }
+        None
+    }
+
+    /// Helper mencari token terluar (di luar tanda kurung/kutip).
+    pub fn find_token_outside_parens(s: &str, token: &str) -> Option<usize> {
+        let mut in_single = false;
+        let mut in_double = false;
+        let mut paren_depth = 0;
+        let mut bracket_depth = 0;
+        let tok_bytes = token.as_bytes();
+        let tok_len = tok_bytes.len();
+        let s_bytes = s.as_bytes();
+        let len = s_bytes.len();
+
+        let mut i = 0;
+        while i < len {
+            let b = s_bytes[i];
+            match b {
+                b'\'' if !in_double => in_single = !in_single,
+                b'"' if !in_single => in_double = !in_double,
+                b'(' if !in_single && !in_double => paren_depth += 1,
+                b')' if !in_single && !in_double && paren_depth > 0 => paren_depth -= 1,
+                b'[' if !in_single && !in_double => bracket_depth += 1,
+                b']' if !in_single && !in_double && bracket_depth > 0 => bracket_depth -= 1,
+                _ => {
+                    if !in_single && !in_double && paren_depth == 0 && bracket_depth == 0 {
+                        if i + tok_len <= len && &s_bytes[i..i + tok_len] == tok_bytes {
+                            return Some(i);
+                        }
+                    }
+                }
+            }
+            i += 1;
+        }
+        None
+    }
+
+    /// Helper format angka ribuan (e.g. 15000 -> "15.000" atau "15,000").
+    pub fn format_thousands(val_str: &str, sep: char) -> String {
+        let trimmed = val_str.trim();
+        if let Ok(num) = trimmed.parse::<i64>() {
+            let num_str = num.abs().to_string();
+            let mut res = String::new();
+            let len = num_str.len();
+            for (i, c) in num_str.chars().enumerate() {
+                if i > 0 && (len - i) % 3 == 0 {
+                    res.push(sep);
+                }
+                res.push(c);
+            }
+            if num < 0 {
+                format!("-{}", res)
+            } else {
+                res
+            }
+        } else if let Ok(num) = trimmed.parse::<f64>() {
+            let rounded = num.round() as i64;
+            Self::format_thousands(&rounded.to_string(), sep)
+        } else {
+            trimmed.to_string()
+        }
+    }
+
+    /// Helper parsing komponen tanggal (day, month, year) dari string format database.
+    pub fn parse_date_parts(raw: &str) -> Option<(u32, u32, i32)> {
+        let trimmed = raw.trim();
+        let date_part = trimmed.split_whitespace().next().unwrap_or(trimmed);
+        let sep = if date_part.contains('-') { '-' } else if date_part.contains('/') { '/' } else { return None; };
+        let parts: Vec<&str> = date_part.split(sep).collect();
+        if parts.len() == 3 {
+            if parts[0].len() == 4 {
+                let year = parts[0].parse::<i32>().ok()?;
+                let month = parts[1].parse::<u32>().ok()?;
+                let day = parts[2].parse::<u32>().ok()?;
+                if (1..=12).contains(&month) && (1..=31).contains(&day) {
+                    return Some((day, month, year));
+                }
+            } else if parts[2].len() == 4 {
+                let day = parts[0].parse::<u32>().ok()?;
+                let month = parts[1].parse::<u32>().ok()?;
+                let year = parts[2].parse::<i32>().ok()?;
+                if (1..=12).contains(&month) && (1..=31).contains(&day) {
+                    return Some((day, month, year));
+                }
+            }
+        }
+        None
+    }
+
+    /// Helper format tanggal PHP (e.g. 'd F Y', 'd M', 'd M Y').
+    pub fn format_php_date(format_str: &str, raw_date: &str) -> String {
+        let (day, month, year) = if let Some(parts) = Self::parse_date_parts(raw_date) {
+            parts
+        } else {
+            let now = chrono::Local::now();
+            use chrono::Datelike;
+            (now.day(), now.month(), now.year())
+        };
+
+        const ENG_MONTHS_SHORT: [&str; 12] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const ENG_MONTHS_FULL: [&str; 12] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        let m_idx = (month.max(1).min(12) - 1) as usize;
+
+        let mut res = String::new();
+        for c in format_str.chars() {
+            match c {
+                'd' => res.push_str(&format!("{:02}", day)),
+                'j' => res.push_str(&day.to_string()),
+                'F' => res.push_str(ENG_MONTHS_FULL[m_idx]),
+                'M' => res.push_str(ENG_MONTHS_SHORT[m_idx]),
+                'm' => res.push_str(&format!("{:02}", month)),
+                'Y' => res.push_str(&year.to_string()),
+                'y' => res.push_str(&format!("{:02}", year.rem_euclid(100))),
+                other => res.push(other),
+            }
+        }
+        res
+    }
+
+    /// Helper format tanggal Indonesia (e.g. 20 Mei 2024).
+    pub fn format_tanggal_indo(raw_date: &str) -> String {
+        if let Some((day, month, year)) = Self::parse_date_parts(raw_date) {
+            const INDO_MONTHS_FULL: [&str; 12] = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            let m_idx = (month.max(1).min(12) - 1) as usize;
+            format!("{} {} {}", day, INDO_MONTHS_FULL[m_idx], year)
+        } else {
+            raw_date.trim().to_string()
+        }
+    }
+
+    /// Helper format tanggal Inggris (e.g. 20 May 2024).
+    pub fn format_tanggal_eng(raw_date: &str) -> String {
+        if let Some((day, month, year)) = Self::parse_date_parts(raw_date) {
+            const ENG_MONTHS_FULL: [&str; 12] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            let m_idx = (month.max(1).min(12) - 1) as usize;
+            format!("{} {} {}", day, ENG_MONTHS_FULL[m_idx], year)
+        } else {
+            raw_date.trim().to_string()
+        }
+    }
+
     /// Evaluasi nilai ekspresi variabel/literal menjadi String.
     /// Mendukung null coalescing: `$name ?? 'Default'`
     pub fn eval_val(&self, expr: &str) -> String {
@@ -251,8 +433,45 @@ impl BladeContext {
             return String::new();
         }
 
-        // Null coalescing: expr1 ?? expr2
-        if let Some(idx) = expr.find("??") {
+        // Hapus tanda kurung terluar jika benar-benar melingkupi seluruh ekspresi: ( expr )
+        if expr.starts_with('(') && expr.ends_with(')') {
+            let mut depth = 0;
+            let mut can_strip = true;
+            for (i, c) in expr.char_indices() {
+                if c == '(' {
+                    depth += 1;
+                } else if c == ')' {
+                    depth -= 1;
+                    if depth == 0 && i < expr.len() - 1 {
+                        can_strip = false;
+                        break;
+                    }
+                }
+            }
+            if can_strip && depth == 0 {
+                let inner = expr[1..expr.len() - 1].trim();
+                return self.eval_val(inner);
+            }
+        }
+
+        // Operasi biner aritmatika sederhana di luar tanda kurung: expr1 - expr2 atau expr1 + expr2
+        if let Some(idx) = Self::find_token_outside_parens(expr, "-") {
+            let left_val = self.eval_val(&expr[..idx]);
+            let right_val = self.eval_val(&expr[idx + 1..]);
+            if let (Ok(n1), Ok(n2)) = (left_val.parse::<f64>(), right_val.parse::<f64>()) {
+                return (n1 - n2).to_string();
+            }
+        }
+        if let Some(idx) = Self::find_token_outside_parens(expr, "+") {
+            let left_val = self.eval_val(&expr[..idx]);
+            let right_val = self.eval_val(&expr[idx + 1..]);
+            if let (Ok(n1), Ok(n2)) = (left_val.parse::<f64>(), right_val.parse::<f64>()) {
+                return (n1 + n2).to_string();
+            }
+        }
+
+        // Null coalescing di luar tanda kurung: expr1 ?? expr2
+        if let Some(idx) = Self::find_token_outside_parens(expr, "??") {
             let left = expr[..idx].trim();
             let right = expr[idx + 2..].trim();
             let val = self.eval_val(left);
@@ -281,6 +500,37 @@ impl BladeContext {
         // Number literal
         if expr.parse::<f64>().is_ok() {
             return expr.to_string();
+        }
+
+        // Helper PHP/Blade: count($var)
+        if expr.starts_with("count(") && expr.ends_with(')') {
+            let inner = expr[6..expr.len() - 1].trim();
+            let var = inner.trim_start_matches('$');
+            if let Some(val) = self.get(var) {
+                return match val {
+                    Value::Array(a) => a.len().to_string(),
+                    Value::Object(o) => o.len().to_string(),
+                    Value::String(s) => if s.is_empty() { "0".to_string() } else { s.len().to_string() },
+                    Value::Null => "0".to_string(),
+                    _ => "1".to_string(),
+                };
+            }
+            return "0".to_string();
+        }
+
+        // Method call: $var.count() atau $var->count()
+        if let Some(prefix) = expr.strip_suffix(".count()").or_else(|| expr.strip_suffix("->count()")) {
+            let var = prefix.trim().trim_start_matches('$');
+            if let Some(val) = self.get(var) {
+                return match val {
+                    Value::Array(a) => a.len().to_string(),
+                    Value::Object(o) => o.len().to_string(),
+                    Value::String(s) => if s.is_empty() { "0".to_string() } else { s.len().to_string() },
+                    Value::Null => "0".to_string(),
+                    _ => "1".to_string(),
+                };
+            }
+            return "0".to_string();
         }
 
         // Helper Laravel: old('field', 'default')
@@ -322,10 +572,44 @@ impl BladeContext {
             return format!("/{}", clean);
         }
 
-        // Helper Laravel: url('path') / route('path')
-        if (expr.starts_with("url(") && expr.ends_with(')')) || (expr.starts_with("route(") && expr.ends_with(')')) {
-            let open_paren = expr.find('(').unwrap();
-            let inner = expr[open_paren + 1..expr.len() - 1].trim();
+        // Helper Laravel: route('name', ...)
+        if expr.starts_with("route(") && expr.ends_with(')') {
+            let inner = expr[6..expr.len() - 1].trim();
+            let (first_arg, second_arg) = if let Some(comma_pos) = Self::find_argument_split(inner) {
+                (&inner[..comma_pos], Some(&inner[comma_pos + 1..]))
+            } else {
+                (inner, None)
+            };
+            let route_name = first_arg.trim().trim_matches('\'').trim_matches('"');
+            if let Some(second) = second_arg {
+                let second = second.trim();
+                let param_val = if second.starts_with('[') && second.ends_with(']') {
+                    let inside = &second[1..second.len() - 1];
+                    if let Some(arrow_pos) = inside.find("=>") {
+                        let rhs = inside[arrow_pos + 2..].trim();
+                        self.eval_val(rhs)
+                    } else {
+                        self.eval_val(inside.trim())
+                    }
+                } else {
+                    self.eval_val(second)
+                };
+                let clean_name = route_name.trim_start_matches('/');
+                let clean_param = param_val.trim().trim_matches('\'').trim_matches('"');
+                if !clean_param.is_empty() {
+                    return format!("/{}/{}", clean_name, clean_param);
+                } else {
+                    return format!("/{}", clean_name);
+                }
+            } else {
+                let clean_name = route_name.trim_start_matches('/');
+                return format!("/{}", clean_name);
+            }
+        }
+
+        // Helper Laravel: url('path')
+        if expr.starts_with("url(") && expr.ends_with(')') {
+            let inner = expr[4..expr.len() - 1].trim();
             let raw_eval = self.eval_val(inner);
             let raw = raw_eval.trim().trim_matches('\'').trim_matches('"');
             if raw.starts_with("http://") || raw.starts_with("https://") {
@@ -333,6 +617,142 @@ impl BladeContext {
             }
             let clean = raw.trim_start_matches('/');
             return format!("/{}", clean);
+        }
+
+        // String Helpers: strtoupper, strtolower, ucfirst, ucwords, substr, str_replace
+        if expr.starts_with("strtoupper(") && expr.ends_with(')') {
+            let inner = expr[11..expr.len() - 1].trim();
+            return self.eval_val(inner).to_uppercase();
+        }
+        if expr.starts_with("strtolower(") && expr.ends_with(')') {
+            let inner = expr[11..expr.len() - 1].trim();
+            return self.eval_val(inner).to_lowercase();
+        }
+        if expr.starts_with("ucfirst(") && expr.ends_with(')') {
+            let inner = expr[8..expr.len() - 1].trim();
+            let s = self.eval_val(inner);
+            let mut chars = s.chars();
+            return match chars.next() {
+                None => String::new(),
+                Some(f) => f.to_uppercase().collect::<String>() + chars.as_str(),
+            };
+        }
+        if expr.starts_with("ucwords(") && expr.ends_with(')') {
+            let inner = expr[8..expr.len() - 1].trim();
+            let s = self.eval_val(inner);
+            return s.split_whitespace()
+                .map(|w| {
+                    let mut c = w.chars();
+                    match c.next() {
+                        None => String::new(),
+                        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(" ");
+        }
+        if expr.starts_with("substr(") && expr.ends_with(')') {
+            let inner = expr[7..expr.len() - 1].trim();
+            let parts: Vec<&str> = inner.split(',').map(|p| p.trim()).collect();
+            if !parts.is_empty() {
+                let s = self.eval_val(parts[0]);
+                let start: usize = parts.get(1).and_then(|p| p.parse().ok()).unwrap_or(0);
+                let chars: Vec<char> = s.chars().collect();
+                if start >= chars.len() {
+                    return String::new();
+                }
+                if let Some(len_str) = parts.get(2) {
+                    if let Ok(len) = len_str.parse::<usize>() {
+                        let end = (start + len).min(chars.len());
+                        return chars[start..end].iter().collect();
+                    }
+                }
+                return chars[start..].iter().collect();
+            }
+            return String::new();
+        }
+        if expr.starts_with("str_replace(") && expr.ends_with(')') {
+            let inner = expr[12..expr.len() - 1].trim();
+            let parts: Vec<&str> = inner.split(',').map(|p| p.trim()).collect();
+            if parts.len() >= 3 {
+                let search = self.eval_val(parts[0]);
+                let replace = self.eval_val(parts[1]);
+                let subject = self.eval_val(parts[2]);
+                return subject.replace(&search, &replace);
+            }
+            return String::new();
+        }
+
+        // Date Helpers: date('format', strtotime($var)), tanggalOnly($var), tanggalInggris($var)
+        if expr.starts_with("date(") && expr.ends_with(')') {
+            let inner = expr[5..expr.len() - 1].trim();
+            let (first_arg, second_arg) = if let Some(comma_pos) = Self::find_argument_split(inner) {
+                (&inner[..comma_pos], Some(&inner[comma_pos + 1..]))
+            } else {
+                (inner, None)
+            };
+            let format_str = first_arg.trim().trim_matches('\'').trim_matches('"');
+            let raw_date = if let Some(second) = second_arg {
+                let second = second.trim();
+                if second.starts_with("strtotime(") && second.ends_with(')') {
+                    let inside = &second[10..second.len() - 1];
+                    self.eval_val(inside.trim())
+                } else {
+                    self.eval_val(second)
+                }
+            } else {
+                String::new()
+            };
+            return Self::format_php_date(format_str, &raw_date);
+        }
+        if expr.starts_with("tanggalOnly(") && expr.ends_with(')') {
+            let inner = expr[12..expr.len() - 1].trim();
+            let raw_date = self.eval_val(inner);
+            return Self::format_tanggal_indo(&raw_date);
+        }
+        if expr.starts_with("tanggalInggris(") && expr.ends_with(')') {
+            let inner = expr[15..expr.len() - 1].trim();
+            let raw_date = self.eval_val(inner);
+            return Self::format_tanggal_eng(&raw_date);
+        }
+
+        // Currency / Number Helpers: uang, ribuan, number_format
+        if (expr.starts_with("uang(") || expr.starts_with("ribuan(")) && expr.ends_with(')') {
+            let open = expr.find('(').unwrap();
+            let inner = expr[open + 1..expr.len() - 1].trim();
+            let val_str = self.eval_val(inner);
+            return Self::format_thousands(&val_str, '.');
+        }
+        if expr.starts_with("number_format(") && expr.ends_with(')') {
+            let inner = expr[14..expr.len() - 1].trim();
+            let parts: Vec<&str> = inner.split(',').map(|p| p.trim()).collect();
+            let val_str = self.eval_val(parts[0]);
+            let sep = if parts.len() >= 4 {
+                parts[3].trim_matches('\'').trim_matches('"').chars().next().unwrap_or(',')
+            } else {
+                ','
+            };
+            return Self::format_thousands(&val_str, sep);
+        }
+
+        // Localization & Translation Helpers: __, trans, app()->getLocale()
+        if (expr.starts_with("__(") || expr.starts_with("trans(")) && expr.ends_with(')') {
+            let open = expr.find('(').unwrap();
+            let inner = expr[open + 1..expr.len() - 1].trim();
+            let parts: Vec<&str> = inner.splitn(2, ',').collect();
+            let key = parts[0].trim().trim_matches('\'').trim_matches('"');
+            return key.to_string();
+        }
+        if expr == "app()->getLocale()" || expr == "app()->currentLocale()" {
+            return "id".to_string();
+        }
+        if expr == "csrf_token()" || expr == "csrf_token" {
+            if let Some(t) = self.get("csrf_token") {
+                if let Some(s) = t.as_str() {
+                    return s.to_string();
+                }
+            }
+            return String::new();
         }
 
         // Konkatenasi string gaya Laravel/PHP dengan operator titik (.)
@@ -366,10 +786,25 @@ impl BladeContext {
             return false;
         }
 
-        // Hapus tanda kurung terluar jika ada: ( expr )
+        // Hapus tanda kurung terluar jika benar-benar melingkupi seluruh ekspresi: ( expr )
         if expr.starts_with('(') && expr.ends_with(')') {
-            let inner = &expr[1..expr.len() - 1];
-            return self.eval_truthy(inner);
+            let mut depth = 0;
+            let mut can_strip = true;
+            for (i, c) in expr.char_indices() {
+                if c == '(' {
+                    depth += 1;
+                } else if c == ')' {
+                    depth -= 1;
+                    if depth == 0 && i < expr.len() - 1 {
+                        can_strip = false;
+                        break;
+                    }
+                }
+            }
+            if can_strip && depth == 0 {
+                let inner = &expr[1..expr.len() - 1];
+                return self.eval_truthy(inner);
+            }
         }
 
         // Logical OR: ||
@@ -426,6 +861,14 @@ impl BladeContext {
         if expr.starts_with("empty(") && expr.ends_with(')') {
             let var = &expr[6..expr.len() - 1].trim();
             return !Self::is_truthy(self.get(var));
+        }
+        // count($var)
+        if expr.starts_with("count(") && expr.ends_with(')') {
+            return self.eval_val(expr).parse::<f64>().map(|n| n > 0.0).unwrap_or(false);
+        }
+        // $var.count() / $var->count()
+        if expr.ends_with(".count()") || expr.ends_with("->count()") {
+            return self.eval_val(expr).parse::<f64>().map(|n| n > 0.0).unwrap_or(false);
         }
         // production / production()
         if expr == "production" || expr == "production()" {
@@ -2321,6 +2764,73 @@ mod tests {
         assert!(!html.contains("@prepend"));
         assert!(!html.contains("@endpush"));
         assert!(!html.contains("@endprepend"));
+    }
+
+    #[test]
+    fn test_blade_helpers_and_count() {
+        let engine = BladeEngine::empty();
+        let tmpl = r#"
+            @if(isset($funEvent) && count($funEvent) > 0)
+                <div class="events">Ada {{ count($funEvent) }} event</div>
+            @else
+                <div class="no-events">Belum ada event</div>
+            @endif
+
+            @if($categories.count() > 0)
+                <div class="cats">Ada {{ $categories.count() }} kategori</div>
+            @endif
+
+            <a href="{{ route('funDetail', ['slug' => $event.slug]) }}">{{ strtoupper($event.title) }}</a>
+            <a href="{{ route('gegeNewsDetail', $art.slug) }}">Baca Berita</a>
+            <span>{{ date('d F Y', strtotime($event.date_end)) }}</span>
+            <span>{{ tanggalOnly($event.date_start) }}</span>
+            <span>Rp {{ uang($order.grand_total) }}</span>
+            <span>Jam: {{ substr($event.time_start, 0, 5) }}</span>
+            <p>{{ __('Delete Account') }}</p>
+            <div>Sisa: {{ number_format(($event.quota ?? 0) - ($event.booked ?? 0)) }}</div>
+            <span>First: {{ $items.first()->title }}</span>
+            <span>Bracket: {{ $meta['author'] }}</span>
+        "#;
+
+        let mut ctx = BladeContext::new();
+        ctx.insert("funEvent", json!([
+            {"title": "Konser Musik Tepi Sungai", "slug": "konser-musik"}
+        ]));
+        ctx.insert("categories", json!([
+            {"id": 1, "name": "Event"},
+            {"id": 2, "name": "Promo"}
+        ]));
+        ctx.insert("event", json!({
+            "title": "live music akustik",
+            "slug": "live-music",
+            "date_start": "2024-05-20",
+            "date_end": "2024-12-31",
+            "time_start": "19:00:00",
+            "quota": 100,
+            "booked": 15
+        }));
+        ctx.insert("art", json!({ "slug": "berita-terbaru" }));
+        ctx.insert("order", json!({ "grand_total": 150000 }));
+        ctx.insert("items", json!([
+            {"title": "Item Pertama"}
+        ]));
+        ctx.insert("meta", json!({ "author": "Pakem Admin" }));
+
+        let html = engine.render_string(tmpl, &ctx);
+        assert!(html.contains("Ada 1 event"));
+        assert!(!html.contains("Belum ada event"));
+        assert!(html.contains("Ada 2 kategori"));
+        assert!(html.contains("href=\"/funDetail/live-music\""));
+        assert!(html.contains("LIVE MUSIC AKUSTIK"));
+        assert!(html.contains("href=\"/gegeNewsDetail/berita-terbaru\""));
+        assert!(html.contains("31 December 2024"));
+        assert!(html.contains("20 Mei 2024"));
+        assert!(html.contains("Rp 150.000"));
+        assert!(html.contains("Jam: 19:00"));
+        assert!(html.contains("<p>Delete Account</p>"));
+        assert!(html.contains("Sisa: 85"));
+        assert!(html.contains("First: Item Pertama"));
+        assert!(html.contains("Bracket: Pakem Admin"));
     }
 }
 
