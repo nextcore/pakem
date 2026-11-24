@@ -164,10 +164,11 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
         .and_then(|f| f.ident.clone())
         .unwrap_or_else(|| syn::Ident::new("id", proc_macro2::Span::call_site()));
 
-    let field_metas: Vec<(String, syn::Ident)> = fields
+    let field_metas: Vec<(String, syn::Ident, syn::Type)> = fields
         .iter()
         .map(|f| {
             let ident = f.ident.as_ref().unwrap().clone();
+            let ty = f.ty.clone();
             let col_name = f.attrs
                 .iter()
                 .find(|attr| attr.path().is_ident("column"))
@@ -177,11 +178,11 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
                     let s = ident.to_string();
                     s.strip_prefix("r#").unwrap_or(&s).to_string()
                 });
-            (col_name, ident)
+            (col_name, ident, ty)
         })
         .collect();
 
-    let field_names: Vec<String> = field_metas.iter().map(|(c, _)| c.clone()).collect();
+    let field_names: Vec<String> = field_metas.iter().map(|(c, _, _)| c.clone()).collect();
 
     // Field names untuk SELECT SQLite (CAST timestamp ke TEXT agar selalu cocok dengan Option<String>)
     let select_fields = field_names
@@ -200,15 +201,26 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
     // sqlx::Any tidak mendukung tipe MySQL native Date, Time, Timestamp, atau Blob secara langsung.
     // Kolom information di database MySQL adalah BLOB binary yang tidak didecode AnyRow ke String,
     // kita select NULL as information agar aman didecode oleh #[sqlx(default)] Option<String>.
-    let mysql_select_fields = field_names
+    let mysql_select_fields = field_metas
         .iter()
-        .map(|n| {
+        .map(|(n, _, ty)| {
             let lower = n.to_lowercase();
+            let ty_str = quote::quote!(#ty).to_string().replace(" ", "");
+            let is_int_or_bool = ty_str.contains("i64")
+                || ty_str.contains("i32")
+                || ty_str.contains("i16")
+                || ty_str.contains("i8")
+                || ty_str.contains("bool")
+                || ty_str.contains("u64")
+                || ty_str.contains("u32")
+                || ty_str.contains("u16")
+                || ty_str.contains("u8");
+
             if lower == "information" {
                 format!("NULL as {}", n)
             } else if lower == "content" || lower == "body" || lower == "details" || lower == "description" {
                 format!("SUBSTRING({}, 1) as {}", n, n)
-            } else if lower.starts_with("is_") || lower.starts_with("has_") {
+            } else if (lower.starts_with("is_") || lower.starts_with("has_")) && is_int_or_bool {
                 format!("CAST({} AS SIGNED) as {}", n, n)
             } else if lower == "created_at"
                 || lower == "updated_at"
@@ -241,12 +253,12 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
         .join(", ");
 
     // Field names untuk INSERT (lewati primary key & timestamp auto)
-    let insert_metas: Vec<&(String, syn::Ident)> = field_metas
+    let insert_metas: Vec<&(String, syn::Ident, syn::Type)> = field_metas
         .iter()
-        .filter(|(col, _)| col != &primary_key_field && col != "created_at" && col != "updated_at" && col != "deleted_at")
+        .filter(|(col, _, _)| col != &primary_key_field && col != "created_at" && col != "updated_at" && col != "deleted_at")
         .collect();
 
-    let insert_fields: Vec<String> = insert_metas.iter().map(|(col, _)| col.clone()).collect();
+    let insert_fields: Vec<String> = insert_metas.iter().map(|(col, _, _)| col.clone()).collect();
 
     let insert_placeholders = vec!["?"; insert_fields.len()].join(", ");
     let insert_sql_fields = insert_fields.join(", ");
@@ -258,13 +270,13 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
         .join(", ");
 
     // Bindings untuk INSERT & UPDATE
-    let insert_bindings_pg: Vec<_> = insert_metas.iter().map(|(_, ident)| {
+    let insert_bindings_pg: Vec<_> = insert_metas.iter().map(|(_, ident, _)| {
         quote! { .bind(&self.#ident) }
     }).collect();
 
     let insert_bindings_other = insert_bindings_pg.clone();
 
-    let update_bindings = insert_metas.iter().map(|(_, ident)| {
+    let update_bindings = insert_metas.iter().map(|(_, ident, _)| {
         quote! { .bind(&self.#ident) }
     });
 
