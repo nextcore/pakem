@@ -1098,6 +1098,76 @@ node_modules/
 "#;
     fs::write(base.join(".dockerignore"), dockerignore).ok();
 
+    // 17b. .gitignore
+    let gitignore = r#"# ============================================
+# Pakem Framework - .gitignore
+# ============================================
+
+# --- Rust Build Output ---
+/target/
+Cargo.lock
+
+# --- Environment Variables & Secrets ---
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.crt
+*.pfx
+*.p12
+*.cer
+*.der
+*.secret
+
+# --- Database Dumps & Local Databases ---
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+*.dump
+database/dumps/
+database/backups/
+storage/backups/
+backup/
+backups/
+
+# --- Storage, Logs & Uploads ---
+storage/logs/
+storage/cache/*
+!storage/cache/.gitkeep
+storage/app/public/uploads/*
+!storage/app/public/uploads/.gitkeep
+storage/app/private/*
+!storage/app/private/.gitkeep
+.pakem_tinker_history
+*.log
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- AI Agents & IDE Context ---
+.antigravity/
+.ai_scratch/
+.cursor/
+.windsurf/
+
+# --- Temporary Files ---
+*.tmp
+*.bak
+*.exe
+"#;
+    fs::write(base.join(".gitignore"), gitignore).ok();
+
     // 18. docker-compose.yml
     let safe_name = name.replace('.', "-").replace('_', "-").to_lowercase();
     let compose = format!(

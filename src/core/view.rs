@@ -128,6 +128,18 @@ impl ViewBuilder {
         self
     }
 
+    /// Mengaktifkan proteksi anti-inspect, anti-devtools, dan anti-copas di browser
+    pub fn shield(mut self) -> Self {
+        self.context.insert("__production_shield", true);
+        self
+    }
+
+    /// Mengaktifkan minifikasi output HTML (memadatkan whitespace dan merapikan halaman)
+    pub fn minify(mut self) -> Self {
+        self.context.insert("__minify_html", true);
+        self
+    }
+
     /// Mengeksekusi render dan mengembalikan ViewResponse.
     /// Mendukung pemanggilan bersih tanpa ampersand: `.render(req).await` maupun `.render(&req).await`.
     /// Sekarang mendukung Injeksi CSRF otomatis.

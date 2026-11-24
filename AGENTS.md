@@ -190,4 +190,21 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
 
 ---
 
+## 🛡️ 8. Perlindungan Data, Privasi & AI Governance (Vibe Coding Guidelines)
+
+Ketika tim atau developer menggunakan AI Agent (Antigravity, Cursor, Copilot, Windsurf, dsb.) untuk *vibe coding*, pedoman keamanan berikut **WAJIB** dipatuhi:
+
+1. **Gunakan `.gitignore` dan File Ignore Khusus AI (`.aiignore`, `.cursorignore`)**:
+   - Pastikan file `.env`, sertifikat (`.pem`, `.key`, `.pfx`), folder dump database (`.sql`, `.dump`), dan isi `storage/` selalu di-ignore agar tidak ikut terindeks atau terbaca oleh context engine AI.
+2. **Jangan Pernah Gunakan Data Produksi di Lokal**:
+   - Selalu gunakan data dummy via `Model::factory()` atau seeder buatan (`Faker`) saat mengembangkan fitur di lokal, terutama sistem yang menyangkut privasi pengguna, transaksi finansial, atau data sensitif (HIPAA/GDPR/UU PDP).
+3. **Atur Mode Persetujuan Agen (Approval Mode / Human-in-the-loop)**:
+   - Dilarang mengaktifkan mode auto-run tanpa pengawasan untuk perintah krusial (seperti migrasi database destruktif, penghapusan file/direktori, atau modifikasi file kredensial). Selalu minta persetujuan manual developer sebelum mengeksekusi operasi terminal berisiko.
+4. **Cek Pengaturan Privasi Akun AI**:
+   - Masuk ke pengaturan akun IDE/AI yang terhubung dan pastikan opsi penyimpanan riwayat (*history retention*) atau penggunaan data kode untuk pelatihan model (*model training / training opt-out*) sudah dinonaktifkan sesuai standar privasi perusahaan.
+5. **Gunakan Model Lokal untuk Kode Super Rahasia**:
+   - Untuk modul berlisensi tertutup, logika bisnis inti (*core secret IP*), atau perbankan yang tidak boleh meninggalkan intranet lokal, hubungkan IDE dengan model lokal (misal via Ollama atau LM Studio) sehingga seluruh pemrosesan inferensi berjalan 100% di mesin internal.
+
+---
+
 *Pakem Framework: Keringat performa Rust di balik keindahan dan kemudahan Laravel.*

@@ -1,5 +1,5 @@
 # ============================================
-# Lumina Framework - .gitignore
+# Pakem Framework - .gitignore
 # ============================================
 
 # --- Rust Build Output ---
@@ -7,9 +7,43 @@
 /target/
 Cargo.lock
 
-# --- Environment Variables ---
+# --- Environment Variables & Secrets ---
 # File .env berisi secret/config lokal, JANGAN dicommit
 .env
+.env.*
+!.env.example
+*.key
+*.pem
+*.crt
+*.pfx
+*.p12
+*.cer
+*.der
+*.secret
+
+# --- Database Dumps & Local Databases ---
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+*.dump
+database/dumps/
+database/backups/
+storage/backups/
+backup/
+backups/
+
+# --- Storage, Logs & Uploads ---
+storage/logs/
+storage/cache/*
+!storage/cache/.gitkeep
+storage/app/public/uploads/*
+!storage/app/public/uploads/.gitkeep
+storage/app/private/*
+!storage/app/private/.gitkeep
+.lumina_tinker_history
+.pakem_tinker_history
+*.log
 
 # --- OS Files ---
 .DS_Store
@@ -23,32 +57,19 @@ desktop.ini
 *.swo
 *~
 
-# --- Logs ---
-storage/logs/
-.lumina_tinker_history
-*.log
+# --- AI Agents & IDE Context ---
+.antigravity/
+.ai_scratch/
+.cursor/
+.windsurf/
 
 # --- Temporary Files ---
 *.tmp
 *.bak
-
-# --- Cache ---
-storage/cache/*
-!storage/cache/.gitkeep
-
-# --- Databases ---
-*.db
-*.sqlite
 *.exe
 
-# --- Storage uploads ---
-storage/app/public/uploads/*
-!storage/app/public/uploads/.gitkeep
-
-# --- Local Test Project ---
+# --- Local Test Project & Internal Work ---
 /apptodolist/
-
-# --- Internal Work History & Draft Skills (Never commit to GitHub) ---
 /docs/history_pekerjaan/
 /docs/planing_pekerjaan/
 /skill_for_creates/

@@ -4,6 +4,53 @@ Semua perubahan penting pada proyek **Pakem Framework** didokumentasikan di dala
 
 Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) dan mengikuti standar [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-11-24
+
+### 🛡️ Production Template Shield & Anti-Inspection
+- **Proteksi Source Code & Anti-Copas Template di Mode Production**:
+  - Direktif Blade baru: `@productionShield` (atau dipicu via builder `View::make(...).shield()` dan env `BLADE_PRODUCTION_SHIELD=true`).
+  - Menginjeksikan script dan styling protektif saat mode production aktif:
+    - **Anti-Context Menu**: Mematikan klik kanan (`contextmenu`) pada halaman.
+    - **Shortcut Interception**: Memblokir tombol pintas Developer Tools dan View Source (`F12`, `Ctrl+Shift+I`, `Ctrl+Shift+J`, `Ctrl+Shift+C`, `Ctrl+U`, `Ctrl+S`).
+    - **Anti-Debugger Loop**: Loop `debugger` asinkron dinamis untuk membekukan eksekusi script jika DevTools dipaksa dibuka.
+    - **DevTools Resizing Detector**: Mendeteksi pembukaan docked DevTools via kalkulasi selisih `outerWidth - innerWidth` dan `outerHeight - innerHeight`.
+    - **CSS Protection**: Mencegah seleksi teks (`user-select: none`) dan drag gambar (`user-drag: none`).
+  - **HTML Minification**: Helper minifikasi HTML (`View::make(...).minify()` atau env `BLADE_MINIFY_HTML=true`) untuk memangkas komentar HTML, baris kosong, dan spasi redundan antar tag sehingga struktur template sulit diintip.
+
+### 🎨 Blade Engine & Cloner Compatibility Enhancements (`canting clone:laravel`)
+- **Dukungan Parameter `@include` Lengkap**:
+  - Mendukung array binding Laravel: `@include('view.name', ['key' => $val, 'title' => 'Judul'])`.
+  - Mendukung sintaks `compact()`: `@include('view.name', compact('user', 'status'))`.
+  - Sub-context isolation: Variabel parameter di-pass ke sub-view yang di-include tanpa mencemari parent context.
+  - Mendukung `@includeIf`, `@includeWhen`, dan `@includeUnless`.
+- **Komponen Blade Modern (`<x-... />`)**:
+  - Mendukung self-closing component: `<x-alert type="warning" message="Perhatian!" />`.
+  - Mendukung block component dengan slot: `<x-card title="Judul">Konten slot utama</x-card>`.
+  - Mendukung named slot: `<x-slot:header>Judul Header</x-slot:header>` dan `<x-slot:footer>Tombol Aksi</x-slot:footer>`.
+  - Mengakses slot di template via `{{ $slot }}` dan `{{ $slot_header }}`.
+- **Asset Bundler Integration**:
+  - Direktif `@vite(['resources/css/app.css', 'resources/js/app.js'])` untuk bundle modern.
+  - Helper Laravel Mix: `{{ mix('css/app.css') }}`.
+- **Ekspansi Helper Fungsi & Sintaks Blade**:
+  - `request()->is(...)` dan `request()->routeIs(...)` untuk navigasi aktif.
+  - `session('key')` untuk membaca session flash atau state.
+  - `auth()->user()`, `auth()->check()`, dan `auth()->id()`.
+  - String manipulation: `Str::limit($text, $limit)` dan `Str::slug($text)`.
+  - Operator Ternary PHP/Blade: `{{ $isActive ? 'active' : 'inactive' }}`.
+- **Pembersihan Syntax pada Cloner (`view_converter.rs`)**:
+  - Netralisasi blok `@php ... @endphp` menjadi komentar informatif.
+  - Konversi otomatis `@session('status') ... @endsession` menjadi `@if(session('status'))`.
+  - Konversi operator PHP null-safe `?->` menjadi operator dot `.` yang didukung engine Blade Pakem.
+
+### 🛡️ AI Governance & Data Protection (Vibe Coding Guidelines)
+- **Pencegahan Kebocoran Data Sensitif ke Model AI**:
+  - File `.aiignore` dan `.cursorignore` terstandarisasi untuk memblokir AI IDE/Agent dari membaca file rahasia (`.env`, sertifikat, database dump, file token).
+  - Peningkatan `.gitignore` untuk menyaring file `.env*`, `*.pem`, `*.key`, `*.sql`, `*.dump`, database SQLite, folder `storage/`, dan direktori AI scratch.
+  - Penambahan **Bagian 8: Perlindungan Data, Privasi & AI Governance** pada pedoman `AGENTS.md`.
+  - Update `canting new` (`skeleton.rs`) dan `canting ai:context` (`ai_context.rs`) agar setiap proyek baru yang dibuat otomatis menyertakan perlindungan AI governance secara default.
+
+---
+
 ## [1.0.2] - 2026-11-22
 
 ### 🌐 Universal OpenAPI & Swagger Contract Cloner (`canting clone:api`)

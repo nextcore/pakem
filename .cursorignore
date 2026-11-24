@@ -1,0 +1,56 @@
+# ==============================================================================
+# Pakem Framework - Cursor AI Indexing Policy (.cursorignore)
+# Mencegah file rahasia, kredensial, dan data produksi diindeks oleh Cursor
+# ==============================================================================
+
+# 1. Environment Secrets & Credentials
+.env
+.env.*
+!.env.example
+*.env
+*.secret
+secrets.*
+
+# 2. Certificates & Private Keys
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.cer
+*.der
+id_rsa
+id_rsa.pub
+*.pub
+*.token
+
+# 3. Database Dumps & Local Databases
+*.sql
+*.dump
+*.sqlite
+*.sqlite3
+*.db
+database/dumps/
+database/backups/
+storage/backups/
+backup/
+backups/
+
+# 4. Storage Uploads, User Data & Logs
+storage/logs/
+storage/app/private/
+storage/app/public/uploads/
+storage/cache/
+*.log
+
+# 5. Build Artifacts & Compiled Binaries
+/target/
+*.exe
+*.dll
+*.so
+*.dylib
+*.wasm
+
+# 6. Internal Work & Historical Drafts
+docs/history_pekerjaan/
+docs/planing_pekerjaan/

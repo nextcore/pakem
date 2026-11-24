@@ -325,6 +325,22 @@ router = router
 
 ---
 
+## 🛡️ 8. Perlindungan Data, Privasi & AI Governance (Vibe Coding Guidelines)
+
+Ketika mengembangkan aplikasi dengan bantuan AI Agent (Antigravity, Cursor, Copilot, Windsurf, dsb.):
+1. **Patuhi File Ignore AI (`.aiignore`, `.cursorignore`, `.gitignore`)**:
+   - Rahasia (.env), sertifikat (.pem, .key), dan dump database (.sql) tidak boleh dibaca atau diindeks oleh AI.
+2. **Dilarang Menggunakan Data Produksi di Lokal**:
+   - Selalu gunakan `Model::factory()` atau generator `Faker` untuk data dummy pengujian lokal.
+3. **Approval Mode**:
+   - Jangan jalankan perintah terminal destruktif atau mutasi file sensitif tanpa persetujuan manual developer.
+4. **Pengaturan Privasi Model**:
+   - Pastikan opsi data retention / training opt-out aktif pada akun AI Anda.
+5. **Model Lokal untuk Logika Rahasia**:
+   - Gunakan model intranet (Ollama / LM Studio) jika menangani IP / rahasia dagang super sensitif.
+
+---
+
 *Pakem Framework: Keringat performa Rust di balik keindahan dan kemudahan Laravel.*
 "#,
         app_name = app_name
@@ -453,6 +469,66 @@ pub fn scaffold_ai_context(base: &Path, app_name: &str) -> io::Result<()> {
     // 5. Write CLAUDE.md
     fs::write(base.join("CLAUDE.md"), generate_claude_md(app_name))?;
 
+    // 6. Write .aiignore and .cursorignore (Data Protection & AI Governance)
+    let ai_ignore_content = r#"# ==============================================================================
+# Pakem Framework - AI Context & Training Ignore Policy (.aiignore / .cursorignore)
+# Mencegah file rahasia, data pengguna, sertifikat, dan dump database
+# terbaca atau terindeks oleh AI Agents (Antigravity, Cursor, Copilot, dll.)
+# ==============================================================================
+
+# 1. Environment Secrets & Credentials
+.env
+.env.*
+!.env.example
+*.env
+*.secret
+secrets.*
+
+# 2. Certificates & Private Keys
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.cer
+*.der
+id_rsa
+id_rsa.pub
+*.pub
+*.token
+
+# 3. Database Dumps, Backups & Real Customer Data
+*.sql
+*.dump
+*.sqlite
+*.sqlite3
+*.db
+database/dumps/
+database/backups/
+storage/backups/
+backup/
+backups/
+
+# 4. Storage Uploads, User Private Data & Logs
+storage/logs/
+storage/app/private/
+storage/app/public/uploads/
+storage/cache/
+*.log
+
+# 5. Build Artifacts & Compiled Binaries
+/target/
+*.exe
+*.dll
+*.so
+*.dylib
+*.wasm
+*.tar.gz
+*.zip
+"#;
+    fs::write(base.join(".aiignore"), ai_ignore_content)?;
+    fs::write(base.join(".cursorignore"), ai_ignore_content)?;
+
     Ok(())
 }
 
@@ -508,6 +584,8 @@ mod tests {
         assert!(temp_dir.join(".cursorrules").exists());
         assert!(temp_dir.join(".github/copilot-instructions.md").exists());
         assert!(temp_dir.join("CLAUDE.md").exists());
+        assert!(temp_dir.join(".aiignore").exists());
+        assert!(temp_dir.join(".cursorignore").exists());
 
         let agents = fs::read_to_string(temp_dir.join("AGENTS.md")).unwrap();
         assert!(agents.contains("TestApp"));
@@ -524,6 +602,9 @@ mod tests {
         crate::skeleton::create_full_skeleton(&temp_dir, "SkelApp", "sqlite");
 
         assert!(temp_dir.join("Cargo.toml").exists());
+        assert!(temp_dir.join(".gitignore").exists());
+        assert!(temp_dir.join(".aiignore").exists());
+        assert!(temp_dir.join(".cursorignore").exists());
         assert!(temp_dir.join("AGENTS.md").exists());
         assert!(temp_dir.join(".cursorrules").exists());
         assert!(temp_dir.join(".github/copilot-instructions.md").exists());

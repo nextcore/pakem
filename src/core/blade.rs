@@ -320,6 +320,84 @@ impl BladeContext {
         None
     }
 
+    /// Helper memecah argumen berdasar koma terluar (misal: "a, [1, 2], 'x, y'") -> ["a", "[1, 2]", "'x, y'"]
+    pub fn split_arguments(s: &str) -> Vec<String> {
+        let mut args = Vec::new();
+        let mut rem = s.trim();
+        while !rem.is_empty() {
+            if let Some(pos) = Self::find_argument_split(rem) {
+                args.push(rem[..pos].trim().to_string());
+                rem = rem[pos + 1..].trim();
+            } else {
+                args.push(rem.trim().to_string());
+                break;
+            }
+        }
+        args
+    }
+
+    /// Helper parsing array/hashmap sintaks Blade PHP:
+    /// Contoh: "['title' => $title, 'status' => 'active', 'count' => 5]" atau "compact('item', 'title')"
+    pub fn parse_blade_array(raw: &str, ctx: &BladeContext) -> HashMap<String, Value> {
+        let mut res = HashMap::new();
+        let trimmed = raw.trim();
+        if trimmed.is_empty() {
+            return res;
+        }
+
+        // Dukungan compact('var1', 'var2')
+        if trimmed.starts_with("compact(") && trimmed.ends_with(')') {
+            let inside = &trimmed[8..trimmed.len() - 1];
+            for var in Self::split_arguments(inside) {
+                let var_name = var.trim().trim_matches('\'').trim_matches('"').trim_start_matches('$');
+                if let Some(v) = ctx.get(var_name) {
+                    res.insert(var_name.to_string(), v.clone());
+                }
+            }
+            return res;
+        }
+
+        let inner = if (trimmed.starts_with('[') && trimmed.ends_with(']')) || (trimmed.starts_with("array(") && trimmed.ends_with(')')) {
+            if trimmed.starts_with('[') {
+                &trimmed[1..trimmed.len() - 1]
+            } else {
+                &trimmed[6..trimmed.len() - 1]
+            }
+        } else {
+            trimmed
+        };
+
+        let pairs = Self::split_arguments(inner);
+        for pair in pairs {
+            let pair_trim = pair.trim();
+            if pair_trim.is_empty() {
+                continue;
+            }
+            if let Some(arrow_pos) = Self::find_token_outside_parens(pair_trim, "=>") {
+                let key_raw = pair_trim[..arrow_pos].trim().trim_matches('\'').trim_matches('"');
+                let val_raw = pair_trim[arrow_pos + 2..].trim();
+                let val_clean = val_raw.trim_start_matches('$');
+                if let Some(v) = ctx.get(val_clean) {
+                    res.insert(key_raw.to_string(), v.clone());
+                } else {
+                    let evaled = ctx.eval_val(val_raw);
+                    if let Ok(num) = evaled.parse::<i64>() {
+                        res.insert(key_raw.to_string(), serde_json::json!(num));
+                    } else if let Ok(f) = evaled.parse::<f64>() {
+                        res.insert(key_raw.to_string(), serde_json::json!(f));
+                    } else if evaled == "true" {
+                        res.insert(key_raw.to_string(), serde_json::json!(true));
+                    } else if evaled == "false" {
+                        res.insert(key_raw.to_string(), serde_json::json!(false));
+                    } else {
+                        res.insert(key_raw.to_string(), serde_json::json!(evaled));
+                    }
+                }
+            }
+        }
+        res
+    }
+
     /// Helper format angka ribuan (e.g. 15000 -> "15.000" atau "15,000").
     pub fn format_thousands(val_str: &str, sep: char) -> String {
         let trimmed = val_str.trim();
@@ -482,6 +560,23 @@ impl BladeContext {
             }
         }
 
+        // Operator ternary: cond ? expr1 : expr2
+        if let Some(q_idx) = Self::find_token_outside_parens(expr, "?") {
+            if !expr[q_idx..].starts_with("??") && (q_idx == 0 || &expr[q_idx - 1..q_idx] != "?") {
+                if let Some(colon_rel) = Self::find_token_outside_parens(&expr[q_idx + 1..], ":") {
+                    let colon_idx = q_idx + 1 + colon_rel;
+                    let cond = expr[..q_idx].trim();
+                    let true_val = expr[q_idx + 1..colon_idx].trim();
+                    let false_val = expr[colon_idx + 1..].trim();
+                    if self.eval_truthy(cond) {
+                        return self.eval_val(true_val);
+                    } else {
+                        return self.eval_val(false_val);
+                    }
+                }
+            }
+        }
+
         // String literal: '...' atau "..."
         if (expr.starts_with('\'') && expr.ends_with('\'') && expr.len() >= 2)
             || (expr.starts_with('"') && expr.ends_with('"') && expr.len() >= 2)
@@ -572,6 +667,15 @@ impl BladeContext {
             return format!("/{}", clean);
         }
 
+        // Helper Laravel: mix('path')
+        if expr.starts_with("mix(") && expr.ends_with(')') {
+            let inner = expr[4..expr.len() - 1].trim();
+            let raw_eval = self.eval_val(inner);
+            let raw = raw_eval.trim().trim_matches('\'').trim_matches('"');
+            let clean = raw.trim_start_matches('/');
+            return format!("/{}", clean);
+        }
+
         // Helper Laravel: route('name', ...)
         if expr.starts_with("route(") && expr.ends_with(')') {
             let inner = expr[6..expr.len() - 1].trim();
@@ -617,6 +721,116 @@ impl BladeContext {
             }
             let clean = raw.trim_start_matches('/');
             return format!("/{}", clean);
+        }
+
+        // Helper Laravel: request()->is(...) / request()->routeIs(...)
+        if (expr.starts_with("request()->is(") || expr.starts_with("request()->routeIs(") || expr.starts_with("request.is(") || expr.starts_with("request.routeIs(")) && expr.ends_with(')') {
+            let open = expr.rfind('(').unwrap();
+            let inner = expr[open + 1..expr.len() - 1].trim();
+            let pattern = self.eval_val(inner).trim().trim_matches('\'').trim_matches('"').to_string();
+            let curr_path = self.get("request_path")
+                .or_else(|| self.get("current_route"))
+                .or_else(|| self.get("path"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
+            let clean_pattern = pattern.trim_start_matches('/');
+            let clean_curr = curr_path.trim_start_matches('/');
+            let matches = if clean_pattern.ends_with('*') {
+                clean_curr.starts_with(clean_pattern.trim_end_matches('*'))
+            } else {
+                clean_curr == clean_pattern
+            };
+            return if matches { "1".to_string() } else { String::new() };
+        }
+
+        // Helper Laravel: session('key', 'default')
+        if expr.starts_with("session(") && expr.ends_with(')') {
+            let inner = expr[8..expr.len() - 1].trim();
+            if inner.is_empty() {
+                return String::new();
+            }
+            let (key_arg, def_arg) = if let Some(comma) = Self::find_argument_split(inner) {
+                (inner[..comma].trim(), Some(inner[comma + 1..].trim()))
+            } else {
+                (inner, None)
+            };
+            let key = key_arg.trim_matches('\'').trim_matches('"');
+            let session_key = format!("session.{}", key);
+            if let Some(val) = self.get(&session_key).or_else(|| self.get(key)) {
+                match val {
+                    Value::String(s) => return s.clone(),
+                    Value::Number(n) => return n.to_string(),
+                    Value::Bool(b) => return b.to_string(),
+                    Value::Null => {},
+                    other => return other.to_string(),
+                }
+            }
+            if let Some(def) = def_arg {
+                return self.eval_val(def);
+            }
+            return String::new();
+        }
+
+        // Helper Laravel: auth()->check(), auth()->id(), auth()->user()->prop, Auth::user()->prop
+        if expr == "auth()->check()" {
+            return if self.get("user").is_some() { "1".to_string() } else { String::new() };
+        }
+        if expr == "auth()->id()" {
+            if let Some(id) = self.get("user.id") {
+                return id.to_string();
+            }
+            return String::new();
+        }
+        if expr.starts_with("auth()->user()->") {
+            let prop = &expr[16..];
+            let key = format!("user.{}", prop);
+            if let Some(val) = self.get(&key) {
+                match val {
+                    Value::String(s) => return s.clone(),
+                    Value::Number(n) => return n.to_string(),
+                    Value::Bool(b) => return b.to_string(),
+                    _ => return val.to_string(),
+                }
+            }
+            return String::new();
+        }
+        if expr.starts_with("Auth::user()->") {
+            let prop = &expr[14..];
+            let key = format!("user.{}", prop);
+            if let Some(val) = self.get(&key) {
+                match val {
+                    Value::String(s) => return s.clone(),
+                    Value::Number(n) => return n.to_string(),
+                    Value::Bool(b) => return b.to_string(),
+                    _ => return val.to_string(),
+                }
+            }
+            return String::new();
+        }
+
+        // Helper Laravel: Str::limit($text, limit), str_limit($text, limit), Str::slug($text)
+        if (expr.starts_with("Str::limit(") || expr.starts_with("str_limit(")) && expr.ends_with(')') {
+            let open = expr.find('(').unwrap();
+            let inner = expr[open + 1..expr.len() - 1].trim();
+            let parts = Self::split_arguments(inner);
+            if !parts.is_empty() {
+                let text = self.eval_val(&parts[0]);
+                let limit: usize = parts.get(1).and_then(|p| p.parse().ok()).unwrap_or(100);
+                let end_str = parts.get(2).map(|p| p.trim().trim_matches('\'').trim_matches('"')).unwrap_or("...");
+                let chars: Vec<char> = text.chars().collect();
+                if chars.len() > limit {
+                    let truncated: String = chars[..limit].iter().collect();
+                    return format!("{}{}", truncated, end_str);
+                } else {
+                    return text;
+                }
+            }
+            return String::new();
+        }
+        if expr.starts_with("Str::slug(") && expr.ends_with(')') {
+            let inner = expr[10..expr.len() - 1].trim();
+            let text = self.eval_val(inner);
+            return BladeEngine::slug(&text);
         }
 
         // String Helpers: strtoupper, strtolower, ucfirst, ucwords, substr, str_replace
@@ -906,9 +1120,13 @@ impl BladeContext {
             return false;
         }
 
-        // Perbandingan: ===, ==, !=, >=, <=, >, <
+        // Perbandingan: ===, ==, !=, >=, <=, >, < (di luar tanda kurung/kutip)
         for op in &["===", "==", "!=", ">=", "<=", ">", "<"] {
-            if let Some(idx) = expr.find(op) {
+            if let Some(idx) = Self::find_token_outside_parens(expr, op) {
+                // Lewati '>' jika merupakan bagian dari operator panah '->'
+                if *op == ">" && idx > 0 && expr.as_bytes()[idx - 1] == b'-' {
+                    continue;
+                }
                 let left = self.eval_val(&expr[..idx]);
                 let right = self.eval_val(&expr[idx + op.len()..]);
 
@@ -946,7 +1164,16 @@ impl BladeContext {
             return false;
         }
 
-        Self::is_truthy(self.get(expr))
+        if let Some(val) = self.get(expr) {
+            return Self::is_truthy(Some(val));
+        }
+
+        let evaled = self.eval_val(expr);
+        if !evaled.is_empty() && evaled != "0" && evaled != "false" {
+            return true;
+        }
+
+        false
     }
 }
 
@@ -1003,10 +1230,15 @@ static RE_PUSH: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"(?s)@push\s*\(\
 static RE_PREPEND: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"(?s)@prepend\s*\(\s*['"]([^'"]+)['"]\s*\)(.*?)@endprepend"#).unwrap());
 static RE_STACK: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@stack\s*\(\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
 static RE_ONCE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"(?s)@once(.*?)@endonce"#).unwrap());
-static RE_INC_WHEN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@includeWhen\s*\((.*?)\s*,\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
-static RE_INC_UNLESS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@includeUnless\s*\((.*?)\s*,\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
-static RE_INC_IF: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@includeIf\s*\(\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
-static RE_INC: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@include\s*\(\s*['"]([^'"]+)['"]\s*\)"#).unwrap());
+static RE_INC_WHEN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@includeWhen\s*\((.*?)\)"#).unwrap());
+static RE_INC_UNLESS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@includeUnless\s*\((.*?)\)"#).unwrap());
+static RE_INC_IF: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@includeIf\s*\((.*?)\)"#).unwrap());
+static RE_INC: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@include\s*\((.*?)\)"#).unwrap());
+static RE_VITE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"@vite\s*\((.*?)\)"#).unwrap());
+static RE_COMPONENT_SELF: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"<x-([a-zA-Z0-9_\.-]+)([^>]*?)/>"#).unwrap());
+static RE_COMPONENT_OPEN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"<x-([a-zA-Z0-9_\.-]+)([^>]*?)>"#).unwrap());
+static RE_COMPONENT_SLOT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"(?s)<x-slot(?::([a-zA-Z0-9_\.-]+)|(?:\s+name=['"]([a-zA-Z0-9_\.-]+)['"]))>(.*?)</x-slot>"#).unwrap());
+static RE_COMPONENT_ATTR: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"(?::([a-zA-Z0-9_\.-]+)|([a-zA-Z0-9_\.-]+))\s*=\s*(?:"([^"]*)"|'([^']*)')"#).unwrap());
 static RE_FOREACH_OPEN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"@foreach\s*\((.*?)\)").unwrap());
 static RE_FORELSE_OPEN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"@forelse\s*\((.*?)\)").unwrap());
 static RE_FOR_OPEN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"@for\s*\((.*?)\)").unwrap());
@@ -1213,6 +1445,9 @@ impl BladeEngine {
         // 2. Includes: @include, @includeIf, @includeWhen, @includeUnless
         s = self.process_includes(&s, context, depth);
 
+        // 2c. Blade Components: <x-component-name ... /> dan <x-component-name> ... </x-component-name>
+        s = self.process_components(&s, context, depth);
+
         // 2b. Stacks: @push, @prepend, @stack
         if s.contains("@push") {
             for caps in RE_PUSH.captures_iter(&s) {
@@ -1252,6 +1487,9 @@ impl BladeEngine {
         // 7. Form & Security Helpers: @csrf, @method
         s = s.replace("@csrf", &format!("<input type=\"hidden\" name=\"csrf_token\" value=\"{}\">", context.get("csrf_token").and_then(|v| v.as_str()).unwrap_or("")));
         s = RE_METHOD.replace_all(&s, "<input type=\"hidden\" name=\"_method\" value=\"$1\">").to_string();
+
+        // 7a. Asset Bundler: @vite(...)
+        s = self.process_vite(&s);
 
         // 7b. Form Error Directives: @error('field') ... @enderror
         s = self.process_errors(&s, context, depth);
@@ -1350,6 +1588,9 @@ impl BladeEngine {
         s = RE_VAR.replace_all(&s, |caps: &regex::Captures| {
             html_escape::encode_safe(&self.eval_expr_with_filters(&caps[1], context))
         }).to_string();
+
+        // 16. Production Template Shield (@productionShield & anti-inspect / anti-copas)
+        s = self.process_production_shield(s, context, depth);
 
         s
     }
@@ -1661,40 +1902,94 @@ impl BladeEngine {
         s
     }
 
-    /// Penanganan @include, @includeIf, @includeWhen, @includeUnless
+    /// Penanganan @include, @includeIf, @includeWhen, @includeUnless (mendukung parameter data array)
     fn process_includes(&self, content: &str, context: &BladeContext, depth: usize) -> String {
         let mut s = content.to_string();
 
-        // @includeWhen(cond, 'path')
+        // @includeWhen(cond, 'path', ['var' => $val])
         s = RE_INC_WHEN.replace_all(&s, |caps: &regex::Captures| {
-            let cond = &caps[1];
-            let path = &caps[2];
-            if context.eval_truthy(cond) {
-                self.resolve_include(path, context, depth, false)
+            let inner = &caps[1];
+            let args = BladeContext::split_arguments(inner);
+            if args.len() >= 2 {
+                let cond = &args[0];
+                let path = args[1].trim().trim_matches('\'').trim_matches('"');
+                if context.eval_truthy(cond) {
+                    let mut sub_ctx = context.clone();
+                    if args.len() >= 3 {
+                        let extra = BladeContext::parse_blade_array(&args[2], context);
+                        for (k, v) in extra {
+                            sub_ctx.insert(&k, v);
+                        }
+                    }
+                    self.resolve_include(path, &sub_ctx, depth, false)
+                } else {
+                    String::new()
+                }
             } else {
                 String::new()
             }
         }).to_string();
 
-        // @includeUnless(cond, 'path')
+        // @includeUnless(cond, 'path', ['var' => $val])
         s = RE_INC_UNLESS.replace_all(&s, |caps: &regex::Captures| {
-            let cond = &caps[1];
-            let path = &caps[2];
-            if !context.eval_truthy(cond) {
-                self.resolve_include(path, context, depth, false)
+            let inner = &caps[1];
+            let args = BladeContext::split_arguments(inner);
+            if args.len() >= 2 {
+                let cond = &args[0];
+                let path = args[1].trim().trim_matches('\'').trim_matches('"');
+                if !context.eval_truthy(cond) {
+                    let mut sub_ctx = context.clone();
+                    if args.len() >= 3 {
+                        let extra = BladeContext::parse_blade_array(&args[2], context);
+                        for (k, v) in extra {
+                            sub_ctx.insert(&k, v);
+                        }
+                    }
+                    self.resolve_include(path, &sub_ctx, depth, false)
+                } else {
+                    String::new()
+                }
             } else {
                 String::new()
             }
         }).to_string();
 
-        // @includeIf('path')
+        // @includeIf('path', ['var' => $val])
         s = RE_INC_IF.replace_all(&s, |caps: &regex::Captures| {
-            self.resolve_include(&caps[1], context, depth, true)
+            let inner = &caps[1];
+            let args = BladeContext::split_arguments(inner);
+            if !args.is_empty() {
+                let path = args[0].trim().trim_matches('\'').trim_matches('"');
+                let mut sub_ctx = context.clone();
+                if args.len() >= 2 {
+                    let extra = BladeContext::parse_blade_array(&args[1], context);
+                    for (k, v) in extra {
+                        sub_ctx.insert(&k, v);
+                    }
+                }
+                self.resolve_include(path, &sub_ctx, depth, true)
+            } else {
+                String::new()
+            }
         }).to_string();
 
-        // @include('path')
+        // @include('path', ['var' => $val])
         s = RE_INC.replace_all(&s, |caps: &regex::Captures| {
-            self.resolve_include(&caps[1], context, depth, false)
+            let inner = &caps[1];
+            let args = BladeContext::split_arguments(inner);
+            if !args.is_empty() {
+                let path = args[0].trim().trim_matches('\'').trim_matches('"');
+                let mut sub_ctx = context.clone();
+                if args.len() >= 2 {
+                    let extra = BladeContext::parse_blade_array(&args[1], context);
+                    for (k, v) in extra {
+                        sub_ctx.insert(&k, v);
+                    }
+                }
+                self.resolve_include(path, &sub_ctx, depth, false)
+            } else {
+                String::new()
+            }
         }).to_string();
 
         s
@@ -1720,6 +2015,216 @@ impl BladeEngine {
         } else {
             format!("<!-- Include '{}' not found -->", path_raw)
         }
+    }
+
+    fn render_component_tag(&self, tag_name: &str, attr_str: &str, body_opt: Option<&str>, context: &BladeContext, depth: usize) -> String {
+        let clean_name = tag_name.replace('.', "/");
+        let candidates = [
+            format!("components/{}.blade.rs", clean_name),
+            format!("components/{}.blade.rs", clean_name.replace('-', "_")),
+            format!("components/{}.blade.rs", clean_name.replace('-', "/")),
+            format!("components/{}.html", clean_name),
+            format!("{}.blade.rs", clean_name),
+        ];
+
+        let mut comp_content = None;
+        for cand in &candidates {
+            if let Some(tmpl) = self.templates.get(cand) {
+                comp_content = Some(tmpl.clone());
+                break;
+            }
+        }
+
+        if let Some(comp_template) = comp_content {
+            let mut sub_ctx = context.clone();
+
+            // 1. Parse attributes
+            for attr_cap in RE_COMPONENT_ATTR.captures_iter(attr_str) {
+                if let Some(bound_name) = attr_cap.get(1) {
+                    let val_expr = attr_cap.get(3).or_else(|| attr_cap.get(4)).map(|m| m.as_str()).unwrap_or("");
+                    let clean_expr = val_expr.trim_start_matches('$');
+                    if let Some(v) = context.get(clean_expr) {
+                        sub_ctx.insert(bound_name.as_str(), v.clone());
+                    } else {
+                        let evaled = context.eval_val(val_expr);
+                        sub_ctx.insert(bound_name.as_str(), evaled);
+                    }
+                } else if let Some(plain_name) = attr_cap.get(2) {
+                    let val = attr_cap.get(3).or_else(|| attr_cap.get(4)).map(|m| m.as_str()).unwrap_or("");
+                    sub_ctx.insert(plain_name.as_str(), val);
+                }
+            }
+
+            // 2. Parse slots jika berbentuk block tag
+            if let Some(body) = body_opt {
+                let mut slot_body = body.to_string();
+                for slot_cap in RE_COMPONENT_SLOT.captures_iter(body) {
+                    let slot_name = slot_cap.get(1).or_else(|| slot_cap.get(2)).map(|m| m.as_str()).unwrap_or("slot");
+                    let slot_html = &slot_cap[3];
+                    let rendered_slot = self.process_template(slot_html, context, depth + 1);
+                    sub_ctx.insert(slot_name, rendered_slot);
+                }
+                slot_body = RE_COMPONENT_SLOT.replace_all(&slot_body, "").to_string();
+                let rendered_default_slot = self.process_template(slot_body.trim(), context, depth + 1);
+                sub_ctx.insert("slot", rendered_default_slot.clone());
+                sub_ctx.insert("$slot", rendered_default_slot);
+            }
+
+            self.process_template(&comp_template, &sub_ctx, depth + 1)
+        } else {
+            if let Some(body) = body_opt {
+                format!("<x-{}{}>{}</x-{}>", tag_name, attr_str, body, tag_name)
+            } else {
+                format!("<x-{}{}/>", tag_name, attr_str)
+            }
+        }
+    }
+
+    /// Penanganan Blade Component modern: <x-alert type="warning" :count="$total">Slot Body</x-alert>
+    fn process_components(&self, content: &str, context: &BladeContext, depth: usize) -> String {
+        if !content.contains("<x-") {
+            return content.to_string();
+        }
+
+        // 1. Self-closing components: <x-alert ... />
+        let mut s = RE_COMPONENT_SELF.replace_all(content, |caps: &regex::Captures| {
+            let tag_name = &caps[1];
+            let attr_str = &caps[2];
+            self.render_component_tag(tag_name, attr_str, None, context, depth)
+        }).to_string();
+
+        // 2. Block components: <x-card ...> ... </x-card>
+        loop {
+            if let Some(m) = RE_COMPONENT_OPEN.find(&s) {
+                let caps = RE_COMPONENT_OPEN.captures(&s[m.start()..]).unwrap();
+                let tag_name = caps[1].to_string();
+                let attr_str = caps[2].to_string();
+                let open_len = caps[0].len();
+                let body_start = m.start() + open_len;
+
+                let close_tag = format!("</x-{}>", tag_name);
+                if let Some(close_idx) = s[body_start..].find(&close_tag) {
+                    let body = s[body_start..body_start + close_idx].to_string();
+                    let rendered = self.render_component_tag(&tag_name, &attr_str, Some(&body), context, depth);
+                    s.replace_range(m.start()..body_start + close_idx + close_tag.len(), &rendered);
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+
+        s
+    }
+
+    /// Penanganan asset bundler Laravel @vite(['resources/css/app.css', 'resources/js/app.js'])
+    fn process_vite(&self, content: &str) -> String {
+        if !content.contains("@vite") {
+            return content.to_string();
+        }
+
+        RE_VITE.replace_all(content, |caps: &regex::Captures| {
+            let inner = caps[1].trim();
+            let items: Vec<String> = if inner.starts_with('[') && inner.ends_with(']') {
+                let inside = &inner[1..inner.len() - 1];
+                BladeContext::split_arguments(inside)
+            } else {
+                vec![inner.to_string()]
+            };
+
+            let mut tags = Vec::new();
+            for item in items {
+                let path_raw = item.trim().trim_matches('\'').trim_matches('"');
+                if path_raw.is_empty() {
+                    continue;
+                }
+                let clean_path = if path_raw.starts_with("resources/") {
+                    format!("/{}", &path_raw[10..])
+                } else if path_raw.starts_with('/') {
+                    path_raw.to_string()
+                } else {
+                    format!("/{}", path_raw)
+                };
+
+                if clean_path.ends_with(".css") {
+                    tags.push(format!(r#"<link rel="stylesheet" href="{}">"#, clean_path));
+                } else {
+                    tags.push(format!(r#"<script type="module" src="{}"></script>"#, clean_path));
+                }
+            }
+            tags.join("\n")
+        }).to_string()
+    }
+
+    /// HTML, CSS, dan JavaScript untuk proteksi template di browser (Anti-DevTools, Anti-Inspect, Anti-Copy)
+    pub fn production_shield_html() -> &'static str {
+        r#"<style id="_pakem_shield_css">
+html,body{-webkit-user-select:none!important;-moz-user-select:none!important;-ms-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}
+img{pointer-events:none!important;-webkit-user-drag:none!important}
+</style>
+<script id="_pakem_shield_js">
+(function(){
+document.addEventListener("contextmenu",function(e){e.preventDefault();return false;});
+document.addEventListener("keydown",function(e){
+if(e.keyCode===123||(e.ctrlKey&&e.keyCode===85)||(e.ctrlKey&&e.keyCode===83)||(e.ctrlKey&&e.shiftKey&&(e.keyCode===73||e.keyCode===74||e.keyCode===67||e.keyCode===75))){
+e.preventDefault();e.stopPropagation();return false;
+}
+});
+setInterval(function(){(function(){return false;}["constructor"]("debugger")());},100);
+var _dt=false;
+setInterval(function(){
+if((window.outerWidth-window.innerWidth>160)||(window.outerHeight-window.innerHeight>160)){
+if(!_dt){_dt=true;document.body.innerHTML='<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a;color:#ef4444;font-family:sans-serif;font-size:24px;font-weight:700;">Akses Terproteksi (DevTools Dinonaktifkan)</div>';}
+}
+},500);
+})();
+</script>"#
+    }
+
+    /// Helper minifikasi dokumen HTML (menghilangkan baris kosong dan memadatkan whitespace)
+    pub fn minify_html(input: &str) -> String {
+        let mut out = String::with_capacity(input.len());
+        let mut prev_space = false;
+        for line in input.lines() {
+            let trimmed = line.trim();
+            if trimmed.is_empty() {
+                continue;
+            }
+            if !out.is_empty() && !prev_space {
+                out.push(' ');
+            }
+            out.push_str(trimmed);
+            prev_space = trimmed.ends_with('>') || trimmed.ends_with(';');
+        }
+        out
+    }
+
+    /// Penanganan proteksi template production dan minifikasi output HTML
+    fn process_production_shield(&self, mut s: String, context: &BladeContext, depth: usize) -> String {
+        let shield_requested = s.contains("@productionShield")
+            || context.get("__production_shield").and_then(|v| v.as_bool()).unwrap_or(false)
+            || std::env::var("BLADE_PRODUCTION_SHIELD").map(|v| v == "true" || v == "1").unwrap_or(false);
+
+        if s.contains("@productionShield") {
+            s = s.replace("@productionShield", Self::production_shield_html());
+        } else if shield_requested && depth == 0 {
+            if s.contains("</body>") {
+                s = s.replace("</body>", &format!("{}\n</body>", Self::production_shield_html()));
+            } else {
+                s.push_str("\n");
+                s.push_str(Self::production_shield_html());
+            }
+        }
+
+        let minify_requested = context.get("__minify_html").and_then(|v| v.as_bool()).unwrap_or(false)
+            || std::env::var("BLADE_MINIFY_HTML").map(|v| v == "true" || v == "1").unwrap_or(false);
+
+        if minify_requested && depth == 0 {
+            s = Self::minify_html(&s);
+        }
+
+        s
     }
 
     /// Penanganan perulangan (@foreach, @forelse, @for)
@@ -2831,6 +3336,135 @@ mod tests {
         assert!(html.contains("Sisa: 85"));
         assert!(html.contains("First: Item Pertama"));
         assert!(html.contains("Bracket: Pakem Admin"));
+    }
+
+    #[test]
+    fn test_blade_include_with_parameters() {
+        let mut engine = BladeEngine::empty();
+        engine.templates.insert(
+            "partials/badge.blade.rs".to_string(),
+            r#"<span class="badge {{ $type }}">{{ $label }} ({{ $count }})</span>"#.to_string(),
+        );
+
+        let tmpl = r#"
+            <div>
+                @include('partials.badge', ['type' => 'success', 'label' => 'Aktif', 'count' => 10])
+                @include('partials.badge', ['type' => $badgeType, 'label' => $badgeLabel, 'count' => $badgeCount])
+                @includeWhen(true, 'partials.badge', ['type' => 'info', 'label' => 'Pending', 'count' => 1])
+                @includeUnless(false, 'partials.badge', ['type' => 'warning', 'label' => 'Warning', 'count' => 0])
+            </div>
+        "#;
+
+        let mut ctx = BladeContext::new();
+        ctx.insert("badgeType", "danger");
+        ctx.insert("badgeLabel", "Nonaktif");
+        ctx.insert("badgeCount", 5);
+
+        let html = engine.render_string(tmpl, &ctx);
+        assert!(html.contains("class=\"badge success\""));
+        assert!(html.contains("Aktif (10)"));
+        assert!(html.contains("class=\"badge danger\""));
+        assert!(html.contains("Nonaktif (5)"));
+        assert!(html.contains("Pending (1)"));
+        assert!(html.contains("Warning (0)"));
+    }
+
+    #[test]
+    fn test_blade_components() {
+        let mut engine = BladeEngine::empty();
+        engine.templates.insert(
+            "components/alert.blade.rs".to_string(),
+            r#"<div class="alert alert-{{ $type }}"><h4>{{ $title }}</h4><p>{{ $slot }}</p></div>"#.to_string(),
+        );
+        engine.templates.insert(
+            "components/card.blade.rs".to_string(),
+            r#"<div class="card"><div class="card-header">{{ $header }}</div><div class="card-body">{{ $slot }}</div></div>"#.to_string(),
+        );
+
+        let tmpl = r#"
+            <x-alert type="danger" title="Peringatan!">Terjadi kesalahan sistem.</x-alert>
+            <x-card>
+                <x-slot:header>Judul Kartu</x-slot>
+                Konten isi kartu di sini
+            </x-card>
+        "#;
+
+        let ctx = BladeContext::new();
+        let html = engine.render_string(tmpl, &ctx);
+        assert!(html.contains("class=\"alert alert-danger\""));
+        assert!(html.contains("<h4>Peringatan!</h4>"));
+        assert!(html.contains("<p>Terjadi kesalahan sistem.</p>"));
+        assert!(html.contains("<div class=\"card-header\">Judul Kartu</div>"));
+        assert!(html.contains("<div class=\"card-body\">Konten isi kartu di sini</div>"));
+    }
+
+    #[test]
+    fn test_blade_vite_and_mix() {
+        let engine = BladeEngine::empty();
+        let tmpl = r#"
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            <script src="{{ mix('js/vendor.js') }}"></script>
+        "#;
+
+        let ctx = BladeContext::new();
+        let html = engine.render_string(tmpl, &ctx);
+        assert!(html.contains("<link rel=\"stylesheet\" href=\"/css/app.css\">"));
+        assert!(html.contains("<script type=\"module\" src=\"/js/app.js\"></script>"));
+        assert!(html.contains("src=\"/js/vendor.js\""));
+    }
+
+    #[test]
+    fn test_blade_production_shield_and_minify() {
+        let engine = BladeEngine::empty();
+        let tmpl = r#"
+            <!DOCTYPE html>
+            <html>
+                <head><title>Test</title></head>
+                <body>
+                    <h1>Rahasia Dagang</h1>
+                    @productionShield
+                </body>
+            </html>
+        "#;
+
+        let mut ctx = BladeContext::new();
+        ctx.insert("__minify_html", true);
+
+        let html = engine.render_string(tmpl, &ctx);
+        // Memastikan CSS dan JS shield disuntikkan
+        assert!(html.contains("_pakem_shield_css"));
+        assert!(html.contains("_pakem_shield_js"));
+        assert!(html.contains("contextmenu"));
+        assert!(html.contains("user-select:none!important"));
+        assert!(html.contains("debugger"));
+
+        // Memastikan HTML diminifikasi (tidak ada multiple newline kosong berurutan)
+        assert!(!html.contains("\n\n"));
+    }
+
+    #[test]
+    fn test_blade_new_helpers() {
+        let engine = BladeEngine::empty();
+        let tmpl = r#"
+            <p>{{ Str::limit($longText, 10) }}</p>
+            <p>{{ Str::slug('Judul Artikel Keren') }}</p>
+            <p>Active: {{ request()->is('admin*') ? 'YES' : 'NO' }}</p>
+            <p>User: {{ auth()->user()->name }}</p>
+            <p>Flash: {{ session('success', 'Tidak ada pesan') }}</p>
+        "#;
+
+        let mut ctx = BladeContext::new();
+        ctx.insert("longText", "Ini adalah teks yang sangat panjang sekali");
+        ctx.insert("request_path", "/admin/users");
+        ctx.insert("user", json!({ "id": 1, "name": "Super Admin" }));
+        ctx.insert("session", json!({ "success": "Data berhasil disimpan!" }));
+
+        let html = engine.render_string(tmpl, &ctx);
+        assert!(html.contains("Ini adalah..."));
+        assert!(html.contains("judul-artikel-keren"));
+        assert!(html.contains("Active: YES"));
+        assert!(html.contains("User: Super Admin"));
+        assert!(html.contains("Flash: Data berhasil disimpan!"));
     }
 }
 

@@ -1,0 +1,59 @@
+# ==============================================================================
+# Pakem Framework - AI Context & Training Ignore Policy (.aiignore)
+# Mencegah file rahasia, data pengguna, sertifikat, dan dump database 
+# terbaca atau terindeks oleh AI Agents (Antigravity, Cursor, Copilot, dll.)
+# ==============================================================================
+
+# 1. Environment Secrets & Credentials
+.env
+.env.*
+!.env.example
+*.env
+*.secret
+secrets.*
+
+# 2. Certificates & Private Keys
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.cer
+*.der
+id_rsa
+id_rsa.pub
+*.pub
+*.token
+
+# 3. Database Dumps, Backups & Real Customer Data
+*.sql
+*.dump
+*.sqlite
+*.sqlite3
+*.db
+database/dumps/
+database/backups/
+storage/backups/
+backup/
+backups/
+
+# 4. Storage Uploads, User Private Data & Logs
+storage/logs/
+storage/app/private/
+storage/app/public/uploads/
+storage/cache/
+*.log
+
+# 5. Build Artifacts & Compiled Binaries
+/target/
+*.exe
+*.dll
+*.so
+*.dylib
+*.wasm
+*.tar.gz
+*.zip
+
+# 6. Internal Work & Historical Drafts
+docs/history_pekerjaan/
+docs/planing_pekerjaan/
