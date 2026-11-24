@@ -183,12 +183,38 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
 
     let field_names: Vec<String> = field_metas.iter().map(|(c, _)| c.clone()).collect();
 
-    // Field names untuk SELECT SQLite / MySQL (CAST timestamp ke TEXT agar selalu cocok dengan Option<String>)
+    // Field names untuk SELECT SQLite (CAST timestamp ke TEXT agar selalu cocok dengan Option<String>)
     let select_fields = field_names
         .iter()
         .map(|n| {
             if n == "created_at" || n == "updated_at" || n == "deleted_at" {
                 format!("CAST({} AS TEXT) as {}", n, n)
+            } else {
+                n.clone()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    // Field names untuk SELECT MySQL:
+    // sqlx::Any tidak mendukung tipe MySQL native Date, Time, Timestamp, atau Blob secara langsung.
+    // CAST date/time/timestamp ke CHAR, dan SUBSTRING blob / large text.
+    let mysql_select_fields = field_names
+        .iter()
+        .map(|n| {
+            let lower = n.to_lowercase();
+            if lower == "information" || lower == "content" || lower == "body" || lower == "details" {
+                format!("SUBSTRING({}, 1) as {}", n, n)
+            } else if lower == "created_at"
+                || lower == "updated_at"
+                || lower == "deleted_at"
+                || lower.ends_with("_at")
+                || lower.starts_with("date_")
+                || lower.ends_with("_date")
+                || lower.starts_with("time_")
+                || lower.ends_with("_time")
+            {
+                format!("CAST({} AS CHAR) as {}", n, n)
             } else {
                 n.clone()
             }
@@ -249,13 +275,20 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
             const TABLE: &'static str = #table_name;
             const HAS_SOFT_DELETES: bool = #has_deleted_at;
 
+            fn select_clause(kind: ::pakem::database::connection::DatabaseKind) -> &'static str {
+                match kind {
+                    ::pakem::database::connection::DatabaseKind::Postgres => #pg_select_fields,
+                    ::pakem::database::connection::DatabaseKind::MySql => #mysql_select_fields,
+                    _ => #select_fields,
+                }
+            }
+
             fn primary_key(&self) -> i64 {
                 self.#primary_key_ident as i64
             }
 
             async fn find(pool: &::pakem::database::connection::DatabasePool, id: i64) -> Result<Self, sqlx::Error> {
-                let is_pg = pool.kind == ::pakem::database::connection::DatabaseKind::Postgres;
-                let select_cols = if is_pg { #pg_select_fields } else { #select_fields };
+                let select_cols = Self::select_clause(pool.kind);
                 let sql = format!("SELECT {} FROM {} WHERE {}{}", select_cols, Self::TABLE, #pk_clause, #soft_find);
                 let sql = pool.prepare_sql(&sql);
                 sqlx::query_as::<_, Self>(&sql)
@@ -265,8 +298,7 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
             }
 
             async fn all(pool: &::pakem::database::connection::DatabasePool) -> Result<Vec<Self>, sqlx::Error> {
-                let is_pg = pool.kind == ::pakem::database::connection::DatabaseKind::Postgres;
-                let select_cols = if is_pg { #pg_select_fields } else { #select_fields };
+                let select_cols = Self::select_clause(pool.kind);
                 let sql = format!("SELECT {} FROM {}{} ORDER BY {} DESC", select_cols, Self::TABLE, #soft_all, #primary_key_field);
                 let sql = pool.prepare_sql(&sql);
                 sqlx::query_as::<_, Self>(&sql)
