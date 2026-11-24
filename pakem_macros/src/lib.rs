@@ -198,12 +198,15 @@ pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
 
     // Field names untuk SELECT MySQL:
     // sqlx::Any tidak mendukung tipe MySQL native Date, Time, Timestamp, atau Blob secara langsung.
-    // CAST date/time/timestamp ke CHAR, dan SUBSTRING blob / large text.
+    // Kolom information di database MySQL adalah BLOB binary yang tidak didecode AnyRow ke String,
+    // kita select NULL as information agar aman didecode oleh #[sqlx(default)] Option<String>.
     let mysql_select_fields = field_names
         .iter()
         .map(|n| {
             let lower = n.to_lowercase();
-            if lower == "information" || lower == "content" || lower == "body" || lower == "details" {
+            if lower == "information" {
+                format!("NULL as {}", n)
+            } else if lower == "content" || lower == "body" || lower == "details" || lower == "description" {
                 format!("SUBSTRING({}, 1) as {}", n, n)
             } else if lower == "created_at"
                 || lower == "updated_at"
