@@ -41,10 +41,20 @@ pub trait Model:
     /// Soft delete — set `deleted_at = NOW()` tanpa menghapus baris.
     async fn delete(pool: &DatabasePool, id: i64) -> Result<bool, sqlx::Error>;
 
+    /// Kembalikan daftar kolom yang di-select secara aman sesuai dialect database.
+    /// Override otomatis dihasilkan oleh #[derive(PakemModel)].
+    fn select_clause(_kind: super::connection::DatabaseKind) -> &'static str {
+        "*"
+    }
+
     /// Inisialisasi QueryBuilder untuk model ini.
     fn query(pool: &DatabasePool) -> QueryBuilder<'_, Self> {
         let mut b = QueryBuilder::new(pool, Self::TABLE);
         b.has_soft_deletes = Self::HAS_SOFT_DELETES;
+        let clause = Self::select_clause(pool.kind);
+        if clause != "*" {
+            b = b.select(clause);
+        }
         b
     }
 
