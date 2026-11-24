@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
-#[lumina(table = "contacts")]
+#[pakem(table = "contacts")]
 pub struct Contact {
     pub id: i64,
     pub name: String,
@@ -238,7 +238,7 @@ async fn test_beautiful_controller_routes() {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
-#[lumina(table = "test_users")]
+#[pakem(table = "test_users")]
 pub struct TestUser {
     pub id: i64,
     pub name: String,
@@ -248,7 +248,7 @@ pub struct TestUser {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
-#[lumina(table = "test_posts")]
+#[pakem(table = "test_posts")]
 pub struct TestPost {
     pub id: i64,
     pub user_id: i64,
@@ -259,7 +259,7 @@ pub struct TestPost {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
-#[lumina(table = "test_profiles")]
+#[pakem(table = "test_profiles")]
 pub struct TestProfile {
     pub id: i64,
     pub user_id: i64,
@@ -270,7 +270,7 @@ pub struct TestProfile {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
-#[lumina(table = "test_tags")]
+#[pakem(table = "test_tags")]
 pub struct TestTag {
     pub id: i64,
     pub name: String,

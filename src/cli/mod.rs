@@ -72,7 +72,7 @@ pub async fn handle_make_migration(name: &str) {
     let path_str = format!("database/migrations/{}_{}.sql", timestamp, name);
     let path = Path::new(&path_str);
 
-    if let Err(e) = fs::write(path, "-- Migration file created by Lumina CLI\n") {
+    if let Err(e) = fs::write(path, "-- Migration file created by Canting CLI\n") {
         println!("❌ Gagal membuat migration: {}", e);
     } else {
         println!("✅ Migration berhasil dibuat: {}", path_str);
@@ -252,7 +252,7 @@ pub async fn handle_make_request(name: &str) {
 
 pub async fn handle_new(name: &str, db: &str) {
     let db_normalized = db.to_lowercase();
-    println!("✨ Memulai pembuatan project Lumina baru: {} (Database: {})...", name, db_normalized);
+    println!("✨ Memulai pembuatan project Pakem baru: {} (Database: {})...", name, db_normalized);
 
     let path = Path::new(name);
     if path.exists() {
@@ -260,7 +260,7 @@ pub async fn handle_new(name: &str, db: &str) {
         return;
     }
 
-    println!("🚀 Generating Lumina Skeleton...");
+    println!("🚀 Generating Pakem Skeleton...");
     skeleton::create_full_skeleton(path, name, &db_normalized);
 
     // Initialize fresh git repository
@@ -1047,7 +1047,7 @@ Panduan ini menjelaskan langkah-langkah untuk mendeploy aplikasi Pakem Framework
 
 ## 1. 🐳 Deployment dengan Docker (Direkomendasikan)
 
-Lumina dilengkapi dengan konfigurasi Docker yang siap pakai (production-ready).
+Pakem dilengkapi dengan konfigurasi Docker yang siap pakai (production-ready).
 
 ### Persiapan
 1. Pastikan Docker dan Docker Compose terinstall di server.
@@ -1080,7 +1080,7 @@ sudo apt update && sudo apt install -y pkg-config libssl-dev build-essential pos
    ```bash
    cargo build --release
    ```
-3. Binary akan berada di `target/release/lumina-server`.
+3. Binary akan berada di `target/release/pakem-server`.
 
 ### C. Konfigurasi Database & Environment
 1. Salin `.env.example` menjadi `.env`.
@@ -1097,10 +1097,10 @@ sudo apt update && sudo apt install -y pkg-config libssl-dev build-essential pos
 Gunakan Nginx untuk menangani traffic HTTP/HTTPS dan static files.
 
 1. Jalankan `./canting make:nginx`.
-2. Salin isi `nginx/nginx.conf` ke `/etc/nginx/sites-available/lumina`.
+2. Salin isi `nginx/nginx.conf` ke `/etc/nginx/sites-available/pakem`.
 3. Aktifkan site dan restart Nginx:
    ```bash
-   sudo ln -s /etc/nginx/sites-available/lumina /etc/nginx/sites-enabled/
+   sudo ln -s /etc/nginx/sites-available/pakem /etc/nginx/sites-enabled/
    sudo nginx -t
    sudo systemctl restart nginx
    ```
@@ -1127,7 +1127,7 @@ Gunakan Supervisor untuk memastikan aplikasi tetap berjalan (auto-restart) jika 
 - [ ] **Security**: Ganti `APP_KEY` dan pastikan password database kuat.
 - [ ] **SSL**: Gunakan Certbot untuk mendapatkan sertifikat SSL gratis.
 - [ ] **Logging**: Cek log di `storage/logs/` secara berkala.
-- [ ] **Backups**: Jalankan `./lumina backup:run` secara terjadwal menggunakan Cron.
+- [ ] **Backups**: Jalankan `canting backup:run` secara terjadwal menggunakan Cron.
 
 ---
 
@@ -1383,7 +1383,7 @@ crate-type = ["cdylib"]
     let lib_rs = format!(
         r#"use std::mem;
 
-/// Alokasi buffer memori heap guest untuk transfer data dari host Lumina.
+/// Alokasi buffer memori heap guest untuk transfer data dari host Pakem.
 #[no_mangle]
 pub extern "C" fn alloc(len: i32) -> i32 {{
     let mut buf = Vec::with_capacity(len as usize);
@@ -1427,7 +1427,7 @@ pub extern "C" fn transform(ptr: i32, len: i32) -> i64 {{
 
     // 3. README.md
     let readme = format!(
-        r#"# Lumina WASM Plugin: {}
+        r#"# Pakem WASM Plugin: {}
 
 Plugin WebAssembly untuk Pakem Framework.
 
@@ -1453,7 +1453,7 @@ Binary output `.wasm` akan otomatis disalin ke `plugins/{}.wasm`.
 }
 
 pub async fn handle_plugin_build(name: Option<&str>) {
-    println!("🔨 Memulai kompilasi plugin WebAssembly Lumina...");
+    println!("🔨 Memulai kompilasi plugin WebAssembly Pakem...");
 
     let plugins_to_build: Vec<String> = if let Some(n) = name {
         vec![n.trim().to_lowercase().replace("-", "_")]
@@ -1634,7 +1634,7 @@ pub async fn handle_clean(purge: bool) {
         return;
     }
 
-    println!("✨ Menjalankan Lumina Smart Clean (Optimasi Cache)...");
+    println!("✨ Menjalankan Pakem Smart Clean (Optimasi Cache)...");
 
     let sweep_status = std::process::Command::new("cargo")
         .args(["sweep", "-m", "8GB"])

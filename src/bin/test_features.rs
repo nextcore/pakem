@@ -47,7 +47,7 @@ async fn main() {
     let user = User {
         id: 1,
         name: "Antigravity".to_string(),
-        email: "ai@lumina.rs".to_string(),
+        email: "ai@pakem.my.id".to_string(),
     };
 
     println!(

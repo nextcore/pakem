@@ -24,7 +24,7 @@
                     </svg>
                 </div>
                 <div>
-                    <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Lumina</span>
+                    <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Pakem</span>
                     <span class="text-[10px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 ml-1">Aurora</span>
                 </div>
             </div>

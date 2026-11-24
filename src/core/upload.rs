@@ -101,14 +101,14 @@ impl UploadedFile {
     }
 }
 
-/// LuminaMultipart — Extractor ramah Laravel untuk menangani multipart/form-data.
-pub struct LuminaMultipart {
+/// PakemMultipart — Extractor ramah Laravel untuk menangani multipart/form-data.
+pub struct PakemMultipart {
     pub fields: HashMap<String, String>,
     pub files: HashMap<String, Vec<UploadedFile>>,
 }
 
 #[async_trait]
-impl<S> FromRequest<S> for LuminaMultipart
+impl<S> FromRequest<S> for PakemMultipart
 where
     S: Send + Sync,
     AppState: axum::extract::FromRef<S>,
@@ -169,7 +169,7 @@ where
     }
 }
 
-impl LuminaMultipart {
+impl PakemMultipart {
     /// Ambil satu file berdasarkan nama field.
     pub fn file(&self, name: &str) -> Option<&UploadedFile> {
         self.files.get(name).and_then(|v| v.first())

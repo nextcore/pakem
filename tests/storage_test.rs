@@ -4,11 +4,11 @@ use std::time::Duration;
 
 #[tokio::test]
 async fn test_local_storage_crud_and_traversal_guard() {
-    let temp_dir = std::env::temp_dir().join("lumina_storage_test");
+    let temp_dir = std::env::temp_dir().join("pakem_storage_test");
     let storage = LocalStorage::new(temp_dir.to_str().unwrap(), "http://localhost:8000/storage");
 
     let file_path = "avatars/user_42.txt";
-    let content = b"Hello, Lumina Universal Storage!";
+    let content = b"Hello, Pakem Universal Storage!";
 
     // 1. Put
     let put_res = storage.put(file_path, content).await;
@@ -95,7 +95,7 @@ fn test_s3_minio_path_style_url() {
 async fn test_storage_facade_multi_disk() {
     let mut storage = Storage::new("local");
 
-    let temp_dir = std::env::temp_dir().join("lumina_facade_test");
+    let temp_dir = std::env::temp_dir().join("pakem_facade_test");
     let local = Arc::new(LocalStorage::new(temp_dir.to_str().unwrap(), "/files"));
     storage.add_disk("local", local);
 
@@ -106,7 +106,7 @@ async fn test_storage_facade_multi_disk() {
         access_key: "key".to_string(),
         secret_key: "secret".to_string(),
         use_path_style: false,
-        public_url_base: Some("https://cdn.lumina.dev".to_string()),
+        public_url_base: Some("https://cdn.pakem.dev".to_string()),
     };
     storage.add_disk("s3", Arc::new(S3Storage::new(s3_config)));
 
@@ -118,7 +118,7 @@ async fn test_storage_facade_multi_disk() {
     // Test S3 disk public CDN URL
     let s3_disk = storage.disk("s3");
     let cdn_url = s3_disk.url("assets/logo.png");
-    assert_eq!(cdn_url, "https://cdn.lumina.dev/assets/logo.png");
+    assert_eq!(cdn_url, "https://cdn.pakem.dev/assets/logo.png");
 
     // Clean up
     let _ = storage.delete("hello.txt").await;

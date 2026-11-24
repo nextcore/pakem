@@ -5,7 +5,7 @@ use pakem::core::error::AppError;
 use pakem::core::request::Request;
 use pakem::core::blade::{BladeEngine, BladeContext};
 
-/// Trait utama untuk setiap komponen reaktif Lumina Live.
+/// Trait utama untuk setiap komponen reaktif Pakem Live.
 #[async_trait]
 pub trait LiveComponent: Serialize + DeserializeOwned + Default + Send + Sync + 'static {
     /// Nama unik komponen (misal: "counter", "search_user", "cart_badge").

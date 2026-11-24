@@ -366,7 +366,7 @@ pub fn generate_swagger_ui_html(spec_url: &str, title: &str) -> String {
     .topbar {{
       display: none !important;
     }}
-    .lumina-header {{
+    .pakem-header {{
       background: linear-gradient(135deg, #1e1e2e 0%, #2d2b55 100%);
       color: #ffffff;
       padding: 1.25rem 2rem;
@@ -375,7 +375,7 @@ pub fn generate_swagger_ui_html(spec_url: &str, title: &str) -> String {
       justify-content: space-between;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }}
-    .lumina-header h1 {{
+    .pakem-header h1 {{
       margin: 0;
       font-size: 1.35rem;
       font-weight: 700;
@@ -384,14 +384,14 @@ pub fn generate_swagger_ui_html(spec_url: &str, title: &str) -> String {
       align-items: center;
       gap: 0.5rem;
     }}
-    .lumina-badge {{
+    .pakem-badge {{
       background: rgba(255, 255, 255, 0.2);
       padding: 0.2rem 0.6rem;
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 600;
     }}
-    .lumina-links a {{
+    .pakem-links a {{
       color: #a5b4fc;
       text-decoration: none;
       font-size: 0.875rem;
@@ -399,21 +399,21 @@ pub fn generate_swagger_ui_html(spec_url: &str, title: &str) -> String {
       margin-left: 1rem;
       transition: color 0.2s;
     }}
-    .lumina-links a:hover {{
+    .pakem-links a:hover {{
       color: #ffffff;
       text-decoration: underline;
     }}
   </style>
 </head>
 <body>
-  <div class="lumina-header">
+  <div class="pakem-header">
     <h1>
       <span>✨ {title}</span>
-      <span class="lumina-badge">OpenAPI 3.0</span>
+      <span class="pakem-badge">OpenAPI 3.0</span>
     </h1>
-    <div class="lumina-links">
+    <div class="pakem-links">
       <a href="{spec_url}" target="_blank">Raw JSON Spec</a>
-      <a href="https://lumina-java.github.io/docs/" target="_blank">Dokumentasi Pakem</a>
+      <a href="https://pakem.my.id/docs/" target="_blank">Dokumentasi Pakem</a>
     </div>
   </div>
   <div id="swagger-ui"></div>

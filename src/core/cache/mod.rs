@@ -53,7 +53,7 @@ impl CacheManager {
                     mgr.add_driver("redis", Arc::new(redis_driver));
                 }
                 Err(e) => {
-                    eprintln!("⚠️  [Lumina Cache] Inisialisasi Redis gagal: {}. Fallback ke Moka.", e);
+                    eprintln!("⚠️  [Pakem Cache] Inisialisasi Redis gagal: {}. Fallback ke Moka.", e);
                 }
             }
         }
@@ -139,7 +139,7 @@ impl CacheManager {
     }
 }
 
-/// Global Facade untuk ekosistem Cache Lumina.
+/// Global Facade untuk ekosistem Cache Pakem.
 pub struct Cache;
 
 impl Cache {

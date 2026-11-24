@@ -3,12 +3,12 @@ use crate::component::LiveComponent;
 use crate::registry::LiveRegistry;
 
 pub trait LiveApplicationExt {
-    /// Mengaktifkan runtime reaktif Lumina Live:
-    /// - Mendaftarkan direktif Blade: `@kilat`, `@live`, `@livewire`, `@kilatScripts`, `@luminaLive`
-    /// - Memasang rute transport WebSocket (`/_lumina/live/ws`), HTTP RPC (`/_lumina/live/call`), dan asset JS
+    /// Mengaktifkan runtime reaktif Pakem Live:
+    /// - Mendaftarkan direktif Blade: `@kilat`, `@live`, `@livewire`, `@kilatScripts`, `@pakemLive`
+    /// - Memasang rute transport WebSocket (`/_pakem/live/ws`), HTTP RPC (`/_pakem/live/call`), dan asset JS
     fn with_live(self) -> Self;
 
-    /// Mendaftarkan komponen reaktif Lumina Live ke registry.
+    /// Mendaftarkan komponen reaktif Pakem Live ke registry.
     fn with_live_component<T: LiveComponent>(self, name: &str) -> Self;
 }
 

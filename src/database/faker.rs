@@ -104,7 +104,7 @@ impl Faker {
     // ─────────────────────────────────────────────────────────────────────────
 
     pub const DOMAINS: &'static [&'static str] = &[
-        "gmail.com", "yahoo.com", "outlook.com", "example.com", "lumina.dev",
+        "gmail.com", "yahoo.com", "outlook.com", "example.com", "pakem.dev",
         "kemendag.go.id", "techindo.co.id", "startup.id", "nusantara.id",
     ];
 
@@ -230,7 +230,7 @@ impl Faker {
     // ─────────────────────────────────────────────────────────────────────────
 
     pub const WORDS: &'static [&'static str] = &[
-        "lumina", "kecepatan", "elegan", "kinerja", "arsitektur", "keamanan",
+        "pakem", "kecepatan", "elegan", "kinerja", "arsitektur", "keamanan",
         "sistem", "basisdata", "layanan", "pengguna", "transaksi", "modul",
         "jaringan", "protokol", "pengembangan", "teknologi", "inovasi", "koneksi",
         "antarmuka", "solusi", "digital", "andal", "tangguh", "fleksibel",

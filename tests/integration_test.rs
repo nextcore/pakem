@@ -168,7 +168,7 @@ async fn test_api_crud_workflow() {
         .delete("/products/:id", delete_product);
 
     let application = pakem::core::application::Application::new().with_api(api_router);
-    let session_store = pakem::core::session::store::LuminaSessionStore::Memory(
+    let session_store = pakem::core::session::store::PakemSessionStore::Memory(
         tower_sessions::MemoryStore::default(),
     );
     app.router = application.build_router(app.state.clone(), session_store);
@@ -243,7 +243,7 @@ async fn test_api_crud_input_validation() {
 
     let api_router = Router::new().post("/products", create_product);
     let application = pakem::core::application::Application::new().with_api(api_router);
-    let session_store = pakem::core::session::store::LuminaSessionStore::Memory(
+    let session_store = pakem::core::session::store::PakemSessionStore::Memory(
         tower_sessions::MemoryStore::default(),
     );
     app.router = application.build_router(app.state.clone(), session_store);
@@ -291,7 +291,7 @@ async fn test_api_crud_not_found_edge_cases() {
         .delete("/products/:id", delete_product);
 
     let application = pakem::core::application::Application::new().with_api(api_router);
-    let session_store = pakem::core::session::store::LuminaSessionStore::Memory(
+    let session_store = pakem::core::session::store::PakemSessionStore::Memory(
         tower_sessions::MemoryStore::default(),
     );
     app.router = application.build_router(app.state.clone(), session_store);
@@ -350,7 +350,7 @@ async fn test_api_crud_pagination() {
 
     let api_router = Router::new().get("/products", list_products);
     let application = pakem::core::application::Application::new().with_api(api_router);
-    let session_store = pakem::core::session::store::LuminaSessionStore::Memory(
+    let session_store = pakem::core::session::store::PakemSessionStore::Memory(
         tower_sessions::MemoryStore::default(),
     );
     app.router = application.build_router(app.state.clone(), session_store);
@@ -398,7 +398,7 @@ async fn test_api_crud_jwt_auth_middleware() {
         .layer(middleware::from_fn(pakem::http::middleware::auth_required));
 
     let application = pakem::core::application::Application::new().with_api(protected_router);
-    let session_store = pakem::core::session::store::LuminaSessionStore::Memory(
+    let session_store = pakem::core::session::store::PakemSessionStore::Memory(
         tower_sessions::MemoryStore::default(),
     );
     app.router = application.build_router(app.state.clone(), session_store);

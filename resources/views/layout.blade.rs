@@ -72,7 +72,7 @@
         <div class="container">
             <a class="navbar-brand d-flex align-items-center fw-bold text-primary" href="/">
                 <img src="/storage/assets/logo.png" alt="Pakem Logo" width="30" height="30" class="d-inline-block align-top me-2">
-                LUMINA
+                
             </a>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ms-auto">

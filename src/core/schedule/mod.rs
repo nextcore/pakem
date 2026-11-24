@@ -2,7 +2,7 @@ use crate::core::application::AppState;
 use std::sync::Arc;
 use tokio_cron_scheduler::{Job, JobScheduler};
 
-/// Lumina Scheduler — wrapper untuk tokio-cron-scheduler.
+/// Pakem Scheduler — wrapper untuk tokio-cron-scheduler.
 /// Memungkinkan penjadwalan tugas (cron jobs) langsung dari aplikasi.
 pub struct Scheduler {
     sched: JobScheduler,

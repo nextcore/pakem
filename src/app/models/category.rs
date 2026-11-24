@@ -1,8 +1,8 @@
-use lumina_macros::LuminaModel;
+use pakem_macros::PakemModel;
 use serde::{Serialize, Deserialize};
 use sqlx::FromRow;
 
-#[derive(Debug, Serialize, Deserialize, FromRow, LuminaModel, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PakemModel, Clone)]
 #[table("categories")]
 pub struct Category {
     pub id: i64,

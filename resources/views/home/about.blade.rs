@@ -103,7 +103,7 @@
         <div class="logo-container">
             <img src="/images/logo.png" alt="Pakem Logo" class="logo-img">
         </div>
-        <h1 class="display-title">LUMINA</h1>
+        <h1 class="display-title">PAKEM</h1>
         <p class="lead text-slate-600 max-w-2xl mx-auto px-4">
             The high-performance, elegant, and developer-friendly Rust web framework.
             Crafted for speed, safety, and ultimate developer happiness.

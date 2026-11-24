@@ -5,7 +5,7 @@ pub use axum::{
 use serde::Serialize;
 use serde_json::json;
 
-/// Wrapper standar untuk respon API Lumina (BPJS VClaim Style)
+/// Wrapper standar untuk respon API Pakem (BPJS VClaim Style)
 #[derive(Serialize)]
 pub struct ApiResponse<T> {
     pub data: T,

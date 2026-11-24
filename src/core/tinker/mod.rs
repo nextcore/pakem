@@ -7,7 +7,7 @@ pub use formatter::TinkerFormatter;
 use crate::database::connection::DatabasePool;
 use std::sync::Arc;
 
-/// Facade utama untuk Lumina Tinker REPL Engine
+/// Facade utama untuk Pakem Tinker REPL Engine
 pub struct Tinker;
 
 impl Tinker {

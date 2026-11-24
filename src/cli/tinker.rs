@@ -5,7 +5,7 @@ use rustyline::DefaultEditor;
 pub async fn run(pool: &DatabasePool) -> Result<(), Box<dyn std::error::Error>> {
     let mut rl = DefaultEditor::new()?;
     // Load history jika ada
-    let _ = rl.load_history(".lumina_tinker_history");
+    let _ = rl.load_history(".pakem_tinker_history");
 
     println!("--------------------------------------------------");
     println!("   Canting Tinker — Interactive Console");
@@ -15,7 +15,7 @@ pub async fn run(pool: &DatabasePool) -> Result<(), Box<dyn std::error::Error>> 
     println!();
 
     loop {
-        let readline = rl.readline("lumina> ");
+        let readline = rl.readline("pakem> ");
         match readline {
             Ok(line) => {
                 let input = line.trim();
@@ -75,7 +75,7 @@ pub async fn run(pool: &DatabasePool) -> Result<(), Box<dyn std::error::Error>> 
         }
     }
 
-    let _ = rl.save_history(".lumina_tinker_history");
+    let _ = rl.save_history(".pakem_tinker_history");
     println!("Bye!");
     Ok(())
 }

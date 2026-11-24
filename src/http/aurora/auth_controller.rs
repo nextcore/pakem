@@ -48,7 +48,7 @@ impl AuroraAuthController {
         }
 
         View::make("aurora.auth.login")
-            .with("title", "Masuk — Lumina Aurora")
+            .with("title", "Masuk — Pakem Aurora")
             .render(&req)
             .await
             .into_response()
@@ -103,7 +103,7 @@ impl AuroraAuthController {
 
                 return req
                     .redirect("/dashboard")
-                    .with_success("Selamat datang kembali di Lumina Aurora!")
+                    .with_success("Selamat datang kembali di Pakem Aurora!")
                     .go(&req)
                     .await;
             }
@@ -129,7 +129,7 @@ impl AuroraAuthController {
         }
 
         View::make("aurora.auth.register")
-            .with("title", "Daftar Akun — Lumina Aurora")
+            .with("title", "Daftar Akun — Pakem Aurora")
             .render(&req)
             .await
             .into_response()
@@ -188,7 +188,7 @@ impl AuroraAuthController {
 
             return req
                 .redirect("/dashboard")
-                .with_success("Akun berhasil dibuat! Selamat datang di Lumina Aurora.")
+                .with_success("Akun berhasil dibuat! Selamat datang di Pakem Aurora.")
                 .go(&req)
                 .await;
         }

@@ -6,7 +6,7 @@ use serde_json::Value;
 pub trait Notification: Send + Sync {
     /// Judul notifikasi.
     fn subject(&self) -> String {
-        "Notification from Lumina".to_string()
+        "Notification from Pakem".to_string()
     }
 
     /// Representasi Mail.

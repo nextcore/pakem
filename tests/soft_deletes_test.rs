@@ -36,7 +36,7 @@ async fn test_smart_soft_deletes_and_zero_ampersand_transactions() {
 
     // Insert tanpa generic <> dan tanpa &tx
     tx1.table("users")
-        .insert([("name", "Budi"), ("email", "budi@lumina.dev")])
+        .insert([("name", "Budi"), ("email", "budi@pakem.dev")])
         .await
         .unwrap();
 

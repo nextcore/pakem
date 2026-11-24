@@ -1,4 +1,4 @@
-//! MSSQL Execution Adapter untuk Lumina ORM & QueryBuilder
+//! MSSQL Execution Adapter untuk Pakem ORM & QueryBuilder
 //! Mengonversi baris data Tiberius TDS menjadi Struct Model melalui deserialisasi JSON cerdas.
 
 use crate::database::connection::DatabasePool;

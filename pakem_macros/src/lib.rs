@@ -5,7 +5,7 @@ use syn::{parse_macro_input, Attribute, ItemStruct, LitStr};
 /// Attribute macro untuk mendeklarasikan Validasi Form dengan gaya yang lebih manusiawi.
 /// Contoh:
 /// ```rust,ignore
-/// #[lumina_form]
+/// #[pakem_form]
 /// pub struct RegisterForm {
 ///     #[rule("required|min:3")]
 ///     pub name: String,
@@ -13,11 +13,16 @@ use syn::{parse_macro_input, Attribute, ItemStruct, LitStr};
 /// ```
 #[proc_macro_attribute]
 pub fn pakem_form(attr: TokenStream, item: TokenStream) -> TokenStream {
-    lumina_form(attr, item)
+    impl_pakem_form(attr, item)
 }
 
+/// Alias kompatibilitas balik untuk lumina_form
 #[proc_macro_attribute]
-pub fn lumina_form(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn lumina_form(attr: TokenStream, item: TokenStream) -> TokenStream {
+    impl_pakem_form(attr, item)
+}
+
+fn impl_pakem_form(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut input_struct = parse_macro_input!(item as ItemStruct);
 
     for field in input_struct.fields.iter_mut() {
@@ -111,12 +116,16 @@ pub fn lumina_form(_attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Derive macro untuk mengimplementasikan trait Model secara otomatis di Pakem Framework.
 #[proc_macro_derive(PakemModel, attributes(table, primary_key, column, pakem, lumina, soft_deletes))]
 pub fn pakem_model_derive(input: TokenStream) -> TokenStream {
-    lumina_model_derive(input)
+    impl_pakem_model_derive(input)
 }
 
-/// Derive macro untuk mengimplementasikan trait Model secara otomatis (Lumina alias).
+/// Derive macro untuk kompatibilitas balik (LuminaModel).
 #[proc_macro_derive(LuminaModel, attributes(table, primary_key, column, pakem, lumina, soft_deletes))]
 pub fn lumina_model_derive(input: TokenStream) -> TokenStream {
+    impl_pakem_model_derive(input)
+}
+
+fn impl_pakem_model_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemStruct);
     let name = &input.ident;
 

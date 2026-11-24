@@ -23,7 +23,7 @@ impl DashboardController {
 
         // Cuantik, bersih, bebas tanda ampersand (&)
         View::make("dashboard.index")
-            .with("title", "Dashboard — Lumina")
+            .with("title", "Dashboard — Pakem")
             .with("user_id", user.sub.clone())
             .with("email", user.email.clone())
             .with("role", user.role.clone())

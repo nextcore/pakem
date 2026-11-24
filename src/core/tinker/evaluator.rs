@@ -4,7 +4,7 @@ use sqlx::{Column, Row};
 use std::sync::Arc;
 use std::time::Instant;
 
-/// Representasi hasil evaluasi satu ekspresi di Lumina Tinker
+/// Representasi hasil evaluasi satu ekspresi di Pakem Tinker
 #[derive(Debug, Clone)]
 pub enum TinkerResult {
     Table {
@@ -51,13 +51,13 @@ impl TinkerResult {
                 format!("❌ Error: {}\n", message)
             }
             TinkerResult::Exit => {
-                "👋 Goodbye! Leaving Lumina Tinker.\n".to_string()
+                "👋 Goodbye! Leaving Pakem Tinker.\n".to_string()
             }
         }
     }
 }
 
-/// Evaluator Engine untuk Lumina Tinker REPL
+/// Evaluator Engine untuk Pakem Tinker REPL
 pub struct TinkerEvaluator {
     pool: Option<Arc<DatabasePool>>,
 }
@@ -139,7 +139,7 @@ impl TinkerEvaluator {
 
     /// Evaluasi perintah 'help'
     fn eval_help(&self) -> TinkerResult {
-        let help_text = r#"⚡ Lumina Tinker — Interactive REPL Help:
+        let help_text = r#"⚡ Pakem Tinker — Interactive REPL Help:
 
   [Perintah Sistem]
   help                    Tampilkan pesan bantuan ini
@@ -192,14 +192,14 @@ impl TinkerEvaluator {
                 v
             };
 
-            // Filter variabel yang relevan untuk proyek Lumina
+            // Filter variabel yang relevan untuk proyek Pakem
             if k_upper.starts_with("APP_")
                 || k_upper.starts_with("DATABASE_")
                 || k_upper.starts_with("DB_")
                 || k_upper.starts_with("REDIS_")
                 || k_upper.starts_with("AWS_")
                 || k_upper.starts_with("STORAGE_")
-                || k_upper.starts_with("LUMINA_")
+                || k_upper.starts_with("PAKEM_")
             {
                 rows.push(vec![k, display_val]);
             }

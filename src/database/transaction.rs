@@ -34,7 +34,7 @@ pub fn any_row_to_json(row: &sqlx::any::AnyRow) -> serde_json::Value {
     serde_json::Value::Object(map)
 }
 
-/// Lumina Transaction Handle — representasi transaksi database ACID yang ergonomis,
+/// Pakem Transaction Handle — representasi transaksi database ACID yang ergonomis,
 /// bebas anotasi seumur hidup (lifetimes), thread-safe, dan auto-rollback on drop.
 #[derive(Clone)]
 pub struct Transaction {

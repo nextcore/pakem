@@ -3,8 +3,8 @@
 fn test_universal_mssql_parser() {
     use pakem::database::connection::DatabasePool;
 
-    // 1. Format URL Standard (seperti di dokumentasi lumina sebelumnya)
-    let url1 = "sqlserver://sa:YourPassword123@localhost:1433?database=lumina_db&trustServerCertificate=true";
+    // 1. Format URL Standard (seperti di dokumentasi pakem sebelumnya)
+    let url1 = "sqlserver://sa:YourPassword123@localhost:1433?database=pakem_db&trustServerCertificate=true";
     let cfg1 = DatabasePool::parse_mssql_config(url1);
     assert!(cfg1.is_ok(), "Gagal parsing url1: {:?}", cfg1.err());
 

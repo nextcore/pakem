@@ -83,7 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {{
     let target_url = format!("http://127.0.0.1:{{}}", port);
     println!("🚀 [Pakem Desktop] Starting internal server on {{}}", target_url);
 
-    // 2. Spawn Lumina server in background Tokio thread
+    // 2. Spawn Pakem server in background Tokio thread
     tokio::spawn(async move {{
         std::env::set_var("PORT", port.to_string());
         if let Err(e) = std::process::Command::new("cargo")
@@ -199,7 +199,7 @@ mod tests {
 
     #[test]
     fn test_init_desktop_config_creates_files() {
-        let temp_dir = std::env::temp_dir().join(format!("lumina_desk_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        let temp_dir = std::env::temp_dir().join(format!("pakem_desk_test_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
         fs::create_dir_all(temp_dir.join("src")).expect("create src");
         fs::write(temp_dir.join("Cargo.toml"), "[package]\nname = \"kasir_pos\"\nversion = \"1.0.0\"\n").unwrap();
 

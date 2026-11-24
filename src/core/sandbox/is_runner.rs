@@ -556,7 +556,7 @@ mod tests {
     fn test_is_evaluator_discount_calculation() {
         let source = r#"
         fungsi hitung_diskon(total, kupon) {
-            jika kupon == "LUMINAHEMAT" dan total >= 100000 {
+            jika kupon == "PAKEMHEMAT" dan total >= 100000 {
                 kembalikan total * 0.15;
             } selain_itu jika kupon == "ONGKIR" {
                 kembalikan 15000;
@@ -568,7 +568,7 @@ mod tests {
         let runner = IsScriptRunner::from_source(source).expect("Parse gagal");
 
         // Uji kupon diskon 15%
-        let res1 = runner.call("hitung_diskon", &[json!(200000), json!("LUMINAHEMAT")]).unwrap();
+        let res1 = runner.call("hitung_diskon", &[json!(200000), json!("PAKEMHEMAT")]).unwrap();
         assert_eq!(res1, json!(30000.0));
 
         // Uji kupon ongkir

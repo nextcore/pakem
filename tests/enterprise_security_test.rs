@@ -257,7 +257,7 @@ async fn test_enterprise_audit_trail_logging() {
 
 
 #[test]
-fn test_lumina_aurora_views_rendering() {
+fn test_pakem_aurora_views_rendering() {
     let mut engine = BladeEngine::empty();
     engine.reload_templates("resources/views");
 
@@ -290,12 +290,12 @@ fn test_lumina_aurora_views_rendering() {
 
 
 #[tokio::test]
-async fn test_lumina_aurora_routes_integration() {
+async fn test_pakem_aurora_routes_integration() {
     let mut app = pakem::core::testing::TestApp::new().await;
     let aurora_router = pakem::http::aurora::routes();
 
     let application = pakem::core::application::Application::new().with_web(aurora_router);
-    let session_store = pakem::core::session::store::LuminaSessionStore::Memory(
+    let session_store = pakem::core::session::store::PakemSessionStore::Memory(
         tower_sessions::MemoryStore::default(),
     );
     app.router = application.build_router(app.state.clone(), session_store);

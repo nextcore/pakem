@@ -22,7 +22,7 @@ macro_rules! dd {
         let dump_content = format!("{:#?}", $val);
         let location = std::panic::Location::caller();
         let payload = format!(
-            "__LUMINA_DD__\nLocation: {}:{}\n\n{}",
+            "__PAKEM_DD__\nLocation: {}:{}\n\n{}",
             location.file(),
             location.line(),
             dump_content
@@ -49,9 +49,9 @@ pub fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response {
 
     let thread_panic_info = PANIC_INFO.with(|p| p.borrow_mut().take());
 
-    if msg.starts_with("__LUMINA_DD__\n") {
+    if msg.starts_with("__PAKEM_DD__\n") {
         let parts: Vec<&str> = msg.splitn(3, "\n\n").collect();
-        let header = parts.get(0).unwrap_or(&"").replace("__LUMINA_DD__\n", "");
+        let header = parts.get(0).unwrap_or(&"").replace("__PAKEM_DD__\n", "");
         let body = parts.get(1).unwrap_or(&"");
 
         let html = format!(
@@ -171,7 +171,7 @@ pub fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response {
     let solution = if err_msg.contains("no such table")
         || err_msg.contains("Table") && err_msg.contains("doesn't exist")
     {
-        "Saran: Jalankan migrasi database Anda dengan perintah <code>./lumina migrate</code> atau <code>cargo run -- make:migration</code>."
+        "Saran: Jalankan migrasi database Anda dengan perintah <code>canting migrate</code> atau <code>cargo run -- make:migration</code>."
     } else if err_msg.contains("Connection refused") || err_msg.contains("database connection") {
         "Saran: Pastikan database Anda sudah menyala dan URL koneksi di <code>.env</code> sudah benar."
     } else if err_msg.contains("Blade") || err_msg.contains("Template error") {

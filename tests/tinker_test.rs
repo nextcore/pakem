@@ -48,17 +48,17 @@ async fn test_tinker_helpers_and_facades() {
     let res = Tinker::eval("help", None).await;
     match res {
         TinkerResult::Info { message } => {
-            assert!(message.contains("Lumina Tinker"));
+            assert!(message.contains("Pakem Tinker"));
             assert!(message.contains("Hash::make"));
         }
         _ => panic!("Expected Info result for help"),
     }
 
     // 2. Uji AutoSlug
-    let res = Tinker::eval("AutoSlug::slugify(\"Belajar Rust & Lumina 2026!\")", None).await;
+    let res = Tinker::eval("AutoSlug::slugify(\"Belajar Rust & Pakem 2026!\")", None).await;
     match res {
         TinkerResult::Scalar { value, .. } => {
-            assert_eq!(value, "\"belajar-rust-lumina-2026\"");
+            assert_eq!(value, "\"belajar-rust-pakem-2026\"");
         }
         _ => panic!("Expected Scalar result for AutoSlug"),
     }

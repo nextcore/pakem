@@ -123,7 +123,7 @@ impl EchoManager {
                 if let Ok(mut conn) = client.get_multiplexed_async_connection().await {
                     if let Ok(serialized) = serde_json::to_string(&msg) {
                         let _: Result<(), redis::RedisError> = redis::cmd("PUBLISH")
-                            .arg("lumina_echo_events")
+                            .arg("pakem_echo_events")
                             .arg(serialized)
                             .query_async(&mut conn)
                             .await;
@@ -144,11 +144,11 @@ impl EchoManager {
             match redis::Client::open(url) {
                 Ok(client) => match client.get_async_pubsub().await {
                     Ok(mut pubsub) => {
-                        if let Err(e) = pubsub.subscribe("lumina_echo_events").await {
-                            eprintln!("⚠️  [Lumina Echo Redis] Gagal subscribe: {}", e);
+                        if let Err(e) = pubsub.subscribe("pakem_echo_events").await {
+                            eprintln!("⚠️  [Pakem Echo Redis] Gagal subscribe: {}", e);
                             return;
                         }
-                        println!("📡 [Lumina Echo] Redis Pub/Sub cluster listener aktif.");
+                        println!("📡 [Pakem Echo] Redis Pub/Sub cluster listener aktif.");
 
                         let mut msg_stream = pubsub.on_message();
                         while let Some(msg) = msg_stream.next().await {
@@ -160,11 +160,11 @@ impl EchoManager {
                         }
                     }
                     Err(e) => {
-                        eprintln!("⚠️  [Lumina Echo Redis] Gagal inisialisasi pubsub: {}", e);
+                        eprintln!("⚠️  [Pakem Echo Redis] Gagal inisialisasi pubsub: {}", e);
                     }
                 },
                 Err(e) => {
-                    eprintln!("⚠️  [Lumina Echo Redis] URL Redis tidak valid: {}", e);
+                    eprintln!("⚠️  [Pakem Echo Redis] URL Redis tidak valid: {}", e);
                 }
             }
         });

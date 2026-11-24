@@ -1,10 +1,10 @@
 {
     "files.associations": {
-        "*.blade.rs": "lumina",
-        "**/resources/views/**/*.html": "lumina"
+        "*.blade.rs": "pakem",
+        "**/resources/views/**/*.html": "pakem"
     },
     "emmet.includeLanguages": {
-        "lumina": "html"
+        "pakem": "html"
     },
     "rust-analyzer.files.excludeDirs": [
         "resources"

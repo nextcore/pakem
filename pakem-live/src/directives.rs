@@ -5,12 +5,13 @@ use crate::registry::LiveRegistry;
 use crate::snapshot::{LiveSnapshot, SnapshotManager};
 
 pub fn register_live_directives() {
-    // 1. Script injector: @kilatScripts, @luminaLive, @livewireScripts
+    // 1. Script injector: @kilatScripts, @pakemLive, @livewireScripts
     let script_handler = |_args: &str, _engine: &BladeEngine, _ctx: &BladeContext| -> String {
-        r#"<script src="/_lumina/live/live.js" defer></script>"#.to_string()
+        r#"<script src="/_pakem/live/live.js" defer></script>"#.to_string()
     };
 
     pakem::core::blade::register_global_directive("kilatScripts", script_handler);
+    pakem::core::blade::register_global_directive("pakemLive", script_handler);
     pakem::core::blade::register_global_directive("luminaLive", script_handler);
     pakem::core::blade::register_global_directive("livewireScripts", script_handler);
 
@@ -37,13 +38,13 @@ pub fn register_live_directives() {
                             id, name, sealed, id, name, sealed, html
                         )
                     }
-                    Err(e) => format!("<!-- Lumina Live Error: {} -->", e),
+                    Err(e) => format!("<!-- Pakem Live Error: {} -->", e),
                 }
             } else {
-                format!("<!-- Lumina Live Component '{}' not registered -->", name)
+                format!("<!-- Pakem Live Component '{}' not registered -->", name)
             }
         } else {
-            format!("<!-- Lumina Live Invalid Syntax: @live({}) -->", args)
+            format!("<!-- Pakem Live Invalid Syntax: @live({}) -->", args)
         }
     };
 

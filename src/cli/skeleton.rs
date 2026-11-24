@@ -132,7 +132,7 @@ edition = "2021"
 default-run = "{}-server"
 
 [dependencies]
-lumina = {{ package = "lumina-framework", version = "0.7.0", git = "https://github.com/pakem-rs/framework.git", branch = "0.x" }}
+pakem = {{ package = "pakem", version = "1.0.3", git = "https://github.com/pakem-rs/framework.git", branch = "0.x" }}
 tokio = {{ version = "1", features = ["full"] }}
 axum = {{ version = "0.7", features = ["macros", "multipart"] }}
 serde = {{ version = "1", features = ["derive"] }}
@@ -341,7 +341,7 @@ pub fn router() -> Router<AppState> {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* =============================================
-           LUMINA DESIGN TOKENS - CSS Custom Properties
+           PAKEM DESIGN TOKENS - CSS Custom Properties
            ============================================= */
         :root {
             --color-primary:   #448aff;
@@ -412,11 +412,11 @@ pub fn router() -> Router<AppState> {
         .card { background-color: var(--color-card-bg); border: 1px solid var(--color-border-bg); border-radius: 8px; }
         .card-header { border-bottom: 1px solid var(--color-border-bg); padding: 10px 16px; }
         /* Table */
-        .table-lumina { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        .table-lumina thead tr { background-color: rgba(11,15,25,0.60); color: #94a3b8; text-transform: uppercase; font-size: 0.625rem; font-weight: 700; border-bottom: 1px solid var(--color-border-bg); }
-        .table-lumina th, .table-lumina td { padding: 6px 12px; text-align: left; }
-        .table-lumina tbody tr { border-bottom: 1px solid var(--color-border-bg); color: #cbd5e1; }
-        .table-lumina tbody tr:hover { background-color: rgba(11,15,25,0.30); }
+        .table-pakem { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .table-pakem thead tr { background-color: rgba(11,15,25,0.60); color: #94a3b8; text-transform: uppercase; font-size: 0.625rem; font-weight: 700; border-bottom: 1px solid var(--color-border-bg); }
+        .table-pakem th, .table-pakem td { padding: 6px 12px; text-align: left; }
+        .table-pakem tbody tr { border-bottom: 1px solid var(--color-border-bg); color: #cbd5e1; }
+        .table-pakem tbody tr:hover { background-color: rgba(11,15,25,0.30); }
         /* Form */
         .form-input { width: 100%; background-color: var(--color-dark-bg); border: 1px solid var(--color-border-bg); border-radius: 5px; padding: 6px 10px; color: #fff; font-size: 0.6875rem; outline: none; transition: border-color 0.15s; font-family: 'Plus Jakarta Sans', sans-serif; }
         .form-input:focus { border-color: var(--color-primary); }
@@ -449,7 +449,7 @@ pub fn router() -> Router<AppState> {
                 <div style="width:28px;height:28px;background:linear-gradient(135deg,#448aff,#6366f1);border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(68,138,255,0.25);">
                     <span style="color:white;font-weight:800;font-size:14px;">L</span>
                 </div>
-                <span class="code-font" style="font-size:15px;font-weight:800;letter-spacing:-0.5px;color:#fff;">lumina</span>
+                <span class="code-font" style="font-size:15px;font-weight:800;letter-spacing:-0.5px;color:#fff;">pakem</span>
                 <span style="background:rgba(68,138,255,0.12);border:1px solid rgba(68,138,255,0.2);color:var(--color-primary);font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;letter-spacing:1px;">v0.1</span>
             </div>
             <div style="display:flex;align-items:center;gap:8px;">
@@ -549,7 +549,7 @@ pub fn router() -> Router<AppState> {
             <span class="badge" style="background:#1e293b;color:#94a3b8;">Read-Only View</span>
         </div>
         <div style="overflow-x:auto;">
-            <table class="table-lumina">
+            <table class="table-pakem">
                 <thead><tr><th>Timestamp</th><th>Module</th><th>Action</th><th>Status</th></tr></thead>
                 <tbody>
                     <tr><td class="code-font" style="color:#64748b;">2026-05-19 08:34:12</td><td style="font-weight:600;">User Authentication</td><td style="color:#94a3b8;">Scaffolded registration views.</td><td><span class="badge badge-success">SUCCESS</span></td></tr>
@@ -957,7 +957,7 @@ mod tests {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let test_dir = std::env::temp_dir().join(format!("lumina_test_sqlite_{}", nanos));
+        let test_dir = std::env::temp_dir().join(format!("pakem_test_sqlite_{}", nanos));
         fs::create_dir_all(&test_dir).unwrap();
 
         create_full_skeleton(&test_dir, "my_sqlite_app", "sqlite");
@@ -984,7 +984,7 @@ mod tests {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let test_dir = std::env::temp_dir().join(format!("lumina_test_pg_{}", nanos));
+        let test_dir = std::env::temp_dir().join(format!("pakem_test_pg_{}", nanos));
         fs::create_dir_all(&test_dir).unwrap();
 
         create_full_skeleton(&test_dir, "my_pg_app", "postgres");
@@ -1009,7 +1009,7 @@ mod tests {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let test_dir = std::env::temp_dir().join(format!("lumina_test_mysql_{}", nanos));
+        let test_dir = std::env::temp_dir().join(format!("pakem_test_mysql_{}", nanos));
         fs::create_dir_all(&test_dir).unwrap();
 
         create_full_skeleton(&test_dir, "my_mysql_app", "mysql");

@@ -29,7 +29,7 @@ pub fn register(config: &crate::core::config::ConfigManager) -> Router<AppState>
                     "data": val
                 }));
             }
-            let new_data = "Lumina Cache Berhasil! 🧊".to_string();
+            let new_data = "Pakem Cache Berhasil! 🧊".to_string();
             state.cache.put(key, new_data.clone(), 10).await;
             crate::core::response::ApiResponse::success(serde_json::json!({
                 "status": "Cache Miss (Data set for 10s)",
@@ -45,7 +45,7 @@ pub fn register(config: &crate::core::config::ConfigManager) -> Router<AppState>
         .route("/invoices",  routing::post(ApiController::store_invoice))
         .route_layer(from_fn(auth_required));
 
-    // Gabungkan public + protected, bungkus kembali dalam Lumina Router
+    // Gabungkan public + protected, bungkus kembali dalam Pakem Router
     Router::from_axum(
         AxumRouter::new()
             .merge(public)

@@ -4,7 +4,7 @@ use crate::core::live::LiveComponent;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-/// Komponen Reaktif Lumina Live: Counter
+/// Komponen Reaktif Pakem Live: Counter
 /// Mendukung multi-dialek: `kilat:klik`, `live:click`, `wire:click`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Counter {

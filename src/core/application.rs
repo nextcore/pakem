@@ -223,11 +223,11 @@ impl Application {
                 axum::routing::get(crate::http::health::health_check_handler),
             )
             .route(
-                "/lumina/echo",
+                "/pakem/echo",
                 axum::routing::get(crate::core::echo::handler::echo_handler),
             )
             .route(
-                "/lumina/echo/auth",
+                "/pakem/echo/auth",
                 axum::routing::post(crate::core::echo::handler::echo_auth_handler),
             )
             .nest_service("/js", ServeDir::new("resources/js"))

@@ -4,7 +4,7 @@ use std::time::Duration;
 #[tokio::test]
 async fn test_rustfs_live_s3_integration() {
     let config = S3Config {
-        bucket: "lumina-test".to_string(),
+        bucket: "pakem-test".to_string(),
         region: "us-east-1".to_string(),
         endpoint: Some("http://127.0.0.1:9000".to_string()),
         access_key: "3gRyLecCYz1qh4IQwz3y".to_string(),
@@ -24,7 +24,7 @@ async fn test_rustfs_live_s3_integration() {
     }
 
     let file_path = "records/patient_001.txt";
-    let test_data = b"Lumina Framework S3 Driver verified on RustFS Object Storage!";
+    let test_data = b"Pakem Framework S3 Driver verified on RustFS Object Storage!";
 
     // 1. PUT berkas ke RustFS
     println!("📤 [1] Mengunggah berkas ke RustFS...");

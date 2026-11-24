@@ -1,6 +1,6 @@
-class LuminaEcho {
+class PakemEcho {
     constructor(options) {
-        this.host = options.host || `ws://${window.location.host}/lumina/echo`;
+        this.host = options.host || `ws://${window.location.host}/pakem/echo`;
         this.subscriptions = new Map();
         this.connect();
     }
@@ -9,7 +9,7 @@ class LuminaEcho {
         this.socket = new WebSocket(this.host);
 
         this.socket.onopen = () => {
-            console.log('✨ Lumina Echo connected');
+            console.log('✨ Pakem Echo connected');
             // Re-subscribe to existing channels on reconnect
             this.subscriptions.forEach((handlers, channel) => {
                 this.send('subscribe', { channel });
@@ -29,7 +29,7 @@ class LuminaEcho {
         };
 
         this.socket.onclose = () => {
-            console.warn('⚡ Lumina Echo disconnected. Retrying in 3s...');
+            console.warn('⚡ Pakem Echo disconnected. Retrying in 3s...');
             setTimeout(() => this.connect(), 3000);
         };
     }
@@ -59,4 +59,4 @@ class LuminaEcho {
     }
 }
 
-window.Echo = new LuminaEcho({});
+window.Echo = new PakemEcho({});

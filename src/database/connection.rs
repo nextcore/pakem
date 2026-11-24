@@ -8,7 +8,7 @@ pub enum DatabaseKind {
     Mssql,
 }
 
-/// Lumina DatabasePool — wrapper di atas `sqlx::Pool<Any>` dan driver native enterprise (termasuk MSSQL Tiberius).
+/// Pakem DatabasePool — wrapper di atas `sqlx::Pool<Any>` dan driver native enterprise (termasuk MSSQL Tiberius).
 #[derive(Clone)]
 pub struct DatabasePool {
     pub pool: Pool<Any>,

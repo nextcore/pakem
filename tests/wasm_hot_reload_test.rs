@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 #[test]
 fn test_wasm_lifecycle_hooks_and_metrics() {
-    let manager = LuminaPluginManager::new();
+    let manager = PakemPluginManager::new();
 
     // Plugin 1: Middleware Auth & Header Validator
     let wat_auth = r#"
@@ -13,11 +13,11 @@ fn test_wasm_lifecycle_hooks_and_metrics() {
         (func (export "alloc") (param i32) (result i32)
             i32.const 0
         )
-        (func (export "lumina_on_request") (param i32 i32) (result i32)
+        (func (export "pakem_on_request") (param i32 i32) (result i32)
             ;; Selalu kembalikan length output 10
             i32.const 10
         )
-        (func (export "lumina_before_save") (param i32 i32) (result i32)
+        (func (export "pakem_before_save") (param i32 i32) (result i32)
             i32.const 8
         )
     )
@@ -54,7 +54,7 @@ fn test_wasm_lifecycle_hooks_and_metrics() {
 
 #[test]
 fn test_wasm_fault_isolation_and_error_metric() {
-    let manager = LuminaPluginManager::new();
+    let manager = PakemPluginManager::new();
 
     // Plugin Chaos yang memicu trap/unreachable
     let wat_chaos = r#"
@@ -86,7 +86,7 @@ fn test_wasm_fault_isolation_and_error_metric() {
 
 #[test]
 fn test_wasm_directory_hot_reloading() {
-    let temp_dir = std::env::temp_dir().join(format!("lumina_wasm_test_{}", Uuid::new_v4()));
+    let temp_dir = std::env::temp_dir().join(format!("pakem_wasm_test_{}", Uuid::new_v4()));
     fs::create_dir_all(&temp_dir).unwrap();
 
     let plugin_file = temp_dir.join("greeter.wasm");
@@ -108,7 +108,7 @@ fn test_wasm_directory_hot_reloading() {
     // Tulis binary/text hasil compile ke disk
     fs::write(&plugin_file, wat_v1.as_bytes()).unwrap();
 
-    let manager = LuminaPluginManager::new();
+    let manager = PakemPluginManager::new();
     let count = manager.load_directory(&temp_dir).unwrap();
     assert_eq!(count, 1);
 

@@ -166,7 +166,7 @@ impl AuroraDashboardController {
 
         View::make("aurora.dashboard.index")
 
-            .with("title", "Dashboard — Lumina Aurora")
+            .with("title", "Dashboard — Pakem Aurora")
 
             .with("user", user)
 

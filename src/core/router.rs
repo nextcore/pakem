@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 
 pub use axum::middleware::{from_fn, from_fn_with_state, Next};
 
-/// Lumina Router — fluent builder API yang membungkus axum::Router.
+/// Pakem Router — fluent builder API yang membungkus axum::Router.
 #[derive(Clone)]
 pub struct Router<S = ()> {
     inner: ax_router<S>,
@@ -27,7 +27,7 @@ where
         }
     }
 
-    /// Buat Lumina Router dari axum::Router yang sudah ada.
+    /// Buat Pakem Router dari axum::Router yang sudah ada.
     pub fn from_axum(inner: ax_router<S>) -> Self {
         Self {
             inner,
@@ -480,7 +480,7 @@ where
     ///
     /// Contoh:
     /// ```rust,ignore
-    /// router.swagger_ui("/docs", "Lumina API Documentation", "1.0.0")
+    /// router.swagger_ui("/docs", "Pakem API Documentation", "1.0.0")
     /// ```
     pub fn swagger_ui(mut self, mount_path: &str, title: &str, version: &str) -> Self
     where

@@ -1,4 +1,4 @@
-/// Formatter tabel ANSI ASCII box-drawing dan JSON pretty untuk Lumina Tinker REPL
+/// Formatter tabel ANSI ASCII box-drawing dan JSON pretty untuk Pakem Tinker REPL
 pub struct TinkerFormatter;
 
 impl TinkerFormatter {

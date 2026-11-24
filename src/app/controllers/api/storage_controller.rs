@@ -38,7 +38,7 @@ impl StorageController {
                             Err(e) => return ApiResponse::error(&format!("Gagal membaca stream file: {}", e)).into_response(),
                         };
 
-                        // Gunakan Storage System Lumina
+                        // Gunakan Storage System Pakem
                         let storage = &state.storage;
 
                         // Simpan ke disk (default local)

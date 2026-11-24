@@ -7,7 +7,7 @@ pub struct AppConfig {
 impl AppConfig {
     pub fn load() -> Self {
         Self {
-            name: "Lumina".to_string(),
+            name: "Pakem".to_string(),
             env: "development".to_string(),
             debug: true,
         }

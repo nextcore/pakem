@@ -20,7 +20,7 @@ async fn inject_tracking_header(req: axum::extract::Request, next: Next) -> Resp
     let mut resp = next.run(req).await;
     resp.headers_mut().insert(
         "X-App-Tracker",
-        "lumina-active-tracking".parse().unwrap(),
+        "pakem-active-tracking".parse().unwrap(),
     );
     resp
 }
@@ -102,7 +102,7 @@ async fn test_pipeline_and_global_middleware() {
     assert_eq!(res.status(), StatusCode::OK);
     assert_eq!(
         res.headers().get("X-App-Tracker").and_then(|v| v.to_str().ok()),
-        Some("lumina-active-tracking")
+        Some("pakem-active-tracking")
     );
     assert_eq!(
         res.headers().get("X-Pipeline").and_then(|v| v.to_str().ok()),
@@ -119,7 +119,7 @@ async fn test_pipeline_and_global_middleware() {
     assert_eq!(res.status(), StatusCode::OK);
     assert_eq!(
         res.headers().get("X-App-Tracker").and_then(|v| v.to_str().ok()),
-        Some("lumina-active-tracking")
+        Some("pakem-active-tracking")
     );
     assert_eq!(
         res.headers().get("X-Pipeline").and_then(|v| v.to_str().ok()),

@@ -36,7 +36,7 @@ pub async fn echo_handler(
     ws.on_upgrade(move |socket| handle_socket(socket, state, params.token))
 }
 
-/// Handler untuk otorisasi private / presence channel (`/lumina/echo/auth`)
+/// Handler untuk otorisasi private / presence channel (`/pakem/echo/auth`)
 pub async fn echo_auth_handler(
     State(state): State<AppState>,
     headers: axum::http::HeaderMap,

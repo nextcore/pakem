@@ -1,9 +1,9 @@
-use lumina::prelude::*;
+use pakem::prelude::*;
 use crate::app::models::user::User;
 use crate::core::auth::Auth;
 
 // =========================================================================
-//  UserFactory (Lumina Model Factory)
+//  UserFactory (Pakem Model Factory)
 // =========================================================================
 
 pub struct UserFactory;

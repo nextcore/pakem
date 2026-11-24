@@ -1,6 +1,6 @@
 /**
- * ⚡ Lumina Live Micro-Runtime (v0.4.0)
- * Server-Driven Reactive UI for Lumina Framework (Rust)
+ * ⚡ Pakem Live Micro-Runtime (v0.4.0)
+ * Server-Driven Reactive UI for Pakem Framework (Rust)
  * Supports Tri-Dialect Directives:
  *   - 🇮🇩 Indonesia: kilat:* (klik, kirim, model, tunggu, yakin, pantau, etc.)
  *   - 🌐 Universal:  live:*  (click, submit, model, loading, confirm, poll, etc.)
@@ -168,10 +168,10 @@
         }
     }
 
-    // Core Lumina Live Client (Dual Transport: WebSocket Streaming + HTTP Micro-RPC)
+    // Core Pakem Live Client (Dual Transport: WebSocket Streaming + HTTP Micro-RPC)
     class PakemLive {
         constructor() {
-            this.endpoint = '/_lumina/live/call';
+            this.endpoint = '/_pakem/live/call';
             this.ws = null;
             this.pendingCalls = new Map();
         }
@@ -197,7 +197,7 @@
             if (typeof window === 'undefined' || !window.WebSocket) return;
             try {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = `${protocol}//${window.location.host}/_lumina/live/ws`;
+                const wsUrl = `${protocol}//${window.location.host}/_pakem/live/ws`;
                 const socket = new WebSocket(wsUrl);
 
                 socket.onopen = () => {
@@ -211,7 +211,7 @@
                             this.applyUpdate(data);
                         }
                     } catch (e) {
-                        console.error('[Lumina Live WS Parse Error]', e);
+                        console.error('[Pakem Live WS Parse Error]', e);
                     }
                 };
 
@@ -252,7 +252,7 @@
             const snapshot = componentEl.getAttribute('data-kilat-snapshot') || componentEl.getAttribute('data-live-snapshot') || componentEl.getAttribute('data-wire-snapshot');
 
             if (!id || !name || !snapshot) {
-                console.error('[Lumina Live] Root component attributes missing.');
+                console.error('[Pakem Live] Root component attributes missing.');
                 return;
             }
 
@@ -279,7 +279,7 @@
                     this.ws.send(JSON.stringify(payload));
                     return;
                 } catch (e) {
-                    console.warn('[Lumina Live WS fallback to HTTP]', e);
+                    console.warn('[Pakem Live WS fallback to HTTP]', e);
                 }
             }
 
@@ -293,7 +293,7 @@
 
                 if (!res.ok) {
                     const err = await res.text();
-                    console.error('[Lumina Live Action Error]', err);
+                    console.error('[Pakem Live Action Error]', err);
                     return;
                 }
 
@@ -302,7 +302,7 @@
                     this.applyUpdate(data);
                 }
             } catch (err) {
-                console.error('[Lumina Live Network Error]', err);
+                console.error('[Pakem Live Network Error]', err);
             } finally {
                 this.setLoading(componentEl, false, action);
             }
@@ -316,11 +316,11 @@
 
                 if (isLoading) {
                     el.style.display = el.dataset.origDisplay || '';
-                    el.classList.add('lumina-loading');
+                    el.classList.add('pakem-loading');
                 } else {
                     if (!el.dataset.origDisplay) el.dataset.origDisplay = el.style.display;
                     el.style.display = 'none';
-                    el.classList.remove('lumina-loading');
+                    el.classList.remove('pakem-loading');
                 }
             });
         }

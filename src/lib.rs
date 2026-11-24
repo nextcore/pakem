@@ -69,7 +69,7 @@ pub mod prelude {
     pub use crate::core::queue::{Job, Dispatchable, QueueManager, JobRegistry};
     pub use crate::core::auth::{Auth, AuthUser, HasRolesAndPermissions, Hash};
     pub use crate::core::security::{BruteForceGuard, SandiAN, LegacyAuthAdapter, PasswordHashDialect};
-    pub use crate::core::sandbox::{LuminaPluginManager, WasmPlugin, PluginHook, PluginStats, PluginMetricsTracker};
+    pub use crate::core::sandbox::{LuminaPluginManager, PakemPluginManager, WasmPlugin, PluginHook, PluginStats, PluginMetricsTracker};
     pub use crate::core::tinker::{Tinker, TinkerEvaluator, TinkerResult, TinkerFormatter};
     pub use crate::core::hardware::{EscPosBuilder, BarcodeScanEvent, FingerprintTemplate, CameraConfig, DeviceMessage, DeviceResponse, device_bridge_script};
     pub use crate::core::ai::Ai;

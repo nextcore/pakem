@@ -102,7 +102,7 @@ fn test_blade_engine_kilat_directives_via_pakem_live() {
 
     let layout_template = "@kilatScripts";
     let rendered_scripts = engine.render_string(layout_template, &BladeContext::new());
-    assert!(rendered_scripts.contains(r#"<script src="/_lumina/live/live.js" defer></script>"#));
+    assert!(rendered_scripts.contains(r#"<script src="/_pakem/live/live.js" defer></script>"#));
 
     let page_template = "@kilat('counter')";
     let rendered_page = engine.render_string(page_template, &BladeContext::new());

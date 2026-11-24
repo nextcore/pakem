@@ -15,7 +15,7 @@ pub struct TelescopeQuery {
 }
 
 impl TelescopeController {
-    /// GET /lumina/telescope
+    /// GET /pakem/telescope
     pub async fn index(
         State(state): State<AppState>,
         Query(query): Query<TelescopeQuery>,
@@ -42,7 +42,7 @@ impl TelescopeController {
         Html(rendered)
     }
 
-    /// GET /lumina/telescope/entries (Partial for HTMX)
+    /// GET /pakem/telescope/entries (Partial for HTMX)
     pub async fn entries(
         State(state): State<AppState>,
         Query(query): Query<TelescopeQuery>,

@@ -1,6 +1,6 @@
-use lumina_macros::lumina_form;
+use pakem_macros::pakem_form;
 
-#[lumina_form]
+#[pakem_form]
 pub struct RegisterRequest {
     #[rule("required|min:3")] pub name: String,
     #[rule("required|email")] pub email: String,
@@ -9,7 +9,7 @@ pub struct RegisterRequest {
     pub csrf_token: String,
 }
 
-#[lumina_form]
+#[pakem_form]
 pub struct LoginRequest {
     #[rule("required|email")] pub email: String,
     #[rule("required")]       pub password: String,

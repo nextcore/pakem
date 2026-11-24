@@ -29,7 +29,7 @@ impl IntoStatusCode for u16 {
     }
 }
 
-/// Harness pengujian in-memory Lumina Framework
+/// Harness pengujian in-memory Pakem Framework
 pub struct TestApp {
     pub router: Router,
     pub state: AppState,
@@ -81,10 +81,10 @@ impl TestApp {
             lang,
             echo,
             socialite,
-            sandbox: Arc::new(crate::core::sandbox::LuminaPluginManager::new()),
+            sandbox: Arc::new(crate::core::sandbox::PakemPluginManager::new()),
         };
 
-        let session_store = crate::core::session::store::LuminaSessionStore::Memory(
+        let session_store = crate::core::session::store::PakemSessionStore::Memory(
             tower_sessions::MemoryStore::default(),
         );
 

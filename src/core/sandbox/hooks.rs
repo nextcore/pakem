@@ -17,10 +17,10 @@ impl PluginHook {
     /// Mengembalikan nama fungsi export WebAssembly yang dicari
     pub fn export_name(&self) -> String {
         match self {
-            PluginHook::OnRequest => "lumina_on_request".to_string(),
-            PluginHook::BeforeSave => "lumina_before_save".to_string(),
-            PluginHook::AfterResponse => "lumina_after_response".to_string(),
-            PluginHook::Custom(name) => format!("lumina_{}", name),
+            PluginHook::OnRequest => "pakem_on_request".to_string(),
+            PluginHook::BeforeSave => "pakem_before_save".to_string(),
+            PluginHook::AfterResponse => "pakem_after_response".to_string(),
+            PluginHook::Custom(name) => format!("pakem_{}", name),
         }
     }
 }

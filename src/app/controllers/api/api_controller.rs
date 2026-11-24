@@ -9,9 +9,9 @@ impl ApiController {
     /// GET /api/users — Kembalikan daftar semua user sebagai JSON
     pub async fn index() -> Result<ApiResponse<Value>, AppError> {
         let users = json!([
-            { "id": 1, "name": "Slamet Sugandi", "email": "slamet@lumina.rs", "role": "admin" },
-            { "id": 2, "name": "Alice Rust",     "email": "alice@lumina.rs",  "role": "developer" },
-            { "id": 3, "name": "Bob Axum",       "email": "bob@lumina.rs",    "role": "designer" }
+            { "id": 1, "name": "Slamet Sugandi", "email": "slamet@pakem.my.id", "role": "admin" },
+            { "id": 2, "name": "Alice Rust",     "email": "alice@pakem.my.id",  "role": "developer" },
+            { "id": 3, "name": "Bob Axum",       "email": "bob@pakem.my.id",    "role": "designer" }
         ]);
 
         Ok(ApiResponse::with_message(users, "Users retrieved successfully"))
@@ -20,9 +20,9 @@ impl ApiController {
     /// GET /api/users/:id — Kembalikan detail user berdasarkan path parameter
     pub async fn show(Path(id): Path<u32>) -> Result<ApiResponse<Value>, AppError> {
         let (name, email, role) = match id {
-            1 => ("Slamet Sugandi", "slamet@lumina.rs", "admin"),
-            2 => ("Alice Rust",    "alice@lumina.rs",   "developer"),
-            3 => ("Bob Axum",      "bob@lumina.rs",     "designer"),
+            1 => ("Slamet Sugandi", "slamet@pakem.my.id", "admin"),
+            2 => ("Alice Rust",    "alice@pakem.my.id",   "developer"),
+            3 => ("Bob Axum",      "bob@pakem.my.id",     "designer"),
             _ => return Err(AppError::NotFound(format!("User dengan ID {} tidak ditemukan", id))),
         };
 

@@ -51,7 +51,7 @@ pub fn init() -> WorkerGuard {
         .with(file_layer)
         .init();
 
-    tracing::info!("📝 Lumina Logger aktif. Log disimpan ke: storage/logs/");
+    tracing::info!("📝 Pakem Logger aktif. Log disimpan ke: storage/logs/");
 
     guard
 }

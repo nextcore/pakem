@@ -14,7 +14,7 @@ pub async fn telescope_middleware(
 ) -> Response {
     // Abaikan request ke dashboard telescope itu sendiri agar tidak rekursif berlebihan
     let path = req.uri().path();
-    if path.starts_with("/lumina/telescope") || path.starts_with("/storage") {
+    if path.starts_with("/pakem/telescope") || path.starts_with("/storage") {
         return next.run(req).await;
     }
 

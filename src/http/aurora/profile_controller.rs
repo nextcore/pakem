@@ -39,7 +39,7 @@ impl AuroraProfileController {
         };
 
         View::make("aurora.profile.edit")
-            .with("title", "Pengaturan Profil — Lumina Aurora")
+            .with("title", "Pengaturan Profil — Pakem Aurora")
             .with("user", user)
             .render(&req)
             .await

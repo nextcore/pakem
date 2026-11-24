@@ -2,8 +2,8 @@ use clap::{Parser, Subcommand};
 use pakem::cli;
 
 #[derive(Parser)]
-#[command(name = "lumina")]
-#[command(about = "Lumina Framework CLI", long_about = None)]
+#[command(name = "pakem")]
+#[command(about = "Pakem Framework CLI", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -11,7 +11,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Create a new Lumina project
+    /// Create a new Pakem project
     #[command(name = "new")]
     New {
         /// Name of the project
@@ -44,7 +44,7 @@ enum Commands {
         /// Name of the job (e.g. SendEmailJob)
         name: String,
     },
-    /// Generate a new Lumina Live reactive component
+    /// Generate a new Pakem Live reactive component
     #[command(name = "make:live")]
     MakeLive {
         /// Name of the live component (e.g. Counter)
@@ -236,7 +236,7 @@ async fn main() {
             cli::handle_backup().await;
         }
         Commands::Serve => {
-            println!("🚀 Starting Lumina Server...");
+            println!("🚀 Starting Pakem Server...");
             let mut child = std::process::Command::new("cargo")
                 .arg("run")
                 .spawn()
@@ -245,7 +245,7 @@ async fn main() {
             let _ = child.wait();
         }
         Commands::Watch => {
-            println!("👀 Lumina is watching your code... (Auto-reload enabled)");
+            println!("👀 Pakem is watching your code... (Auto-reload enabled)");
             let mut child = std::process::Command::new("cargo")
                 .arg("watch")
                 .arg("-x")

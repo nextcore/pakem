@@ -98,6 +98,6 @@ window.PakemDevice = {
         console.log("🔗 [PakemDevice] Hardware WebSocket Bridge connected:", wsUrl);
     }
 };
-window.LuminaDevice = window.PakemDevice;
+window.PakemDevice = window.PakemDevice;
 "#
 }

@@ -9,7 +9,7 @@ pub use profile_controller::AuroraProfileController;
 use crate::core::application::AppState;
 use crate::core::router::Router;
 
-/// Menghasilkan Router lengkap untuk seluruh alur Lumina Aurora:
+/// Menghasilkan Router lengkap untuk seluruh alur Pakem Aurora:
 /// - Auth: Login, Register, Logout
 /// - Dashboard: Ringkasan sistem dan profil
 /// - Profile: Edit nama/email dan ganti kata sandi

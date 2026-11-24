@@ -20,7 +20,7 @@ pub fn register(_config: &crate::core::config::ConfigManager) -> Router<AppState
             axum::response::Json(serde_json::json!({
                 "status": "UP",
                 "database": db_status,
-                "framework": "Lumina 1.0",
+                "framework": "Pakem 1.0",
                 "timestamp": chrono::Utc::now().to_rfc3339()
             }))
         })
@@ -54,8 +54,8 @@ pub fn register(_config: &crate::core::config::ConfigManager) -> Router<AppState
         .get("/debug/panic", HomeController::debug_panic)
         .get("/debug/dd", HomeController::debug_dd)
 
-        // ─── Lumina Telescope (Dashboard) ───
-        .group("/lumina/telescope", |r| {
+        // ─── Pakem Telescope (Dashboard) ───
+        .group("/pakem/telescope", |r| {
             r.get("/", TelescopeController::index)
              .get("/entries", TelescopeController::entries)
         })

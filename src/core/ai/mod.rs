@@ -6,7 +6,7 @@ pub use gemini::GeminiClient;
 pub use openai::OpenAiClient;
 pub use claude::ClaudeClient;
 
-/// Fluent AI Facade for Multi-Model LLM Interactions in Lumina Framework
+/// Fluent AI Facade for Multi-Model LLM Interactions in Pakem Framework
 pub struct Ai;
 
 impl Ai {

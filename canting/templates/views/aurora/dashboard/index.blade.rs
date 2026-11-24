@@ -136,7 +136,7 @@
             </div>
 
             <div class="mt-6 pt-4 border-t border-slate-800/80 text-[11px] text-slate-500">
-                Server Engine: Lumina v0.5.0 + Tokio 1.x
+                Server Engine: Pakem v0.5.0 + Tokio 1.x
             </div>
         </div>
     </div>

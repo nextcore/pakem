@@ -394,7 +394,7 @@ enum Commands {
     /// Export Postman collection v2.1 from application routes
     #[command(name = "export:postman")]
     ExportPostman {
-        /// Output file path (default: lumina_collection.json)
+        /// Output file path (default: pakem_collection.json)
         #[arg(short, long, default_value = "pakem_collection.json")]
         output: String,
         /// Name of the Postman collection
@@ -707,7 +707,7 @@ fn handle_new_project(name: &str, db: &str, offline: bool) {
                 if let Ok(content) = fs::read_to_string(&cargo_path) {
                     let customized = content
                         .replace("name = \"pakem-app\"", &format!("name = \"{}\"", name))
-                        .replace("name = \"lumina-app\"", &format!("name = \"{}\"", name));
+                        .replace("name = \"pakem-app\"", &format!("name = \"{}\"", name));
                     let _ = fs::write(&cargo_path, customized);
                 }
                 // Initialize fresh git repo

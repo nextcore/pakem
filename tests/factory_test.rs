@@ -2,8 +2,8 @@ use pakem::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, LuminaModel, PartialEq)]
-#[lumina(table = "customers")]
+#[derive(Debug, Serialize, Deserialize, FromRow, Clone, Default, PakemModel, PartialEq)]
+#[pakem(table = "customers")]
 pub struct Customer {
     pub id: i64,
     pub name: String,

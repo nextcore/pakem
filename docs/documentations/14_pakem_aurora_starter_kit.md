@@ -10,7 +10,7 @@ Berbeda dengan starter kit di ekosistem lain yang memaksa developer memasang tum
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                         LUMINA AURORA ARCHITECTURE                     │
+│                         PAKEM AURORA ARCHITECTURE                     │
 ├────────────────────────────────────────────────────────────────────────┤
 │                                                                        │
 │   [ Backend Engine: Rust + Axum + Tokio ] ── (SSR Response < 0.5ms)    │

@@ -32,7 +32,7 @@ impl SnapshotManager {
     fn get_secret_key() -> &'static [u8] {
         SECRET_KEY.get_or_init(|| {
             std::env::var("APP_KEY")
-                .unwrap_or_else(|_| "lumina-live-insecure-default-key-change-in-production".to_string())
+                .unwrap_or_else(|_| "pakem-live-insecure-default-key-change-in-production".to_string())
                 .into_bytes()
         })
     }

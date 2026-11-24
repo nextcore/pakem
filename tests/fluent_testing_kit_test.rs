@@ -11,7 +11,7 @@ async fn test_json_endpoint() -> impl IntoResponse {
             "id": 42,
             "user": {
                 "name": "Budi Santoso",
-                "email": "budi@lumina.dev",
+                "email": "budi@pakem.dev",
                 "roles": ["admin", "editor"]
             },
             "stats": {
@@ -52,7 +52,7 @@ async fn test_fluent_assertions_status_and_json() {
 
     // 1. Uji Fluent GET Request & Assertions
     let res = app.get_req("/api/data")
-        .with_header("X-App-Client", "LuminaTest")
+        .with_header("X-App-Client", "PakemTest")
         .send().await;
 
     res.assert_ok()
@@ -107,7 +107,7 @@ async fn test_database_testing_assertions() {
     // Insert data awal
     sqlx::query("INSERT INTO test_users (name, email, is_active) VALUES (?, ?, ?)")
         .bind("Siti Rahma")
-        .bind("siti@lumina.dev")
+        .bind("siti@pakem.dev")
         .bind(1)
         .execute(pool)
         .await
@@ -115,18 +115,18 @@ async fn test_database_testing_assertions() {
 
     sqlx::query("INSERT INTO test_users (name, email, is_active) VALUES (?, ?, ?)")
         .bind("Ahmad Dahlan")
-        .bind("ahmad@lumina.dev")
+        .bind("ahmad@pakem.dev")
         .bind(0)
         .execute(pool)
         .await
         .unwrap();
 
     // 1. assert_database_has
-    app.assert_database_has("test_users", json!({ "email": "siti@lumina.dev" })).await;
+    app.assert_database_has("test_users", json!({ "email": "siti@pakem.dev" })).await;
     app.assert_database_has("test_users", json!({ "name": "Ahmad Dahlan", "is_active": 0 })).await;
 
     // 2. assert_database_missing
-    app.assert_database_missing("test_users", json!({ "email": "tidak_ada@lumina.dev" })).await;
+    app.assert_database_missing("test_users", json!({ "email": "tidak_ada@pakem.dev" })).await;
     app.assert_database_missing("test_users", json!({ "name": "Siti Rahma", "is_active": 0 })).await;
 
     // 3. assert_database_count

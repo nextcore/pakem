@@ -931,7 +931,7 @@ crate-type = ["cdylib"]
     let lib_rs = format!(
         r#"use std::mem;
 
-/// Alokasi buffer memori heap guest untuk transfer data dari host Lumina.
+/// Alokasi buffer memori heap guest untuk transfer data dari host Pakem.
 #[no_mangle]
 pub extern "C" fn alloc(len: i32) -> i32 {{
     let mut buf = Vec::with_capacity(len as usize);
@@ -975,7 +975,7 @@ pub extern "C" fn transform(ptr: i32, len: i32) -> i64 {{
 
     // 3. README.md
     let readme = format!(
-        r#"# Lumina WASM Plugin: {}
+        r#"# Pakem WASM Plugin: {}
 
 Plugin WebAssembly untuk Pakem Framework.
 
@@ -2363,7 +2363,7 @@ pub fn generate_ai_skill_at(base: &Path, name: &str, fields: &[String], _provide
     }
 
     let description = if is_reverse_engineer {
-        "Reverse engineers a target web page, DOM structure, or API endpoint into idiomatic Lumina Blade views, Tailwind styling, Lumina Live reactive components, and Eloquent models."
+        "Reverse engineers a target web page, DOM structure, or API endpoint into idiomatic Pakem Blade views, Tailwind styling, Pakem Live reactive components, and Eloquent models."
     } else {
         "Executes business logic and queries database for the requested action."
     };
@@ -2426,7 +2426,7 @@ Skill ini digunakan ketika pengguna ingin meniru, mereplikasi, atau merekayasa b
 1. **Analisis DOM & Visual Target**:
    - Dekonstruksi layout menjadi template Blade di `resources/views/`.
    - Gunakan utility classes Tailwind CSS murni.
-2. **Rekonstruksi Interaktivitas (Lumina Live)**:
+2. **Rekonstruksi Interaktivitas (Pakem Live)**:
    - Jika terdapat pencarian instan, filter live, atau modal dinamis: buat komponen Pakem Live di `src/app/live/` dengan atribut `kilat:*` atau `wire:*`.
 3. **Penyusunan Skema Data & ORM**:
    - Bentuk Model `#[derive(PakemModel)]` di `src/app/models/`.
@@ -2483,7 +2483,7 @@ impl {pascal_name}Tool {{
             "component": input.component_name,
             "target_url": input.target_url,
             "blade_view_hint": format!("resources/views/components/{{}}.blade.rs", input.component_name.to_lowercase()),
-            "message": "Target page analyzed successfully. Ready to generate Blade view and Lumina Live components."
+            "message": "Target page analyzed successfully. Ready to generate Blade view and Pakem Live components."
         }});
 
         Ok(output)
@@ -2525,5 +2525,5 @@ impl {pascal_name}Tool {{
     print_success(&format!("Rust Tool Handler: {}", service_file_path.display().to_string().bright_green()));
 
     println!("\n  ✨ AI Skill & Tool [{}] ready for Gemini, Claude, OpenAI & Antigravity!", pascal_name);
-    print_hint(&format!("AI assistants can now call `{}` function safely through your Lumina services.", snake_name));
+    print_hint(&format!("AI assistants can now call `{}` function safely through your Pakem services.", snake_name));
 }

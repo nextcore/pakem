@@ -6,9 +6,9 @@ pub use axum::{
 };
 use std::time::Instant;
 
-// ─── Re-exports & Helper Respon Standar Lumina ─────────────────────────────────
+// ─── Re-exports & Helper Respon Standar Pakem ─────────────────────────────────
 
-/// Helper — buat Response error JSON standar Lumina.
+/// Helper — buat Response error JSON standar Pakem.
 pub fn error_json(status: axum::http::StatusCode, message: &str) -> Response {
     let body = serde_json::json!({
         "metaData": {
@@ -20,17 +20,17 @@ pub fn error_json(status: axum::http::StatusCode, message: &str) -> Response {
     (status, axum::response::Json(body)).into_response()
 }
 
-/// Helper — buat Response 401 Unauthorized dengan body JSON standar Lumina.
+/// Helper — buat Response 401 Unauthorized dengan body JSON standar Pakem.
 pub fn unauthorized_json(message: &str) -> Response {
     error_json(axum::http::StatusCode::UNAUTHORIZED, message)
 }
 
-/// Helper — buat Response 403 Forbidden dengan body JSON standar Lumina.
+/// Helper — buat Response 403 Forbidden dengan body JSON standar Pakem.
 pub fn forbidden_json(message: &str) -> Response {
     error_json(axum::http::StatusCode::FORBIDDEN, message)
 }
 
-/// Helper — buat Response 400 Bad Request dengan body JSON standar Lumina.
+/// Helper — buat Response 400 Bad Request dengan body JSON standar Pakem.
 pub fn bad_request_json(message: &str) -> Response {
     error_json(axum::http::StatusCode::BAD_REQUEST, message)
 }

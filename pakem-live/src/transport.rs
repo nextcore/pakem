@@ -42,11 +42,11 @@ pub struct LiveCallResponse {
 pub fn live_routes() -> Router<AppState> {
     Router::new()
         .route("/_pakem/live/live.js", get(serve_live_js))
-        .route("/_lumina/live/live.js", get(serve_live_js))
+        .route("/_pakem/live/live.js", get(serve_live_js))
         .route("/_pakem/live/call", post(call_action_handler))
-        .route("/_lumina/live/call", post(call_action_handler))
+        .route("/_pakem/live/call", post(call_action_handler))
         .route("/_pakem/live/ws", get(live_ws_handler))
-        .route("/_lumina/live/ws", get(live_ws_handler))
+        .route("/_pakem/live/ws", get(live_ws_handler))
 }
 
 pub async fn serve_live_js() -> impl IntoResponse {
@@ -55,7 +55,7 @@ pub async fn serve_live_js() -> impl IntoResponse {
             (header::CONTENT_TYPE, "application/javascript; charset=utf-8"),
             (header::CACHE_CONTROL, "public, max-age=86400, immutable"),
         ],
-        LUMINA_LIVE_JS,
+        PAKEM_LIVE_JS,
     )
 }
 

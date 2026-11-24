@@ -1,4 +1,4 @@
-use crate::core::{request::Request as LuminaRequest, response::Response as LuminaResponse};
+use crate::core::{request::Request as PakemRequest, response::Response as PakemResponse};
 use async_trait::async_trait;
 use axum::{
     extract::Request,
@@ -11,12 +11,12 @@ use std::panic::AssertUnwindSafe;
 
 #[async_trait]
 pub trait Middleware: Send + Sync {
-    async fn handle(&self, request: LuminaRequest) -> Result<LuminaResponse, String>;
+    async fn handle(&self, request: PakemRequest) -> Result<PakemResponse, String>;
 }
 
 /// Global Zero-Panic Error Boundary Middleware.
 /// Menjamin bahwa `panic!` di dalam controller atau library pihak ketiga
-/// TIDAK AKAN PERNAH meruntuhkan worker thread / server Lumina.
+/// TIDAK AKAN PERNAH meruntuhkan worker thread / server Pakem.
 /// Menangkap panic secara aman, mencatat pesan panic ke log,
 /// serta mengembalikan HTTP 500 berformat rapi.
 pub async fn zero_panic_boundary(req: Request, next: Next) -> Response {

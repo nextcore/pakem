@@ -4,7 +4,7 @@ use tower_sessions::MemoryStore;
 use tower_sessions::{session_store, SessionStore};
 
 #[derive(Clone, Debug)]
-pub enum LuminaSessionStore {
+pub enum PakemSessionStore {
     Memory(MemoryStore),
     #[cfg(feature = "mysql")]
     MySql(tower_sessions_sqlx_store::MySqlStore),
@@ -14,11 +14,11 @@ pub enum LuminaSessionStore {
     Postgres(tower_sessions_sqlx_store::PostgresStore),
 }
 
-/// Alias resmi untuk ekosistem Pakem Framework
-pub type PakemSessionStore = LuminaSessionStore;
+/// Alias kompatibilitas balik untuk LuminaSessionStore
+pub type LuminaSessionStore = PakemSessionStore;
 
 #[async_trait]
-impl SessionStore for LuminaSessionStore {
+impl SessionStore for PakemSessionStore {
     async fn create(&self, record: &mut Record) -> session_store::Result<()> {
         match self {
             Self::Memory(s) => s.create(record).await,

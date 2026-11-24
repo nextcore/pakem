@@ -2922,10 +2922,10 @@ mod tests {
 
         let mut ctx = BladeContext::new();
         ctx.insert("user_id", 1);
-        ctx.insert("email", "admin@lumina.rs");
+        ctx.insert("email", "admin@pakem.my.id");
 
         let html = engine.render_string(tmpl, &ctx);
-        assert!(html.contains("Welcome back, admin@lumina.rs"));
+        assert!(html.contains("Welcome back, admin@pakem.my.id"));
         assert!(!html.contains("Login"));
     }
 

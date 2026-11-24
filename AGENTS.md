@@ -43,7 +43,7 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
     ```
 
 - **Controller RESTful API (JSON)**:
-  - **WAJIB** mengembalikan `PakemResult` (alias untuk `Result<Response, AppError>`, kompatibel dengan `LuminaResult`).
+  - **WAJIB** mengembalikan `PakemResult` (alias untuk `Result<Response, AppError>`, kompatibel dengan `PakemResult`).
   - **WAJIB** memanfaatkan shortcut helper response bawaan `Request`:
     - `req.ok(data)` ➔ HTTP 200 `{ "success": true, "data": ... }`
     - `req.success(data, "Pesan sukses")` ➔ HTTP 200 `{ "success": true, "message": "...", "data": ... }`

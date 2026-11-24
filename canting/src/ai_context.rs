@@ -7,7 +7,7 @@ pub fn generate_agents_md(app_name: &str) -> String {
     format!(
         r#"# 🤖 Pakem Framework — Developer & AI Agent Guidelines ({app_name})
 
-> **Visi Inti Lumina:**  
+> **Visi Inti Pakem:**  
 > *"Look like Laravel, Run at Rust Speed. Cuantik, elegan, tercepat, dan menghadirkan pengalaman pengembangan (Developer Experience) paling menyenangkan di dunia backend."*
 
 Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent (Antigravity, Cursor, Copilot, Claude Code, ChatGPT, dsb.) dan developer yang menulis, mengedit, atau melakukan maintenance kode pada proyek **{app_name}**.
@@ -39,7 +39,7 @@ Dokumen ini adalah pedoman mutlak (**Rules & Standards**) bagi seluruh AI Agent 
         let users = User::query(req.db()).with("posts").get().await.unwrap_or_default();
 
         View::make("dashboard.index")
-            .with("title", "Dashboard — Lumina")
+            .with("title", "Dashboard — Pakem")
             .with("user", user)
             .with("users", users)
             .render(req)
@@ -395,7 +395,7 @@ pub fn generate_copilot_instructions(app_name: &str) -> String {
     format!(
         r#"# GitHub Copilot Instructions for {app_name} (Pakem Framework)
 
-You are an expert Pakem Framework developer. Lumina is an enterprise Rust web framework that combines Laravel's DX and elegance with Rust's raw speed and memory safety.
+You are an expert Pakem Framework developer. Pakem is an enterprise Rust web framework that combines Laravel's DX and elegance with Rust's raw speed and memory safety.
 
 ## Architectural Mandates
 1. **Controllers**:
@@ -415,7 +415,7 @@ You are an expert Pakem Framework developer. Lumina is an enterprise Rust web fr
 
 4. **Safety & Style**:
    - Avoid raw `unwrap()` in production handlers; use `?` operator or return `AppError`.
-   - Avoid raw SQL strings vulnerable to injection; use Lumina query builder or prepared parameters.
+   - Avoid raw SQL strings vulnerable to injection; use Pakem query builder or prepared parameters.
 "#
     )
 }
@@ -425,7 +425,7 @@ pub fn generate_claude_md(app_name: &str) -> String {
     format!(
         r#"# CLAUDE.md — {app_name} (Pakem Framework)
 
-This document guides Claude Code when working in this Lumina repository.
+This document guides Claude Code when working in this Pakem repository.
 
 ## Commands
 - Run server: `canting serve` (or `cargo run`)

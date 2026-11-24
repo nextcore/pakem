@@ -1,10 +1,10 @@
 use pakem::database::connection::DatabasePool;
 use pakem::database::model::Model;
 use pakem::support::{json_decode, json_encode};
-use pakem::LuminaModel;
+use pakem::PakemModel;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, sqlx::FromRow, LuminaModel)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, sqlx::FromRow, PakemModel)]
 #[table("users")]
 struct User {
     #[primary_key]

@@ -7,7 +7,7 @@ fn test_escpos_thermal_printer_builder() {
         .align_center()
         .bold(true)
         .double_size(true)
-        .line("TOKO ROTI LUMINA")
+        .line("TOKO ROTI PAKEM")
         .bold(false)
         .double_size(false)
         .line("Jl. Jenderal Sudirman No. 45")
@@ -32,7 +32,7 @@ fn test_escpos_thermal_printer_builder() {
 
     // Check text appears in buffer
     let text_repr = String::from_utf8_lossy(&bytes);
-    assert!(text_repr.contains("TOKO ROTI LUMINA"));
+    assert!(text_repr.contains("TOKO ROTI PAKEM"));
     assert!(text_repr.contains("Roti Coklat"));
     assert!(text_repr.contains("Rp 42.000"));
 

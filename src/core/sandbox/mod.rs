@@ -98,11 +98,11 @@ impl WasmPlugin {
     fn create_linker(engine: &Engine) -> Result<Linker<HostState>, SandboxError> {
         let mut linker = Linker::<HostState>::new(engine);
 
-        // Host Function: lumina_log(level_code, code)
+        // Host Function: pakem_log(level_code, code)
         linker
             .func_wrap(
-                "lumina_host",
-                "lumina_log",
+                "pakem_host",
+                "pakem_log",
                 |mut caller: Caller<'_, HostState>, level: i32, code: i32| {
                     let level_str = match level {
                         1 => "DEBUG",
@@ -119,9 +119,9 @@ impl WasmPlugin {
 
 
 
-        // Host Function: lumina_now() -> i64
+        // Host Function: pakem_now() -> i64
         linker
-            .func_wrap("lumina_host", "lumina_now", |_caller: Caller<'_, HostState>| -> i64 {
+            .func_wrap("pakem_host", "pakem_now", |_caller: Caller<'_, HostState>| -> i64 {
                 std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
                     .unwrap_or_default()
@@ -246,22 +246,22 @@ impl WasmInstance {
 
 /// Pengelola Plugin dan Ekstensi Pakem Sandbox (Thread-Safe & Hot-Reloadable)
 #[derive(Clone)]
-pub struct LuminaPluginManager {
+pub struct PakemPluginManager {
     plugins: Arc<RwLock<HashMap<String, Arc<WasmPlugin>>>>,
     is_scripts: Arc<RwLock<HashMap<String, Arc<IsScriptRunner>>>>,
     metrics: Arc<PluginMetricsTracker>,
 }
 
-/// Alias resmi untuk ekosistem Pakem Framework
-pub type PakemPluginManager = LuminaPluginManager;
+/// Alias kompatibilitas balik untuk LuminaPluginManager
+pub type LuminaPluginManager = PakemPluginManager;
 
-impl Default for LuminaPluginManager {
+impl Default for PakemPluginManager {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl LuminaPluginManager {
+impl PakemPluginManager {
     pub fn new() -> Self {
         Self {
             plugins: Arc::new(RwLock::new(HashMap::new())),
@@ -483,12 +483,12 @@ pub struct SandboxMetrics {
 /// Handle ergonomis untuk mengeksekusi file skrip Indonesian Script di controller
 #[derive(Clone)]
 pub struct ScriptHandle {
-    pub plugin_manager: Arc<LuminaPluginManager>,
+    pub plugin_manager: Arc<PakemPluginManager>,
     pub script_path: String,
 }
 
 impl ScriptHandle {
-    pub fn new(plugin_manager: Arc<LuminaPluginManager>, script_path: &str) -> Self {
+    pub fn new(plugin_manager: Arc<PakemPluginManager>, script_path: &str) -> Self {
         Self {
             plugin_manager,
             script_path: script_path.to_string(),
@@ -530,10 +530,10 @@ mod tests {
 
     #[test]
     fn test_wasm_host_logger_call() {
-        // WAT yang memanggil host logger lumina_host::lumina_log(level=2, code=200)
+        // WAT yang memanggil host logger pakem_host::pakem_log(level=2, code=200)
         let wat = r#"
             (module
-                (import "lumina_host" "lumina_log" (func $log (param i32 i32)))
+                (import "pakem_host" "pakem_log" (func $log (param i32 i32)))
                 (func (export "sapa")
                     i32.const 2
                     i32.const 200
@@ -593,10 +593,10 @@ mod tests {
 
         let plugin = WasmPlugin::from_wat("text_filter", wat).expect("Compile filter gagal");
         let hasil = plugin
-            .call_string_transform("ke_huruf_besar", "lumina framework indonesia")
+            .call_string_transform("ke_huruf_besar", "pakem framework indonesia")
             .expect("Transform string gagal");
 
-        assert_eq!(hasil, "LUMINA FRAMEWORK INDONESIA");
+        assert_eq!(hasil, "PAKEM FRAMEWORK INDONESIA");
     }
 
     #[test]
@@ -625,7 +625,7 @@ mod tests {
 
     #[test]
     fn test_plugin_manager_registration_and_lookup() {
-        let manager = LuminaPluginManager::new();
+        let manager = PakemPluginManager::new();
         let wat = r#"
             (module
                 (func (export "tambah_satu") (param i32) (result i32)
@@ -648,7 +648,7 @@ mod tests {
 
     #[test]
     fn test_plugin_manager_is_script_evaluation() {
-        let manager = Arc::new(LuminaPluginManager::new());
+        let manager = Arc::new(PakemPluginManager::new());
 
         let source = r#"
         fungsi hitung_ongkir(berat, asal, tujuan) {
@@ -676,7 +676,7 @@ mod tests {
 
     #[test]
     fn test_plugin_manager_get_metrics() {
-        let manager = LuminaPluginManager::new();
+        let manager = PakemPluginManager::new();
         let wat = r#"
         (module
             (func (export "dummy") (param i32) (result i32)

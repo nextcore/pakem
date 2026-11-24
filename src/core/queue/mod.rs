@@ -100,7 +100,7 @@ impl QueueManager {
         Ok(Self {
             backend: QueueBackend::Redis {
                 client,
-                queue_key: "lumina_queue:default".to_string(),
+                queue_key: "pakem_queue:default".to_string(),
             },
         })
     }
@@ -222,7 +222,7 @@ impl QueueWorker {
                         if err_str.contains("doesn't exist") || err_str.contains("no such table") {
                             tracing::warn!(
                                 "⚠️  Tabel 'jobs' belum ada. Queue worker dinonaktifkan. \
-                                 Jalankan: ./lumina migrate untuk membuat tabel."
+                                 Jalankan: canting migrate untuk membuat tabel."
                             );
                             return; // Hentikan worker, tidak perlu loop
                         }
@@ -397,7 +397,7 @@ mod tests {
             let email = payload["data"]["to"].as_str()
                 .or_else(|| payload["to"].as_str())
                 .unwrap_or_default();
-            if email == "test@lumina.dev" {
+            if email == "test@pakem.dev" {
                 JOB_EXECUTED.store(true, Ordering::SeqCst);
                 Ok(())
             } else {
@@ -429,7 +429,7 @@ mod tests {
 
         // 3. Dispatch Job via Dispatchable trait
         let job = DummyEmailJob {
-            to: "test@lumina.dev".to_string(),
+            to: "test@pakem.dev".to_string(),
         };
         job.dispatch_queue(&queue).await.expect("Failed to dispatch job");
 
@@ -478,7 +478,7 @@ mod tests {
             lang,
             echo,
             socialite,
-            sandbox: Arc::new(crate::core::sandbox::LuminaPluginManager::new()),
+            sandbox: Arc::new(crate::core::sandbox::PakemPluginManager::new()),
         });
 
         let processed = worker.process_next_job(state).await.expect("Worker error");

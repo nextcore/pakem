@@ -17,7 +17,7 @@ pub struct AuditLog {
     pub created_at: Option<String>,
 }
 
-/// Facade & Builder untuk Audit Trail Logging Lumina Framework
+/// Facade & Builder untuk Audit Trail Logging Pakem Framework
 pub struct Audit;
 
 impl Audit {
