@@ -19,7 +19,6 @@ impl Introspector {
                     "SELECT name FROM sqlite_master WHERE type='table' \
                      AND name NOT LIKE 'sqlite_%' \
                      AND name NOT LIKE '_pakem_%' \
-                     AND name NOT LIKE '_lumina_%' \
                      ORDER BY name"
                 )
                 .fetch_all(&self.pool)
@@ -36,7 +35,6 @@ impl Introspector {
                      WHERE table_schema = 'public' \
                      AND table_type = 'BASE TABLE' \
                      AND table_name NOT LIKE '_pakem_%' \
-                     AND table_name NOT LIKE '_lumina_%' \
                      ORDER BY table_name"
                 )
                 .fetch_all(&self.pool)
@@ -53,7 +51,6 @@ impl Introspector {
                      WHERE table_schema = DATABASE() \
                      AND table_type = 'BASE TABLE' \
                      AND table_name NOT LIKE '_pakem_%' \
-                     AND table_name NOT LIKE '_lumina_%' \
                      ORDER BY table_name"
                 )
                 .fetch_all(&self.pool)

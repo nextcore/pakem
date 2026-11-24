@@ -62,16 +62,6 @@ pub async fn run_migrations(pool: &Pool<Any>, kind: DatabaseKind) -> Result<(), 
     .await
     .unwrap_or_default();
 
-    // Ambil riwayat lama dari _lumina_migrations jika ada
-    if let Ok(lumina_applied) = sqlx::query_scalar::<_, String>("SELECT migration_name FROM _lumina_migrations").fetch_all(pool).await {
-        for leg in &lumina_applied {
-            if !applied_migrations.contains(leg) {
-                let ins = if kind == DatabaseKind::Postgres { "INSERT INTO _pakem_migrations (migration_name, batch) VALUES ($1, 1)" } else if kind == DatabaseKind::Mssql { "INSERT INTO _pakem_migrations (migration_name, batch) VALUES (@p1, 1)" } else { "INSERT INTO _pakem_migrations (migration_name, batch) VALUES (?, 1)" };
-                let _ = sqlx::query(ins).bind(leg).execute(pool).await;
-                applied_migrations.push(leg.clone());
-            }
-        }
-    }
     // Migrasikan riwayat lama jika ada
     for leg in &legacy_applied {
         if !applied_migrations.contains(leg) {

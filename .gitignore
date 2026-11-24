@@ -41,7 +41,6 @@ storage/app/public/uploads/*
 !storage/app/public/uploads/.gitkeep
 storage/app/private/*
 !storage/app/private/.gitkeep
-.lumina_tinker_history
 .pakem_tinker_history
 *.log
 

@@ -10,9 +10,6 @@ use tower_sessions::Session;
 /// Menggantikan `Result<impl IntoResponse, AppError>` menjadi hanya `PakemResult`.
 pub type PakemResult<T = axum::response::Response> = std::result::Result<T, AppError>;
 
-/// Alias kompatibilitas balik untuk LuminaResult
-pub type LuminaResult<T = axum::response::Response> = PakemResult<T>;
-
 /// Alias alternatif untuk PakemResult.
 pub type HttpResult<T = axum::response::Response> = PakemResult<T>;
 

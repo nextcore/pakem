@@ -252,9 +252,6 @@ pub struct PakemPluginManager {
     metrics: Arc<PluginMetricsTracker>,
 }
 
-/// Alias kompatibilitas balik untuk LuminaPluginManager
-pub type LuminaPluginManager = PakemPluginManager;
-
 impl Default for PakemPluginManager {
     fn default() -> Self {
         Self::new()

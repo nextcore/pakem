@@ -102,7 +102,7 @@ fn is_pakem_project() -> bool {
         return false;
     }
     if let Ok(content) = fs::read_to_string(cargo_path) {
-        return content.contains("pakem") || content.contains("lumina");
+        return content.contains("pakem");
     }
     false
 }

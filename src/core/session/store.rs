@@ -14,9 +14,6 @@ pub enum PakemSessionStore {
     Postgres(tower_sessions_sqlx_store::PostgresStore),
 }
 
-/// Alias kompatibilitas balik untuk LuminaSessionStore
-pub type LuminaSessionStore = PakemSessionStore;
-
 #[async_trait]
 impl SessionStore for PakemSessionStore {
     async fn create(&self, record: &mut Record) -> session_store::Result<()> {

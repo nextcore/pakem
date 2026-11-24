@@ -154,16 +154,7 @@ pub async fn get_applied_migrations(pool: &AnyPool) -> Result<Vec<(String, i32, 
         }
     }
 
-    // 2. Cek kompatibilitas balik dengan _lumina_migrations jika ada
-    if let Ok(lumina_rows) = sqlx::query("SELECT migration_name, batch, CAST(applied_at AS TEXT) as applied_at FROM _lumina_migrations ORDER BY id ASC").fetch_all(pool).await {
-        for row in lumina_rows {
-            let name: String = row.try_get("migration_name").unwrap_or_default();
-            if !results.iter().any(|(n, _, _)| n == &name) {
-                results.push((name, row.try_get("batch").unwrap_or(1), row.try_get("applied_at").unwrap_or_default()));
-            }
-        }
-    }
-    // 3. Cek kompatibilitas balik dengan _app_migrations jika ada
+    // 2. Cek kompatibilitas balik dengan _app_migrations jika ada
     let legacy_rows = sqlx::query("SELECT migration_name, CAST(applied_at AS TEXT) as applied_at FROM _app_migrations ORDER BY id ASC")
         .fetch_all(pool)
         .await;

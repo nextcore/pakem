@@ -18,7 +18,6 @@ use crate::registry::LiveRegistry;
 use crate::snapshot::{LiveSnapshot, SnapshotManager};
 
 pub const PAKEM_LIVE_JS: &str = include_str!("assets/pakem-live.js");
-pub const LUMINA_LIVE_JS: &str = PAKEM_LIVE_JS;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LiveCallRequest {

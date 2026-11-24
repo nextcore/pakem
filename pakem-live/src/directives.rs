@@ -12,7 +12,6 @@ pub fn register_live_directives() {
 
     pakem::core::blade::register_global_directive("kilatScripts", script_handler);
     pakem::core::blade::register_global_directive("pakemLive", script_handler);
-    pakem::core::blade::register_global_directive("luminaLive", script_handler);
     pakem::core::blade::register_global_directive("livewireScripts", script_handler);
 
     // 2. Component renderer: @kilat('name', args), @live('name', args), @livewire('name', args)
