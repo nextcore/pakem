@@ -347,6 +347,9 @@ pub trait Model:
     where
         R: Model,
     {
+        if foreign_key_id <= 0 {
+            return Err(sqlx::Error::RowNotFound);
+        }
         R::find(pool, foreign_key_id).await
     }
 
@@ -391,6 +394,35 @@ pub trait Model:
 //  HUMAN ELOQUENT RELATIONSHIP MACROS (Laravel-Style Declarations)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// Trait untuk konversi foreign key id (baik i64 maupun Option<i64>) secara otomatis.
+pub trait IntoForeignKey {
+    fn into_fk(self) -> i64;
+}
+
+impl IntoForeignKey for i64 {
+    fn into_fk(self) -> i64 {
+        self
+    }
+}
+
+impl IntoForeignKey for Option<i64> {
+    fn into_fk(self) -> i64 {
+        self.unwrap_or(0)
+    }
+}
+
+impl IntoForeignKey for i32 {
+    fn into_fk(self) -> i64 {
+        self as i64
+    }
+}
+
+impl IntoForeignKey for Option<i32> {
+    fn into_fk(self) -> i64 {
+        self.map(|v| v as i64).unwrap_or(0)
+    }
+}
+
 /// Macro deklarasi relasi Belongs To (N to 1) bergaya Laravel.
 ///
 /// # Contoh Penggunaan:
@@ -404,12 +436,16 @@ pub trait Model:
 macro_rules! belongs_to {
     ($fn_name:ident : $related:ident, $fk:ident) => {
         pub async fn $fn_name(&self, db: &$crate::database::connection::DatabasePool) -> $crate::database::orm::OrmResult<$related> {
-            self.belongs_to(db, self.$fk).await
+            #[allow(unused_imports)]
+            use $crate::database::model::IntoForeignKey;
+            self.belongs_to(db, self.$fk.into_fk()).await
         }
     };
     ($fn_name:ident : $related:ident) => {
         pub async fn $fn_name(&self, db: &$crate::database::connection::DatabasePool) -> $crate::database::orm::OrmResult<$related> {
-            self.belongs_to(db, self.user_id).await
+            #[allow(unused_imports)]
+            use $crate::database::model::IntoForeignKey;
+            self.belongs_to(db, self.user_id.into_fk()).await
         }
     };
 }

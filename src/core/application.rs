@@ -232,10 +232,19 @@ impl Application {
             )
             .nest_service("/js", ServeDir::new("resources/js"))
             .nest_service("/images", ServeDir::new("resources/images"))
+            .nest_service("/img", ServeDir::new("public/img"))
+            .nest_service("/assets", ServeDir::new("public/assets"))
+            .nest_service("/fonts", ServeDir::new("public/fonts"))
+            .nest_service("/lib", ServeDir::new("public/lib"))
+            .nest_service("/sound", ServeDir::new("public/sound"))
             .nest_service(
                 "/storage",
                 tower_http::services::ServeDir::new("storage/app/public"),
             );
+
+        if std::path::Path::new("public").exists() {
+            axum_app = axum_app.fallback_service(ServeDir::new("public"));
+        }
 
         for extra in self.extra_routers.clone() {
             axum_app = axum_app.merge(extra);
