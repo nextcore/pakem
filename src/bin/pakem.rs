@@ -116,6 +116,17 @@ enum Commands {
     /// Generate Supervisor configuration
     #[command(name = "make:supervisor")]
     MakeSupervisor,
+    /// Set the application encryption key (APP_KEY)
+    #[command(name = "key:generate")]
+    KeyGenerate {
+        /// Display the key instead of modifying files
+        #[arg(long)]
+        show: bool,
+
+        /// Force the operation to run when in production
+        #[arg(long)]
+        force: bool,
+    },
     /// Run full backup (Database & Storage)
     #[command(name = "backup:run")]
     BackupRun,
@@ -234,6 +245,9 @@ async fn main() {
         }
         Commands::BackupRun => {
             cli::handle_backup().await;
+        }
+        Commands::KeyGenerate { show, force } => {
+            cli::handle_key_generate(show, force);
         }
         Commands::Serve => {
             println!("🚀 Starting Pakem Server...");

@@ -13,6 +13,7 @@ mod tinker;
 mod ai_context;
 mod desktop;
 mod cloner;
+mod key_generator;
 
 #[derive(Parser)]
 #[command(
@@ -183,6 +184,30 @@ enum Commands {
     // ─── Security & Auditing ──────────────────────────────────────────────────
     /// Run Pakem Shield to audit security, secrets, and environment configuration
     Audit,
+
+    /// Set the application encryption key (APP_KEY)
+    #[command(name = "key:generate", alias = "key-generate")]
+    KeyGenerate {
+        /// Display the key instead of modifying files
+        #[arg(long)]
+        show: bool,
+
+        /// Force the operation to run when in production
+        #[arg(long)]
+        force: bool,
+
+        /// Custom path to environment file (default: .env)
+        #[arg(long, default_value = ".env")]
+        env: String,
+
+        /// Cipher format: base64 (default) or hex
+        #[arg(long, default_value = "base64")]
+        cipher: String,
+
+        /// Also generate and set a fresh JWT_SECRET
+        #[arg(long)]
+        jwt: bool,
+    },
 
     // ─── Database ─────────────────────────────────────────────────────────────
     /// Run all pending database migrations
@@ -505,6 +530,12 @@ fn main() {
         }
         Commands::Audit => {
             audit::run_audit();
+        }
+        Commands::KeyGenerate { show, force, env, cipher, jwt } => {
+            if let Err(e) = key_generator::run_key_generate(show, force, &env, &cipher, jwt) {
+                eprintln!("{} {}", "✖ [ERROR]".red().bold(), e);
+                std::process::exit(1);
+            }
         }
         Commands::Migrate => {
             tokio::runtime::Runtime::new()

@@ -237,7 +237,12 @@ BLADE_MINIFY_HTML=false
         env_db_block
     );
     fs::write(base.join(".env.example"), &env_example).ok();
-    fs::write(base.join(".env"), &env_example).ok();
+    let generated_app_key = crate::key_generator::generate_key_string("base64");
+    let env_actual = env_example.replace(
+        "APP_KEY=pakem-super-secret-key-change-me-in-production",
+        &format!("APP_KEY={}", generated_app_key),
+    );
+    fs::write(base.join(".env"), &env_actual).ok();
 
     if db_normalized == "sqlite" || db_normalized == "all" {
         fs::write(base.join("database.sqlite"), "").ok();
