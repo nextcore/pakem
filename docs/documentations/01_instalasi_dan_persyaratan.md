@@ -162,6 +162,24 @@ RATE_LIMIT_MAX=60
 RATE_LIMIT_WINDOW=60
 ```
 
+### 5.1 Menghasilkan Kunci Aplikasi (`canting key:generate`)
+
+Kunci aplikasi (`APP_KEY`) bertugas mengamankan cookie terenkripsi, sesi pengguna, token HMAC, dan snapshot state reaktif. Setiap kali membuat proyek baru atau mengkloning repositori, pastikan kunci aplikasi telah digenerate:
+
+```bash
+# Menghasilkan dan menyimpan APP_KEY acak 256-bit langsung ke file .env
+canting key:generate
+
+# Menampilkan key ke terminal tanpa memodifikasi file .env
+canting key:generate --show
+
+# Memperbarui APP_KEY sekaligus JWT_SECRET
+canting key:generate --jwt
+```
+
+> [!IMPORTANT]
+> Saat berada di lingkungan produksi (`APP_ENV=production`), `canting key:generate` otomatis meminta konfirmasi atau flag `--force` untuk mencegah kerusakan dekripsi data sesi dan token pengguna yang sedang aktif.
+
 ---
 
 ## 6. Menjalankan Server Aplikasi

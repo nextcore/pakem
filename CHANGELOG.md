@@ -4,6 +4,29 @@ Semua perubahan penting pada proyek **Pakem Framework** didokumentasikan di dala
 
 Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) dan mengikuti standar [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-11-26
+
+### 🔑 Application Key Generator (`canting key:generate`)
+- **CLI Security Tooling**:
+  - Perintah baru `canting key:generate` (dan `pakem key:generate`) untuk menghasilkan kunci enkripsi aplikasi 256-bit (CSPRNG) berstandar industri.
+  - Format output standar Laravel: `base64:<32-byte-base64>` dan opsi `--cipher hex`.
+  - **Flag Fleksibel**:
+    - `--show`: Menampilkan kunci enkripsi ke terminal stdout tanpa memodifikasi berkas.
+    - `--force`: Guard proteksi jika lingkungan terdeteksi produksi (`APP_ENV=production` atau `APP_ENV=prod`).
+    - `--env <path>`: Menargetkan berkas environment kustom (default: `.env`).
+    - `--jwt`: Sekaligus membangkitkan dan menyelaraskan `JWT_SECRET` acak baru.
+  - **Auto-Generate pada Scaffolding Baru**: Perintah `canting new <nama>` otomatis menyertakan `APP_KEY` unik segar pada berkas `.env` yang dibangkitkan.
+
+### 🛡️ Clean Total Rebranding & Architecture Hardening
+- **Pembersihan Bersih Total Identitas Warisan**:
+  - Menghapus tuntas seluruh string, alias backward-compatibility, dan fallback migrasi lama di seluruh berkas framework (114+ file) sehingga bersih 100% menjadi namespace murni Pakem Framework.
+  - Pembaruan dependensi crates.io yang di-yank: `clipboard-win` (5.4.3), `spin` (0.9.9), `wasmi` (2.0.2), dan `wasmi_core` (2.0.2).
+
+### ⏳ Interactive Rate Limit Queue Interface
+- **Enhanced Browser UX**: Tampilan antrean penundaan request HTML responsif dengan visualisasi progress circular ring countdown otomatis sebelum reload.
+
+---
+
 ## [1.0.3] - 2026-11-24
 
 ### 🛡️ Production Template Shield & Anti-Inspection
