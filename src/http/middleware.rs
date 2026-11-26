@@ -333,8 +333,9 @@ pub async fn permission_required(req: Request, next: Next, permission: &str) -> 
 
 // ─── Production Hardening ──────────────────────────────────────────────────────
 
-/// Middleware untuk menambahkan Security Headers standar industri.
+/// Middleware untuk menambahkan Security Headers dan Caching Headers standar industri.
 pub async fn security_headers(req: Request, next: Next) -> Response {
+    let path = req.uri().path().to_string();
     let mut response = next.run(req).await;
     let headers = response.headers_mut();
 
@@ -349,6 +350,36 @@ pub async fn security_headers(req: Request, next: Next) -> Response {
         "Referrer-Policy",
         "strict-origin-when-cross-origin".parse().unwrap(),
     );
+
+    if path.starts_with("/.well-known/") || path == "/llms.txt" {
+        headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
+    }
+
+    // Cache-Control 1 tahun untuk static assets (Lighthouse: Use efficient cache lifetimes)
+    if path.starts_with("/assets/")
+        || path.starts_with("/img/")
+        || path.starts_with("/fonts/")
+        || path.starts_with("/lib/")
+        || path.starts_with("/sound/")
+        || path.ends_with(".css")
+        || path.ends_with(".js")
+        || path.ends_with(".woff2")
+        || path.ends_with(".woff")
+        || path.ends_with(".ttf")
+        || path.ends_with(".webp")
+        || path.ends_with(".avif")
+        || path.ends_with(".png")
+        || path.ends_with(".jpg")
+        || path.ends_with(".jpeg")
+        || path.ends_with(".svg")
+        || path.ends_with(".ico")
+        || path.ends_with(".webmanifest")
+    {
+        headers.insert(
+            axum::http::header::CACHE_CONTROL,
+            "public, max-age=31536000, immutable".parse().unwrap(),
+        );
+    }
 
     response
 }

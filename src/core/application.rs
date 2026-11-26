@@ -254,6 +254,7 @@ impl Application {
             // .fallback(ErrorController::not_found)
             .with_state(state.clone())
             // ── Middleware dasar (urutan: dari luar ke dalam) ──────────────
+            .layer(tower_http::compression::CompressionLayer::new())
             .layer(from_fn(security_headers))
             .layer(from_fn_with_state(
                 state.clone(),
