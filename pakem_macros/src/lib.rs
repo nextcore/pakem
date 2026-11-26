@@ -207,7 +207,23 @@ pub fn pakem_model_derive(input: TokenStream) -> TokenStream {
 
             if lower == "information" {
                 format!("NULL as {}", n)
-            } else if lower == "content" || lower == "body" || lower == "details" || lower == "description" {
+            } else if lower == "content"
+                || lower == "body"
+                || lower == "details"
+                || lower == "description"
+                || lower == "html_embed"
+                || lower == "ulasan"
+                || lower == "balasan_admin"
+                || lower == "embed"
+                || lower == "komentar"
+                || lower == "catatan"
+                || lower == "notes"
+                || lower == "message"
+                || lower == "alamat"
+                || lower == "address"
+                || lower == "excerpt"
+                || lower == "summary"
+            {
                 format!("LEFT({}, 16383) as {}", n, n)
             } else if (lower.starts_with("is_") || lower.starts_with("has_")) && is_int_or_bool {
                 format!("CAST({} AS SIGNED) as {}", n, n)
