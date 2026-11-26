@@ -226,6 +226,12 @@ BROADCAST_DRIVER=log
 # Session Configuration
 JWT_SECRET=pakem-jwt-secret-key-change-me-in-production
 
+# ─── PRODUCTION TEMPLATE SHIELD & MINIFICATION ───────────────────────────────
+# Proteksi Anti-Inspect Element, Anti-DevTools, Anti-Copas, dan Minifikasi HTML
+# Otomatis aktif saat APP_ENV=production, atau paksa aktif dengan nilai true:
+BLADE_PRODUCTION_SHIELD=false
+BLADE_MINIFY_HTML=false
+
 # ──────────────────────────────────────────────────────────────────────────────
 "#,
         env_db_block
