@@ -39,7 +39,7 @@ pub mod prelude {
     pub use axum::Form;
     pub use crate::core::blade::BladeContext as Context;
     pub use crate::core::error::{AppError, OptionExt};
-    pub use crate::core::request::{HttpResult, PakemResult, Request};
+    pub use crate::core::request::{AppSession, ExtractDb, HttpResult, OptionalUser, PakemResult, Request, RequestLike};
     pub use crate::core::response::ApiResponse;
     pub use crate::core::validation::{ValidatedForm, ValidatedJson};
     pub use crate::core::view::View;

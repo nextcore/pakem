@@ -28,6 +28,20 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
 - **Pembaruan `canting` CLI**: Menambahkan perintah `canting update` (ringkasan diff paket ala Composer, `--dry-run`, `--pakem-only`) dan menyempurnakan `canting upgrade` dengan UI streaming progress interaktif.
 - **Pembaruan Starter `pakem`**: Memasang logo resmi SVG Canting, memperbarui copywriting bernuansa batik Pekalongan pada halaman welcome, serta menyelaraskan versi `1.0.5` / `Rust 2024` / `Axum 0.8`.
 
+### 🛡️ Keamanan, Transparansi & Ergonomi Core (Phase 1–3)
+- **Auth & Security Policy**:
+  - Menambahkan [SECURITY.md](./SECURITY.md) untuk jalur pelaporan kerentanan (*responsible disclosure*).
+  - Menggunakan pembandingan constant-time (`subtle::ConstantTimeEq`) pada verifikasi legacy SHA-1 & MD5 di `LegacyAuthAdapter`, serta menambahkan flag `AUTH_ALLOW_LEGACY_WEAK_HASH=false` untuk menonaktifkan hash lemah pasca-migrasi.
+  - Memperjelas dokumentasi bahwa keamanan password bertumpu pada **Bcrypt (Cost 12) + HMAC-SHA256 Pepper (`APP_KEY`)**, dengan Sandi A-N sebagai pre-encoding opsional.
+- **Hardening `/telescope` & Sandbox WASM / `.is`**:
+  - `/pakem/telescope` kini nonaktif secara default saat `APP_ENV=production|prod` (kecuali `TELESCOPE_ENABLED=true`) dan meredaksi field/query sensitif (`password`, `token`, `secret`, `api_key`, `authorization`, `cookie`).
+  - Menambahkan batas `wasmi` fuel (`1_000_000`) & memori (`16 MiB`) pada sandbox WASM, serta batas kedalaman rekursi (`64`) dan timeout (`500ms`) pada interpreter `.is`.
+  - Menambahkan workflow CI [.github/workflows/ci.yml](.github/workflows/ci.yml) (`cargo check`, `cargo clippy -- -D warnings`, security tests, dan `cargo audit`).
+- **Modularitas Feature Flags, Typed Extractors & Escape Hatch**:
+  - Menambahkan taksonomi feature flags (`queue`, `echo`, `scheduler`, `wasm`, `is-engine`) dan tabel status modul (`Stable` vs `Experimental`) di `README.md`.
+  - Menambahkan extractor ringan (`ExtractDb`, `AppSession`, `OptionalUser`) dan trait `RequestLike` di samping `Request`.
+  - Menambahkan `DatabasePool::raw_pool()` sebagai escape hatch ke `sqlx::Pool<Any>` mentah.
+
 ---
 
 ## [1.0.4] - 2026-11-26

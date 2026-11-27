@@ -27,6 +27,11 @@ pub struct DatabasePool {
 pub type Db = DatabasePool;
 
 impl DatabasePool {
+    /// Escape hatch ke `sqlx::Pool<Any>` mentah untuk query kustom yang membutuhkan kontrol penuh.
+    pub fn raw_pool(&self) -> &Pool<Any> {
+        &self.pool
+    }
+
     /// Buat koneksi pool baru dari `database_url`.
     pub async fn connect(database_url: &str) -> Result<Self, sqlx::Error> {
         sqlx::any::install_default_drivers();

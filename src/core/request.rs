@@ -13,6 +13,72 @@ pub type PakemResult<T = axum::response::Response> = std::result::Result<T, AppE
 /// Alias alternatif untuk PakemResult.
 pub type HttpResult<T = axum::response::Response> = PakemResult<T>;
 
+/// Trait abstraksi request agar logika aplikasi/service mudah di-mock saat unit testing.
+pub trait RequestLike: Send + Sync {
+    fn db(&self) -> &crate::database::connection::DatabasePool;
+    fn current_user(&self) -> Option<&AuthUser>;
+    fn header_str(&self, name: &str) -> Option<&str>;
+}
+
+/// Extractor bertipe ringan untuk mengambil `DatabasePool` tanpa overhead ekstraksi Session/CSRF.
+#[derive(Clone)]
+pub struct ExtractDb(pub crate::database::connection::DatabasePool);
+
+impl<S> FromRequestParts<S> for ExtractDb
+where
+    AppState: axum::extract::FromRef<S>,
+    S: Send + Sync,
+{
+    type Rejection = crate::core::error::AppError;
+
+    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let app_state = AppState::from_ref(state);
+        Ok(Self(app_state.db().clone()))
+    }
+}
+
+/// Extractor bertipe ringan untuk mengambil `Session` tanpa mengekstrak CSRF/User.
+#[derive(Clone)]
+pub struct AppSession(pub Session);
+
+impl<S> FromRequestParts<S> for AppSession
+where
+    S: Send + Sync,
+{
+    type Rejection = crate::core::error::AppError;
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        let session = parts
+            .extensions
+            .get::<Session>()
+            .cloned()
+            .ok_or(crate::core::error::AppError::InternalServerError)?;
+        Ok(Self(session))
+    }
+}
+
+/// Extractor bertipe ringan untuk mengambil `Option<AuthUser>` tanpa membundel seluruh `Request`.
+#[derive(Clone)]
+pub struct OptionalUser(pub Option<AuthUser>);
+
+impl<S> FromRequestParts<S> for OptionalUser
+where
+    S: Send + Sync,
+{
+    type Rejection = crate::core::error::AppError;
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        if let Some(user) = parts.extensions.get::<AuthUser>().cloned() {
+            return Ok(Self(Some(user)));
+        }
+        if let Some(session) = parts.extensions.get::<Session>() {
+            let user = session.get::<AuthUser>("user").await.unwrap_or_default();
+            return Ok(Self(user));
+        }
+        Ok(Self(None))
+    }
+}
+
 /// Request — Bundle Extractor untuk menyederhanakan Dependency Injection.
 /// Menyediakan akses cepat ke State, Session, CSRF, Path Params, Query Params, dan Helper Response dalam satu parameter.
 pub struct Request {
@@ -79,6 +145,20 @@ where
 }
 
 use axum::extract::FromRef;
+
+impl RequestLike for Request {
+    fn db(&self) -> &crate::database::connection::DatabasePool {
+        self.db()
+    }
+
+    fn current_user(&self) -> Option<&AuthUser> {
+        self.user.as_ref()
+    }
+
+    fn header_str(&self, name: &str) -> Option<&str> {
+        self.headers.get(name).and_then(|v| v.to_str().ok())
+    }
+}
 
 impl Request {
 

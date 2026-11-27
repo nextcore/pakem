@@ -52,7 +52,8 @@ Rust terkenal dengan kecepatan ekstrem dan keamanannya, namun sering kali memili
 - 🏭 **Model Factory & Faker Engine** — Generator data tiruan (*mock / seeding*) berkecepatan tinggi dengan lokalisasi Indonesia & internasional serta chaining fluen ala Laravel (`User::factory().count(100).create(db).await`).
 - 🔄 **Universal Multi-Database Layer** — Dukungan langsung untuk **PostgreSQL**, **MySQL**, **SQLite**, dan **Microsoft SQL Server (MSSQL)** dengan pure-Rust TDS driver (Tiberius), auto-migration runner, serta generator database flag di CLI (`--db`).
 - 🪄 **Canting CLI (`canting`)** — Buat project baru dengan preset database, controller, model, factory (`make:factory`), audit keamanan (`audit`), autentikasi instan (`make:auth`), plugin WASM, dan modul CRUD lengkap (`make:crud`).
-- 📦 **The Unified `Request` Extractor** — Cukup panggil `req: Request` untuk mengakses Database Pool, Session, CSRF Token, Auth User, Flash Messages, dan View Renderer.
+- 📦 **The Unified `Request` & Typed Extractors** — Gunakan `req: Request` untuk ergonomi penuh, atau extractor ringan idiomatik (`ExtractDb`, `OptionalUser`, `AppSession`) dan trait `RequestLike` untuk unit testing tanpa overhead ekstraksi yang tidak terpakai.
+- 🗄️ **Raw `sqlx` Escape Hatch** — Selain `PakemModel` ORM, `DatabasePool` menyediakan akses langsung ke `db.raw_pool()`, `db.pg()`, `db.sqlite()`, dan `db.mysql()` untuk query SQLx native ber-type-safety penuh.
 - 🛡️ **Pakem Shield Security Scanner (`canting audit`)** — Audit otomatis postur keamanan aplikasi (kekuatan secret, mode debug di produksi, proteksi CSRF form, storage hardening) dengan security scoreboard dan saran perbaikan.
 - 🔐 **Dual Auth Suite** — Autentikasi berbasis **Session** untuk web serta **JWT Bearer Token** untuk API.
 - 🎭 **Pure Native Blade Engine** — Template engine independen berkecepatan tinggi tanpa runtime eksternal. Mendukung direktif familiar (`@extends`, `@section`, `@if`, `@foreach`, `@csrf`), pipeline filter (`| rupiah`, `| uppercase`), dan render bebas tanda `&`.
@@ -399,6 +400,18 @@ my_app/
     ├── app/public/             ← File upload publik
     └── cache/                  ← Cache file lokal
 ```
+
+---
+
+## 🧩 Status Modul & Feature Flags
+
+| Modul / Crate | Feature Flag | Status | Catatan |
+| :--- | :--- | :---: | :--- |
+| Core Router, `Request`, Typed Extractors (`ExtractDb`, `OptionalUser`, `AppSession`) | *(Core)* | `Stable` | Di atas Tokio + Axum 0.8 |
+| `pakem-blade` & `pakem-macros` | *(Core)* | `Stable` | Engine template & derive ORM |
+| Multi-DB Pool (`sqlite`, `postgres`, `mysql`, `mssql`) | `sqlite`, `postgres`, `mysql`, `mssql` | `Stable` | Escape hatch `raw_pool()`, `pg()`, `sqlite()`, `mysql()` |
+| Queue, Scheduler, Echo WebSocket | `queue`, `scheduler`, `echo` | `Stable` | Default single-node; driver `redis` opsional |
+| WASM Sandbox & Indonesian Script (`.is`) | `wasm`, `is-engine` | `Experimental` | Dibatasi fuel/memori/timeout; jangan untuk input user mentah |
 
 ---
 
