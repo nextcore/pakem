@@ -217,7 +217,7 @@ Bagi seluruh AI Agent dan developer manusia, **WAJIB** mematuhi protokol berikut
    - `pakem-blade/CHANGELOG.md` untuk perubahan pada engine template Blade.
    - `canting/CHANGELOG.md` untuk penambahan/perubahan CLI commands, cloner, dan generator scaffolding.
    - `pakem-live/CHANGELOG.md` untuk perbaikan reactive state dan WebSocket engine.
-   - `pakem_macros/CHANGELOG.md` untuk procedural macros (`PakemModel`, validasi, routing macros).
+   - `pakem-macros/CHANGELOG.md` untuk procedural macros (`PakemModel`, validasi, routing macros).
    - `indonesian-script/CHANGELOG.md` untuk script compiler bahasa Indonesia.
    - `CHANGELOG.md` (root) khusus untuk perubahan orkestrasi framework inti `pakem`.
 

@@ -9,10 +9,10 @@ fn resolve_app_key() -> String {
         .unwrap_or_else(|_| "pakem-app-secret-pepper-key-2026".to_string())
 }
 
-/// Menghasilkan hash kata sandi berstandar Tri-Layer Pakem Framework:
-/// 1. Layer 0: Transformasi Hybrid Key-Dependent Sandi A-N Nusantara ($ank$)
-/// 2. Layer 1: HMAC-SHA256 Secret Pepper dengan APP_KEY
-/// 3. Layer 2: Bcrypt Slow Memory-Hard Hash (Cost: 12)
+/// Menghasilkan hash kata sandi berstandar Pakem Framework:
+/// 1. Layer 0 (Opsional / Obfuscation): Pre-encoding Sandi A-N Nusantara
+/// 2. Layer 1 (Kriptografi): HMAC-SHA256 Secret Pepper menggunakan APP_KEY
+/// 3. Layer 2 (Kriptografi): Bcrypt Slow Hash (Cost: 12)
 pub fn make(password: &str) -> String {
     let app_key = resolve_app_key();
     let sandi = SandiAN::encode_with_key(password, &app_key);

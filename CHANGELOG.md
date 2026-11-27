@@ -9,7 +9,7 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
 ### 🦀 Rust 2024 Edition & Axum 0.8 Upgrade
 - **Modernisasi Fondasi Inti (Pull Request #23 oleh @nextcore)**:
   - **Migrasi ke Rust 2024 Edition (`edition = "2024"`)**:
-    - Diterapkan pada root manifest serta seluruh workspace member (`canting`, `pakem-live`, `pakem_macros`, `indonesian-script`, `pakem-framework`).
+    - Diterapkan pada root manifest serta seluruh ekosistem crate (`canting`, `pakem-live`, `pakem-macros`, `indonesian-script`, `pakem`).
     - Penyesuaian aturan keselamatan Rust 2024 pada fungsi mutasi environment variable (`std::env::set_var` / `remove_var`) dengan membungkusnya dalam blok `unsafe` yang terdokumentasi.
   - **Web Engine & Middleware Modern (Axum 0.8 Stack)**:
     - Upgrade `axum` ke `0.8.9` (termasuk pada `pakem-live`).
@@ -21,6 +21,12 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
     - **WebSocket Messages**: Menyesuaikan payload `Message::Text` ke tipe data zero-copy `Utf8Bytes`.
     - **Service & Sync Bounds**: Menyelaraskan signature generic middleware pada `Router` dan `Application` agar mematuhi syarat `Sync + 'static` Axum 0.8.
     - **Backward Compatibility Rute**: Router Pakem otomatis menormalisasi sintaks parameter `:param` (gaya Express/Laravel) menjadi `{param}` (bawaan Axum 0.8) sehingga tidak memecahkan aplikasi yang sudah ada.
+
+### 📦 Dekoupling Ekosistem & Konsistensi Penamaan Crate
+- **Repositori Independen**: Memisahkan sub-crate dan starter kit menjadi repositori mandiri (`pakem-macros`, `pakem-blade`, `pakem-live`, `canting`, dan `pakem`) dengan dukungan pengembangan lokal via `.cargo/config.toml` (`[patch.crates-io]`).
+- **Konsistensi Nama Crate**: Mengganti nama package `pakem_macros` menjadi `pakem-macros` di crates.io agar seluruh ekosistem konsisten memakai tanda hubung (`-`).
+- **Pembaruan `canting` CLI**: Menambahkan perintah `canting update` (ringkasan diff paket ala Composer, `--dry-run`, `--pakem-only`) dan menyempurnakan `canting upgrade` dengan UI streaming progress interaktif.
+- **Pembaruan Starter `pakem`**: Memasang logo resmi SVG Canting, memperbarui copywriting bernuansa batik Pekalongan pada halaman welcome, serta menyelaraskan versi `1.0.5` / `Rust 2024` / `Axum 0.8`.
 
 ---
 

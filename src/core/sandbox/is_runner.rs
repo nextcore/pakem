@@ -2,7 +2,44 @@ use regex::Regex;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::path::Path;
+use std::time::{Duration, Instant};
 use crate::core::sandbox::SandboxError;
+
+const MAX_IS_RECURSION_DEPTH: usize = 64;
+const MAX_IS_TIMEOUT: Duration = Duration::from_millis(500);
+
+#[derive(Clone, Copy, Debug)]
+struct EvalBudget {
+    depth: usize,
+    deadline: Instant,
+}
+
+impl EvalBudget {
+    fn new() -> Self {
+        Self {
+            depth: 0,
+            deadline: Instant::now() + MAX_IS_TIMEOUT,
+        }
+    }
+
+    fn enter(&self) -> Result<Self, SandboxError> {
+        if Instant::now() > self.deadline {
+            return Err(SandboxError::Trap(
+                "Batas waktu eksekusi Indonesian Script (500ms) terlampaui".to_string(),
+            ));
+        }
+        if self.depth >= MAX_IS_RECURSION_DEPTH {
+            return Err(SandboxError::Trap(format!(
+                "Batas kedalaman blok/rekursi maksimum ({}) terlampaui",
+                MAX_IS_RECURSION_DEPTH
+            )));
+        }
+        Ok(Self {
+            depth: self.depth + 1,
+            deadline: self.deadline,
+        })
+    }
+}
 
 /// Representasi fungsi Indonesian Script yang siap dieksekusi di backend.
 #[derive(Clone, Debug)]
@@ -102,17 +139,32 @@ impl IsScriptRunner {
             scope.insert(param_name.clone(), val);
         }
 
-        // Eksekusi body fungsi
-        let res = self.eval_block(&func.body, &mut scope)?;
+        // Eksekusi body fungsi dengan budget kedalaman & timeout
+        let res = self.eval_block_guarded(&func.body, &mut scope, EvalBudget::new())?;
         Ok(res.unwrap_or(Value::Null))
     }
 
     /// Evaluasi sebuah blok kode yang berisi deretan statement
     pub fn eval_block(&self, code: &str, scope: &mut HashMap<String, Value>) -> Result<Option<Value>, SandboxError> {
+        self.eval_block_guarded(code, scope, EvalBudget::new())
+    }
+
+    fn eval_block_guarded(
+        &self,
+        code: &str,
+        scope: &mut HashMap<String, Value>,
+        budget: EvalBudget,
+    ) -> Result<Option<Value>, SandboxError> {
+        let next_budget = budget.enter()?;
         let mut idx = 0;
         let len = code.len();
 
         while idx < len {
+            if Instant::now() > next_budget.deadline {
+                return Err(SandboxError::Trap(
+                    "Batas waktu eksekusi Indonesian Script (500ms) terlampaui".to_string(),
+                ));
+            }
             // Lewati spasi dan newline
             while idx < len && code.as_bytes()[idx].is_ascii_whitespace() {
                 idx += 1;

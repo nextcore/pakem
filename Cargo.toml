@@ -15,7 +15,7 @@ name = "pakem"
 path = "src/lib.rs"
 
 [dependencies]
-pakem_macros = { version = "1.0.5" }
+pakem-macros = { version = "1.0.5" }
 pakem-blade = { version = "1.0.5" }
 indonesian-script = { version = "0.1.2" }
 tokio = { version = "1", features = ["full"] }

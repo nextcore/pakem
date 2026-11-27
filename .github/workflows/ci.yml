@@ -1,0 +1,47 @@
+name: Pakem Framework CI
+
+on:
+  push:
+    branches: ["1.x", "main"]
+  pull_request:
+    branches: ["1.x", "main"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check-and-test:
+    name: Check, Clippy & Security Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable + clippy
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Cargo Check
+        run: cargo check --all-targets
+
+      - name: Cargo Clippy (Strict)
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Run Core & Security Tests
+        run: |
+          cargo test --test legacy_auth_adapter_test
+          cargo test --test sandi_an_test
+          cargo test --test enterprise_security_test
+          cargo test --test custom_middleware_test
+          cargo test --test wasm_hot_reload_test
+
+  security-audit:
+    name: Cargo Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

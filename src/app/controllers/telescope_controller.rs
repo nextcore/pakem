@@ -1,9 +1,11 @@
 use axum::{
     extract::{State, Query},
-    response::Html,
+    http::StatusCode,
+    response::{Html, IntoResponse},
 };
 use crate::core::application::AppState;
 use crate::core::telescope::entry::EntryType;
+use crate::core::telescope::TelescopeManager;
 use crate::core::blade::BladeContext as Context;
 use serde::Deserialize;
 
@@ -19,7 +21,14 @@ impl TelescopeController {
     pub async fn index(
         State(state): State<AppState>,
         Query(query): Query<TelescopeQuery>,
-    ) -> Html<String> {
+    ) -> impl IntoResponse {
+        if !TelescopeManager::is_enabled() {
+            return (
+                StatusCode::NOT_FOUND,
+                Html("<h1>404 Not Found</h1><p>Telescope dinonaktifkan di lingkungan production.</p>".to_string()),
+            )
+                .into_response();
+        }
         let mut context = Context::new();
 
         let tag = query.tag.unwrap_or_else(|| "requests".to_string());
@@ -39,14 +48,17 @@ impl TelescopeController {
         context.insert("entries", &entries);
 
         let rendered = state.view.render("telescope/index.blade.rs", &context);
-        Html(rendered)
+        Html(rendered).into_response()
     }
 
     /// GET /pakem/telescope/entries (Partial for HTMX)
     pub async fn entries(
         State(state): State<AppState>,
         Query(query): Query<TelescopeQuery>,
-    ) -> Html<String> {
+    ) -> impl IntoResponse {
+        if !TelescopeManager::is_enabled() {
+            return (StatusCode::NOT_FOUND, Html(String::new())).into_response();
+        }
         let mut context = Context::new();
         let tag = query.tag.unwrap_or_else(|| "requests".to_string());
 
@@ -65,6 +77,6 @@ impl TelescopeController {
         context.insert("active_tag", &tag);
 
         let rendered = state.view.render("telescope/partials/entries.blade.rs", &context);
-        Html(rendered)
+        Html(rendered).into_response()
     }
 }

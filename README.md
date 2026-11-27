@@ -6,8 +6,10 @@
 
 <p align="center">
   <strong>A beautiful, ultra-fast, and elegant web framework for Rust.</strong><br>
-  <em>Look like Laravel, Run at Rust Speed. Menenun mahakarya perangkat lunak modern dengan ketelitian canting dan kekuatan pakem berkecepatan Rust.</em>
+  <em>Crafted with Canting Precision, Driven by the Raw Speed of Rust.</em>
 </p>
+
+> **English Summary:** **Pakem** is a batteries-included Rust web framework built on **Tokio** and **Axum 0.8**, bringing Laravel-inspired developer ergonomics (`PakemModel` ORM, `pakem-blade` templating, `canting` CLI, dual Session/JWT auth, queues, and WebSockets) to Rust 2024. See [pakem.my.id](https://pakem.my.id/) for full documentation and [SECURITY.md](./SECURITY.md) for vulnerability reporting.
 
 <p align="center">
   <a href="https://crates.io/crates/pakem"><img src="https://img.shields.io/crates/v/pakem.svg" alt="Crates.io Version"></a>
@@ -39,10 +41,10 @@ Rust terkenal dengan kecepatan ekstrem dan keamanannya, namun sering kali memili
   - `canting clone:ci <path>` — Modernisasi instan aplikasi CodeIgniter 3 & 4 ke arsitektur MVC Pakem.
   - `canting clone:api <spec>` — Scaffolding otomatis Rust Models & Axum handlers dari OpenAPI / Swagger JSON/YAML.
   - `canting clone:db <dsn>` — Reverse engineering skema database live (PostgreSQL, MySQL, SQLite, MSSQL) menjadi Model Pakem lengkap dengan relasi `has_many` dan `belongs_to`.
-- 🔐 **Tri-Layer Legacy Auth & Sandi A-N Hybrid** — Transisi login mulus dengan auto-rehash bertahap dari hash lawas (Laravel Bcrypt, CI3 SHA1, MD5) ke Argon2id berkeamanan tinggi dengan Layer-0 Sandi A-N Cucuk Canting Interleaving.
-- 🎨 **Pakem Aurora Starter Kit (`canting aurora:install`)** — Official starter kit autentikasi & dashboard elegan berbasis Pure Native Blade + Tailwind CSS. Zero JS runtime bloat, respons instan < 0.5ms dengan performa murni 60 FPS.
-- 🛡️ **Enterprise Security & Zero-Panic Net** — Proteksi crash global via `catch_unwind`, granular RBAC (`@can`, `@role`, `req.authorize()`), Anti Brute-Force lockout cache (Moka), constant-time comparison, header keamanan OWASP, dan Audit Trail ISO 27001.
-- 📖 **Portal Dokumentasi Resmi & Benchmark** — Tersedia 25 modul dokumentasi komprehensif dengan perbandingan performa terukur (Throughput 118.000+ RPS, latensi sub-milidetik, konsumsi RAM ~15-38MB) di [https://pakem.my.id/](https://pakem.my.id/).
+- 🔐 **Tri-Layer Legacy Auth & Migration** — Transisi login mulus dengan auto-rehash bertahap dari hash lawas (Laravel Bcrypt, CI3 SHA1, MD5) ke **Bcrypt (Cost 12) + HMAC-SHA256 Pepper (`APP_KEY`)**, dilengkapi pre-encoding opsional Sandi A-N serta flag `AUTH_ALLOW_LEGACY_WEAK_HASH=false` untuk menonaktifkan hash lemah pasca-migrasi.
+- 🎨 **Pakem Aurora Starter Kit (`canting aurora:install`)** — Official starter kit autentikasi & dashboard elegan berbasis Pure Native Blade + Tailwind CSS dengan rendering HTML server-side yang ringan.
+- 🛡️ **Enterprise Security & Panic Recovery** — Proteksi crash best-effort pada handler async via `catch_unwind` (bukan pengganti `Result`/`AppError`, tidak menangkap `panic=abort`/stack overflow), granular RBAC (`@can`, `@role`, `req.authorize()`), Anti Brute-Force lockout cache (Moka), constant-time comparison, header keamanan OWASP, dan audit log untuk membantu kontrol kepatuhan (seperti ISO 27001).
+- 📖 **Portal Dokumentasi Resmi** — Tersedia 25 modul dokumentasi komprehensif di [https://pakem.my.id/](https://pakem.my.id/).
 - ⚡ **Supercharged Tokio + Axum Core** — Performa HTTP async tinggi dengan konsumsi resource yang sangat hemat.
 - 🏗️ **Arsitektur MVC Lengkap** — Pembagian layer yang rapi: Controllers, Models, Services, Requests, Views, dan Providers.
 - 🗄️ **Human ORM & Macro-based Models** — Gunakan `#[derive(PakemModel)]` untuk mendapatkan fungsi CRUD otomatis, pagination (`LengthAwarePaginator`), eager loading, soft deletes, dan query builder lancar (*fluent*).
@@ -77,7 +79,7 @@ cargo install canting
 
 ### Atau Instalasi Langsung dari GitHub Resmi:
 ```bash
-cargo install --git https://github.com/pakem-rs/framework.git canting --force
+cargo install --git https://github.com/pakem-rs/canting.git --force
 ```
 
 > **Catatan:** Crate `canting` akan memasang executable binary `canting` secara global di sistem Anda.
@@ -88,9 +90,14 @@ canting --version
 canting --help
 ```
 
-### Upgrade Toolchain & Project Otomatis:
+### Upgrade Toolchain & Update Dependensi Proyek:
 ```bash
+# Memperbarui binary Canting CLI ke rilis terbaru
 canting upgrade
+
+# Memperbarui dependensi Cargo proyek (tampilan diff ala Composer)
+canting update
+canting update --pakem-only
 ```
 
 ---
@@ -159,7 +166,7 @@ DB_PASSWORD=secret
 DATABASE_URL=mysql://root:secret@127.0.0.1:3306/nama_db
 ```
 
-### 3. Menjalankan Server
+### 4. Menjalankan Server
 ```bash
 cd kontak_manager
 canting serve
@@ -177,7 +184,7 @@ Berikut adalah panduan langkah demi langkah implementasi CRUD Kontak Manager men
 ### 1. File Migrasi SQL (`database/migrations/20261016000002_create_contacts_table.sql`)
 ```sql
 CREATE TABLE IF NOT EXISTS contacts (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     phone VARCHAR(50) NOT NULL,
@@ -245,7 +252,6 @@ use crate::app::requests::contact_request::CreateContactRequest;
 pub struct ContactController;
 
 impl ContactController {
-    /// GET /api/contacts — Ambil seluruh daftar kontak
     /// GET /api/contacts — Ambil seluruh daftar kontak
     pub async fn api_index(req: Request) -> PakemResult {
         let contacts = Contact::all(req.db()).await?;
@@ -317,7 +323,7 @@ impl ContactController {
 }
 ```
 
-### 6. Pendaftaran Routes (`src/routes/api.rs`)
+### 5. Pendaftaran Routes (`src/routes/api.rs`)
 ```rust
 use pakem::prelude::*;
 use crate::app::controllers::contact_controller::ContactController;
@@ -357,6 +363,12 @@ pub fn router() -> Router<AppState> {
 | `canting make:docker` | Menghasilkan `Dockerfile` & `docker-compose.yml` multi-stage produksi |
 | `canting make:nginx` | Menghasilkan konfigurasi Nginx reverse proxy produksi |
 | `canting make:supervisor` | Menghasilkan konfigurasi Supervisor daemon |
+| `canting key:generate` | Menghasilkan `APP_KEY` 256-bit (CSPRNG) dan opsi `--jwt` |
+| `canting aurora:install` | Memasang starter kit autentikasi & dashboard **Pakem Aurora** |
+| `canting clone:laravel \| ci \| api \| db` | Mengkloning aplikasi Laravel, CI, OpenAPI, atau skema DB live ke Pakem |
+| `canting tinker` | Membuka REPL interaktif untuk mencoba query & model |
+| `canting update [--pakem-only]` | Memperbarui dependensi proyek dengan ringkasan diff ala Composer |
+| `canting upgrade` | Memperbarui binary `canting` CLI ke versi terbaru |
 
 ---
 
@@ -392,24 +404,39 @@ my_app/
 
 ## 📚 Dokumentasi Lengkap & Seri Tutorial
 
-Dokumentasi resmi Pakem Framework disusun secara berseri (*12 episode/modul*) yang terstruktur, komprehensif, dan mudah dipelajari:
+Dokumentasi resmi Pakem Framework tersedia secara lengkap dan terstruktur di portal resmi:
 
-👉 **[Buka Indeks Dokumentasi Utama (docs/documentations/README.md)](./docs/documentations/README.md)**
+👉 **[https://pakem.my.id/](https://pakem.my.id/)**
 
-| Episode | Modul Dokumentasi | Topik Utama |
-| :---: | :--- | :--- |
-| **01** | [**Persyaratan Sistem & Instalasi**](./docs/documentations/01_instalasi_dan_persyaratan.md) | Requirement Rust, CLI global, `canting new --db`, struktur folder MVC, `.env`, `canting serve`. |
-| **02** | [**Routing & Middleware**](./docs/documentations/02_routing_dan_middleware.md) | Rute HTTP, parameter URL, group & prefix, custom middleware, security headers, rate limiting, CSRF. |
-| **03** | [**Controller & Request Handling**](./docs/documentations/03_controller_dan_request.md) | `make:controller`, Dependency Injection, Form/JSON payload, `make:request` (validasi), file upload. |
-| **04** | [**Model & Eloquent ORM**](./docs/documentations/04_model_dan_eloquent_orm.md) | `make:model`, migrasi, `#[derive(PakemModel)]`, CRUD, Query Builder, pagination, relasi 1-baris. |
-| **05** | [**Blade Template Engine**](./docs/documentations/05_blade_template_engine.md) | Layout inheritance (`@extends`, `@section`), looping `@foreach`, pipeline filter `\| rupiah`, `@wasm`, `@eval_is`. |
-| **06** | [**WASM Sandbox & Plugin**](./docs/documentations/06_wasm_sandbox_dan_plugin.md) | Arsitektur WASM Native Hybrid (`wasmi 2.0`), fault isolation, `plugin:new`, `plugin:build`, ABI bridge. |
-| **07** | [**Indonesian Script (.is)**](./docs/documentations/07_indonesian_script.md) | Skrip backend natural (`fungsi`, `jika`, `selama`), built-in helpers, eksekusi di Controller & Blade. |
-| **08** | [**Autentikasi & Keamanan**](./docs/documentations/08_autentikasi_dan_keamanan.md) | `make:auth`, hashing Bcrypt, Dual Auth (Session Web + JWT API), RBAC (`can`), Blade `@auth`/`@guest`. |
-| **09** | [**Broadcasting & WebSocket (Echo)**](./docs/documentations/09_broadcasting_dan_websocket.md) | Server WebSocket, Public vs Private Channel, otorisasi JWT, event `ShouldBroadcast`, client JS. |
-| **10** | [**Queue, Jobs & Scheduler**](./docs/documentations/10_queue_jobs_dan_scheduler.md) | Background Jobs (`make:job`), dispatching asinkron, persistent queue database, cron scheduler. |
-| **11** | [**Observabilitas & Telescope**](./docs/documentations/11_observabilitas_dan_telescope.md) | Dasbor `/telescope`, request logger, query tracer, exception viewer, Tab Sandbox Metrics. |
-| **12** | [**Deployment & DevOps**](./docs/documentations/12_deployment_dan_devops.md) | Release build, Docker multi-stage (`make:docker`), Nginx (`make:nginx`), Supervisor (`make:supervisor`), backup. |
+---
+
+## 🧑‍💻 Cara Mengembangkan Lokal
+
+Untuk berkontribusi atau mengembangkan ekosistem Pakem Framework secara lokal, letakkan seluruh repositori dalam satu folder induk yang sama dengan berkas `.cargo/config.toml` di root induk tersebut:
+
+```text
+pakem-workspace/
+├── .cargo/
+│   └── config.toml      ← [patch.crates-io] mengarah ke folder lokal
+├── pakem-macros/        ← Procedural macros (PakemModel, pakem_form)
+├── pakem-blade/         ← Pure Native Blade template engine
+├── pakem-live/          ← Reactive component & WebSocket engine
+├── framework/           ← Core crate (`pakem`)
+├── canting/             ← CLI toolchain (`canting`)
+└── pakem/               ← Starter kit aplikasi (`pakem-app`)
+```
+
+Isi `.cargo/config.toml` di folder induk:
+
+```toml
+[patch.crates-io]
+pakem        = { path = "framework" }
+pakem-macros = { path = "pakem-macros" }
+pakem-blade  = { path = "pakem-blade" }
+pakem-live   = { path = "pakem-live" }
+```
+
+Dengan konfigurasi ini, `cargo check`, `cargo test`, dan `cargo run` di setiap sub-proyek akan otomatis memakai kode sumber lokal tanpa perlu mengubah `Cargo.toml` masing-masing crate.
 
 ---
 
@@ -436,6 +463,7 @@ cargo test --test production_features_test
 ## 📜 Dokumen Panduan & Riwayat Rilis
 
 - 🤖 **[AGENTS.md](./AGENTS.md)** — Pedoman arsitektur dan aturan baku penulisan kode (*Laravel-like elegance, Request bundle, dan clean architecture*) untuk AI Agent & developer.
+- 🔐 **[SECURITY.md](./SECURITY.md)** — Kebijakan pelaporan kerentanan keamanan (*responsible disclosure*) dan praktik terbaik produksi.
 - 📝 **[CHANGELOG.md](./CHANGELOG.md)** — Catatan riwayat rilis dan pembaruan fitur per versi framework.
 
 ---

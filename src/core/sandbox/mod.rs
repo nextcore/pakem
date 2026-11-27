@@ -2,7 +2,11 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
 use thiserror::Error;
-use wasmi::{Caller, Engine, Instance, Linker, Memory, Module, Store};
+use wasmi::{Caller, Config, Engine, Instance, Linker, Memory, Module, Store, StoreLimits, StoreLimitsBuilder};
+
+/// Batas default fuel (step eksekusi) dan memori (16 MiB) per instansiasi WASM.
+const DEFAULT_WASM_FUEL: u64 = 1_000_000;
+const MAX_WASM_MEMORY_BYTES: usize = 16 * 1024 * 1024;
 
 pub mod is_runner;
 pub mod metrics;
@@ -44,10 +48,23 @@ pub enum SandboxError {
 }
 
 /// Host state yang dapat diakses oleh fungsi host di dalam sandbox WASM.
-#[derive(Default, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct HostState {
     pub logs: Vec<(String, String)>,
     pub metadata: HashMap<String, String>,
+    pub limits: StoreLimits,
+}
+
+impl Default for HostState {
+    fn default() -> Self {
+        Self {
+            logs: Vec::new(),
+            metadata: HashMap::new(),
+            limits: StoreLimitsBuilder::new()
+                .memory_size(MAX_WASM_MEMORY_BYTES)
+                .build(),
+        }
+    }
 }
 
 /// Representasi plugin WebAssembly yang telah dikompilasi dan siap di-instansiasi.
@@ -59,9 +76,15 @@ pub struct WasmPlugin {
 }
 
 impl WasmPlugin {
+    fn sandboxed_engine() -> Engine {
+        let mut config = Config::default();
+        config.consume_fuel(true);
+        Engine::new(&config)
+    }
+
     /// Buat plugin dari WebAssembly Text format (WAT)
     pub fn from_wat(name: &str, wat: &str) -> Result<Self, SandboxError> {
-        let engine = Engine::default();
+        let engine = Self::sandboxed_engine();
         let module = Module::new(&engine, wat)
             .map_err(|e| SandboxError::CompilationError(e.to_string()))?;
         Ok(Self {
@@ -73,7 +96,7 @@ impl WasmPlugin {
 
     /// Buat plugin dari biner WebAssembly (.wasm bytes)
     pub fn from_bytes(name: &str, bytes: &[u8]) -> Result<Self, SandboxError> {
-        let engine = Engine::default();
+        let engine = Self::sandboxed_engine();
         let module = Module::new(&engine, bytes)
             .map_err(|e| SandboxError::CompilationError(e.to_string()))?;
         Ok(Self {
@@ -132,9 +155,13 @@ impl WasmPlugin {
         Ok(linker)
     }
 
-    /// Instansiasi plugin ke dalam Store dan environment eksekusi baru
+    /// Instansiasi plugin ke dalam Store dan environment eksekusi baru (dengan batas fuel & memori)
     pub fn instantiate(&self) -> Result<WasmInstance, SandboxError> {
         let mut store = Store::new(&self.engine, HostState::default());
+        store.limiter(|state| &mut state.limits);
+        store
+            .set_fuel(DEFAULT_WASM_FUEL)
+            .map_err(|e| SandboxError::InstantiationError(e.to_string()))?;
         let linker = Self::create_linker(&self.engine)?;
 
         let instance = linker

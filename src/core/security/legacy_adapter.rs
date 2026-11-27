@@ -1,8 +1,23 @@
 use super::sandi_an::SandiAN;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
+use subtle::ConstantTimeEq;
 
 type HmacSha256 = Hmac<Sha256>;
+
+fn allow_legacy_weak_hash() -> bool {
+    !matches!(
+        std::env::var("AUTH_ALLOW_LEGACY_WEAK_HASH").as_deref(),
+        Ok("false") | Ok("0") | Ok("no")
+    )
+}
+
+fn constant_time_hex_eq(stored_hash: &str, expected_lower_hex: &str) -> bool {
+    let normalized = stored_hash.to_ascii_lowercase();
+    let a = normalized.as_bytes();
+    let b = expected_lower_hex.as_bytes();
+    a.len() == b.len() && bool::from(a.ct_eq(b))
+}
 
 /// Format atau dialek asal hash password
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -87,16 +102,17 @@ impl LegacyAuthAdapter {
             return (true, true);
         }
 
-        // 3. Coba verifikasi CodeIgniter 3 (SHA-1)
-        let raw_sha1 = sha1_hash_simulated(raw_password.as_bytes());
-        if stored_hash.eq_ignore_ascii_case(&raw_sha1) {
-            return (true, true);
-        }
+        // 3 & 4. Legacy weak hashes (CodeIgniter 3 SHA-1 & MD5) — dapat dimatikan via AUTH_ALLOW_LEGACY_WEAK_HASH=false
+        if allow_legacy_weak_hash() {
+            let raw_sha1 = sha1_hash_simulated(raw_password.as_bytes());
+            if constant_time_hex_eq(stored_hash, &raw_sha1) {
+                return (true, true);
+            }
 
-        // 4. Coba verifikasi MD5 legacy (32 chars)
-        let raw_md5 = md5_hash_simulated(raw_password.as_bytes());
-        if stored_hash.eq_ignore_ascii_case(&raw_md5) {
-            return (true, true);
+            let raw_md5 = md5_hash_simulated(raw_password.as_bytes());
+            if constant_time_hex_eq(stored_hash, &raw_md5) {
+                return (true, true);
+            }
         }
 
         // Password salah
