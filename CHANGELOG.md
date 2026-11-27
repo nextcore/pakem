@@ -4,7 +4,7 @@ Semua perubahan penting pada proyek **Pakem Framework** didokumentasikan di dala
 
 Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) dan mengikuti standar [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.4] - 2026-11-27
+## [1.0.5] - 2026-11-27
 
 ### 🦀 Rust 2024 Edition & Axum 0.8 Upgrade
 - **Modernisasi Fondasi Inti (Pull Request #23 oleh @nextcore)**:
@@ -21,6 +21,10 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
     - **WebSocket Messages**: Menyesuaikan payload `Message::Text` ke tipe data zero-copy `Utf8Bytes`.
     - **Service & Sync Bounds**: Menyelaraskan signature generic middleware pada `Router` dan `Application` agar mematuhi syarat `Sync + 'static` Axum 0.8.
     - **Backward Compatibility Rute**: Router Pakem otomatis menormalisasi sintaks parameter `:param` (gaya Express/Laravel) menjadi `{param}` (bawaan Axum 0.8) sehingga tidak memecahkan aplikasi yang sudah ada.
+
+---
+
+## [1.0.4] - 2026-11-26
 
 ### 🔑 Application Key Generator (`canting key:generate`)
 - **CLI Security Tooling**:
