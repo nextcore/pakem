@@ -88,6 +88,7 @@ pub struct Application {
     web_middlewares: Vec<Arc<dyn Fn(Router<AppState>) -> Router<AppState> + Send + Sync>>,
     api_middlewares: Vec<Arc<dyn Fn(Router<AppState>) -> Router<AppState> + Send + Sync>>,
     extra_routers: Vec<axum::Router<AppState>>,
+    minimal_mode: bool,
 }
 
 impl Application {
@@ -100,7 +101,21 @@ impl Application {
             web_middlewares: Vec::new(),
             api_middlewares: Vec::new(),
             extra_routers: Vec::new(),
+            minimal_mode: false,
         }
+    }
+
+    /// Matikan seluruh middleware bawaan (Session, CSRF, rate limiter, i18n, compression, telescope, logger)
+    /// untuk mode API ultra-ringan / benchmark apples-to-apples.
+    pub fn without_default_middleware(mut self) -> Self {
+        self.minimal_mode = true;
+        self
+    }
+
+    /// Aktifkan atau nonaktifkan middleware bawaan secara eksplisit (`true` = default batteries-included).
+    pub fn with_default_middleware(mut self, enabled: bool) -> Self {
+        self.minimal_mode = !enabled;
+        self
     }
 
     pub fn with_web(mut self, router: Router<AppState>) -> Self {
@@ -248,6 +263,10 @@ impl Application {
 
         for extra in self.extra_routers.clone() {
             axum_app = axum_app.merge(extra);
+        }
+
+        if self.minimal_mode {
+            return axum_app.with_state(state.clone());
         }
 
         axum_app

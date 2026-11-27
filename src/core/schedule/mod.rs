@@ -39,6 +39,44 @@ impl Scheduler {
         Ok(())
     }
 
+    /// Jadwalkan tugas cron dengan distributed lock (`on_one_server`) berbasis CacheManager (Redis/Moka).
+    /// Mencegah tugas berjalan ganda saat aplikasi dijalankan multi-instance.
+    pub async fn cron_on_one_server<F, Fut>(
+        &self,
+        lock_name: &str,
+        ttl_secs: u64,
+        cron_expr: &str,
+        task_fn: F,
+    ) -> Result<(), String>
+    where
+        F: Fn() -> Fut + Send + Sync + 'static,
+        Fut: std::future::Future<Output = ()> + Send + 'static,
+    {
+        let cache = self.state.cache.clone();
+        let lock_key = format!("pakem_schedule_lock:{}", lock_name);
+        let task_fn = Arc::new(task_fn);
+
+        let job = Job::new_async(cron_expr, move |_uuid, _l| {
+            let cache = cache.clone();
+            let lock_key = lock_key.clone();
+            let task_fn = task_fn.clone();
+            Box::pin(async move {
+                if cache.get::<String>(&lock_key).await.is_some() {
+                    return;
+                }
+                cache.put(&lock_key, "locked", ttl_secs).await;
+                task_fn().await;
+            })
+        })
+        .map_err(|e| format!("Cron error: {}", e))?;
+
+        self.sched
+            .add(job)
+            .await
+            .map_err(|e| format!("Scheduler error: {}", e))?;
+        Ok(())
+    }
+
     /// Entry point untuk membuat tugas dengan API yang fluent.
     pub fn call<F, Fut>(&self, task_fn: F) -> ScheduledTask<'_, F, Fut>
     where

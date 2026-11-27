@@ -41,6 +41,11 @@ Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/
   - Menambahkan taksonomi feature flags (`queue`, `echo`, `scheduler`, `wasm`, `is-engine`) dan tabel status modul (`Stable` vs `Experimental`) di `README.md`.
   - Menambahkan extractor ringan (`ExtractDb`, `AppSession`, `OptionalUser`) dan trait `RequestLike` di samping `Request`.
   - Menambahkan `DatabasePool::raw_pool()` sebagai escape hatch ke `sqlx::Pool<Any>` mentah.
+- **Multi-Node Queue, Scheduler & Reproducible Benchmarks (Phase 4)**:
+  - Queue worker DB kini menggunakan klaim atomik (`FOR UPDATE SKIP LOCKED` di Postgres/MySQL, `UPDLOCK, READPAST` di MSSQL, dan optimistic update di SQLite), retry dengan *exponential backoff*, serta tabel `failed_jobs`.
+  - Scheduler menambahkan `cron_on_one_server()` berbasis `CacheManager` (Redis/Moka) untuk mencegah eksekusi ganda lintas instance.
+  - Menambahkan `benches/README.md`, `benches/run_bench.ps1`, `examples/bench_server.rs`, `examples/bench_load.rs`, dan `examples/bench_axum_plain.rs` untuk benchmark reproducible (termasuk perbandingan lintas framework).
+  - Menambahkan `Application::without_default_middleware()` dan `Application::with_default_middleware(bool)` untuk mode API ultra-ringan tanpa overhead middleware bawaan.
 
 ---
 

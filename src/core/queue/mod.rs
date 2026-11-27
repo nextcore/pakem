@@ -194,6 +194,49 @@ pub async fn ensure_jobs_table(pool: &crate::database::connection::DatabasePool)
     };
 
     sqlx::query(ddl).execute(&pool.pool).await?;
+    ensure_failed_jobs_table(pool).await?;
+    Ok(())
+}
+
+/// Memastikan tabel `failed_jobs` tersedia untuk menampung job yang gagal melewati batas retry.
+pub async fn ensure_failed_jobs_table(pool: &crate::database::connection::DatabasePool) -> Result<(), sqlx::Error> {
+    let ddl = match pool.kind {
+        crate::database::connection::DatabaseKind::Postgres => {
+            r#"
+            CREATE TABLE IF NOT EXISTS failed_jobs (
+                id SERIAL PRIMARY KEY,
+                queue VARCHAR(255) NOT NULL DEFAULT 'default',
+                payload TEXT NOT NULL,
+                exception TEXT NOT NULL,
+                failed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            "#
+        }
+        crate::database::connection::DatabaseKind::MySql => {
+            r#"
+            CREATE TABLE IF NOT EXISTS failed_jobs (
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                queue VARCHAR(255) NOT NULL DEFAULT 'default',
+                payload LONGTEXT NOT NULL,
+                exception LONGTEXT NOT NULL,
+                failed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            "#
+        }
+        _ => {
+            r#"
+            CREATE TABLE IF NOT EXISTS failed_jobs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                queue TEXT NOT NULL DEFAULT 'default',
+                payload TEXT NOT NULL,
+                exception TEXT NOT NULL,
+                failed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            "#
+        }
+    };
+
+    sqlx::query(ddl).execute(&pool.pool).await?;
     Ok(())
 }
 
@@ -256,43 +299,108 @@ impl QueueWorker {
                 };
                 let db = &pool.pool;
 
-                // 1. Ambil job yang tersedia
-                let fetch_sql = pool.prepare_sql(
-                    "SELECT id, payload FROM jobs 
-                     WHERE reserved_at IS NULL 
-                     AND available_at <= CURRENT_TIMESTAMP 
-                     ORDER BY available_at ASC LIMIT 1"
-                );
-                let row: Option<(i64, String)> = sqlx::query_as::<_, (i64, String)>(&fetch_sql)
-                    .fetch_optional(db)
-                    .await
-                    .map_err(|e| e.to_string())?;
+                // 1. Klaim job secara atomik (SKIP LOCKED untuk Postgres/MySQL, READPAST untuk MSSQL, optimistic lock untuk SQLite)
+                let (id, payload_str, attempts): (i64, String, i32) = match pool.kind {
+                    crate::database::connection::DatabaseKind::Postgres
+                    | crate::database::connection::DatabaseKind::MySql => {
+                        let mut tx = db.begin().await.map_err(|e| e.to_string())?;
+                        let fetch_sql = pool.prepare_sql(
+                            "SELECT id, payload, attempts FROM jobs
+                             WHERE reserved_at IS NULL
+                             AND available_at <= CURRENT_TIMESTAMP
+                             ORDER BY available_at ASC LIMIT 1 FOR UPDATE SKIP LOCKED",
+                        );
+                        let row: Option<(i64, String, i32)> = sqlx::query_as::<_, (i64, String, i32)>(&fetch_sql)
+                            .fetch_optional(&mut *tx)
+                            .await
+                            .map_err(|e| e.to_string())?;
 
-                let (id, payload_str) = match row {
-                    Some(r) => r,
-                    None => return Ok(false),
+                        let Some((id, payload_str, attempts)) = row else {
+                            let _ = tx.rollback().await;
+                            return Ok(false);
+                        };
+
+                        let reserve_sql = pool.prepare_sql(
+                            "UPDATE jobs SET reserved_at = CURRENT_TIMESTAMP, attempts = attempts + 1 WHERE id = ?",
+                        );
+                        sqlx::query(&reserve_sql)
+                            .bind(id)
+                            .execute(&mut *tx)
+                            .await
+                            .map_err(|e| e.to_string())?;
+                        tx.commit().await.map_err(|e| e.to_string())?;
+                        (id, payload_str, attempts)
+                    }
+                    crate::database::connection::DatabaseKind::Mssql => {
+                        let fetch_sql = pool.prepare_sql(
+                            "SELECT TOP 1 id, payload, attempts FROM jobs WITH (UPDLOCK, READPAST)
+                             WHERE reserved_at IS NULL
+                             AND available_at <= CURRENT_TIMESTAMP
+                             ORDER BY available_at ASC",
+                        );
+                        let row: Option<(i64, String, i32)> = sqlx::query_as::<_, (i64, String, i32)>(&fetch_sql)
+                            .fetch_optional(db)
+                            .await
+                            .map_err(|e| e.to_string())?;
+
+                        let Some((id, payload_str, attempts)) = row else {
+                            return Ok(false);
+                        };
+
+                        let reserve_sql = pool.prepare_sql(
+                            "UPDATE jobs SET reserved_at = CURRENT_TIMESTAMP, attempts = attempts + 1 WHERE id = ? AND reserved_at IS NULL",
+                        );
+                        let res = sqlx::query(&reserve_sql)
+                            .bind(id)
+                            .execute(db)
+                            .await
+                            .map_err(|e| e.to_string())?;
+                        if res.rows_affected() == 0 {
+                            return Ok(false);
+                        }
+                        (id, payload_str, attempts)
+                    }
+                    crate::database::connection::DatabaseKind::Sqlite => {
+                        let fetch_sql = pool.prepare_sql(
+                            "SELECT id, payload, attempts FROM jobs
+                             WHERE reserved_at IS NULL
+                             AND available_at <= CURRENT_TIMESTAMP
+                             ORDER BY available_at ASC LIMIT 1",
+                        );
+                        let row: Option<(i64, String, i32)> = sqlx::query_as::<_, (i64, String, i32)>(&fetch_sql)
+                            .fetch_optional(db)
+                            .await
+                            .map_err(|e| e.to_string())?;
+
+                        let Some((id, payload_str, attempts)) = row else {
+                            return Ok(false);
+                        };
+
+                        let reserve_sql = pool.prepare_sql(
+                            "UPDATE jobs SET reserved_at = CURRENT_TIMESTAMP, attempts = attempts + 1 WHERE id = ? AND reserved_at IS NULL",
+                        );
+                        let res = sqlx::query(&reserve_sql)
+                            .bind(id)
+                            .execute(db)
+                            .await
+                            .map_err(|e| e.to_string())?;
+                        if res.rows_affected() == 0 {
+                            return Ok(false);
+                        }
+                        (id, payload_str, attempts)
+                    }
                 };
-
-                // 2. Tandai sebagai reserved
-                let reserve_sql = pool.prepare_sql(
-                    "UPDATE jobs SET reserved_at = CURRENT_TIMESTAMP, attempts = attempts + 1 WHERE id = ?"
-                );
-                sqlx::query(&reserve_sql)
-                    .bind(id)
-                    .execute(db)
-                    .await
-                    .map_err(|e| e.to_string())?;
 
                 // 3. Parse payload
                 let payload: Value = serde_json::from_str(&payload_str).map_err(|e| e.to_string())?;
                 let job_name = payload["job"].as_str().unwrap_or("unknown");
                 let job_data = payload["data"].clone();
 
-                tracing::info!("📦 Processing job [{}] ID: {}", job_name, id);
+                tracing::info!("📦 Processing job [{}] ID: {} (attempt {})", job_name, id, attempts + 1);
 
-                // 4. Cari handler
+                // 4. Cari handler & eksekusi dengan exponential backoff + failed_jobs
+                const MAX_JOB_ATTEMPTS: i32 = 3;
                 let delete_sql = pool.prepare_sql("DELETE FROM jobs WHERE id = ?");
-                let reset_sql = pool.prepare_sql("UPDATE jobs SET reserved_at = NULL WHERE id = ?");
 
                 if let Some(handler) = self.registry.get(job_name) {
                     match handler.handle(state.clone(), job_data).await {
@@ -305,12 +413,33 @@ impl QueueWorker {
                             tracing::info!("✅ Job [{}] ID: {} selesai.", job_name, id);
                         }
                         Err(e) => {
-                            sqlx::query(&reset_sql)
-                                .bind(id)
-                                .execute(db)
-                                .await
-                                .ok();
-                            tracing::error!("❌ Job [{}] ID: {} gagal: {}", job_name, id, e);
+                            let next_attempt = attempts + 1;
+                            if next_attempt >= MAX_JOB_ATTEMPTS {
+                                let fail_sql = pool.prepare_sql(
+                                    "INSERT INTO failed_jobs (queue, payload, exception) VALUES ('default', ?, ?)",
+                                );
+                                let _ = sqlx::query(&fail_sql)
+                                    .bind(&payload_str)
+                                    .bind(&e)
+                                    .execute(db)
+                                    .await;
+                                let _ = sqlx::query(&delete_sql).bind(id).execute(db).await;
+                                tracing::error!("💀 Job [{}] ID: {} dipindah ke failed_jobs setelah {} percobaan: {}", job_name, id, next_attempt, e);
+                            } else {
+                                let backoff_secs = 5_i64 * 2_i64.pow(next_attempt.min(6) as u32);
+                                let next_available = (chrono::Utc::now() + chrono::Duration::seconds(backoff_secs))
+                                    .format("%Y-%m-%d %H:%M:%S")
+                                    .to_string();
+                                let release_sql = pool.prepare_sql(
+                                    "UPDATE jobs SET reserved_at = NULL, available_at = ? WHERE id = ?",
+                                );
+                                let _ = sqlx::query(&release_sql)
+                                    .bind(next_available)
+                                    .bind(id)
+                                    .execute(db)
+                                    .await;
+                                tracing::warn!("⏳ Job [{}] ID: {} gagal (attempt {}), retry dalam {}d: {}", job_name, id, next_attempt, backoff_secs, e);
+                            }
                         }
                     }
                 } else {
