@@ -1,11 +1,12 @@
 # 🔮 Pakem Macros (`pakem_macros`)
 
 > **"Look like Laravel, Run at Rust Speed."**  
-> *Procedural macros powering Pakem Framework — Model ORM derivation, active record methods, and human-readable form validation.*
+> *Procedural macros powering Pakem Framework — Model ORM derivation, active record methods, declarative form validation, and routing.*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
-[![Rust](https://img.shields.io/badge/rust-2021%20edition-orange.svg)](https://www.rust-lang.org)
-[![Pakem Framework](https://img.shields.io/badge/ecosystem-Pakem%20Framework-blue.svg)](https://github.com/pakem-rs/framework)
+[![Crates.io](https://img.shields.io/crates/v/pakem_macros.svg)](https://crates.io/crates/pakem_macros)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Rust 2024](https://img.shields.io/badge/Rust-2024_Edition-orange.svg)](https://www.rust-lang.org)
+[![Pakem Framework](https://img.shields.io/badge/ecosystem-Pakem%20Framework-purple.svg)](https://github.com/pakem-rs/framework)
 
 ---
 
@@ -17,7 +18,7 @@
    - Membangkitkan implementasi trait `Model` secara otomatis.
    - Menyediakan fungsi CRUD statis dan instance: `find()`, `all()`, `create()`, `save()`, `delete()`, `paginate()`.
    - Menghubungkan model ke **Fluent Query Builder** (`User::query(db)`).
-   - Mendukung kustomisasi tabel (`#[table("nama_tabel")]`), primary key kustom (`#[primary_key("id")]`), dan mapping nama kolom SQL.
+   - Mendukung kustomisasi tabel (`#[table("nama_tabel")]`), primary key kustom (`#[primary_key("id")]`), dan relasi deklaratif `has_many!`, `belongs_to!`, `belongs_to_many!`.
 
 2. **`#[pakem_form]`**:
    - Validasi form deklaratif dengan sintaks yang ekspresif ala Laravel: `#[rule("required|email|min:3|max:50")]`.
@@ -31,7 +32,7 @@ Tambahkan dependensi ke berkas `Cargo.toml` Anda:
 
 ```toml
 [dependencies]
-pakem_macros = { git = "https://github.com/pakem-rs/pakem_macros" }
+pakem_macros = "1.0.5"
 ```
 
 *(Catatan: Jika Anda menggunakan `pakem` atau `pakem-framework`, makro ini sudah diekspor ulang secara otomatis melalui `pakem::prelude::*`)*.
@@ -123,4 +124,3 @@ Kontribusi dari komunitas sangat dinantikan!
 
 Pakem Macros dirilis di bawah lisensi terbuka [MIT License](LICENSE).  
 Dikelola oleh tim pengembang [Pakem Framework](https://github.com/pakem-rs/framework).
-
