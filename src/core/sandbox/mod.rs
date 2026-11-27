@@ -252,6 +252,16 @@ pub struct PakemPluginManager {
     metrics: Arc<PluginMetricsTracker>,
 }
 
+impl pakem_blade::BladePluginRunner for PakemPluginManager {
+    fn call_filter(&self, plugin_name: &str, func_name: &str, arg: &str) -> Result<String, String> {
+        self.call_filter(plugin_name, func_name, arg).map_err(|e| e.to_string())
+    }
+
+    fn eval_is_script(&self, script_path: &str, func_name: &str, args: &[serde_json::Value]) -> Result<serde_json::Value, String> {
+        self.eval_is_script(script_path, func_name, args).map_err(|e| e.to_string())
+    }
+}
+
 impl Default for PakemPluginManager {
     fn default() -> Self {
         Self::new()
