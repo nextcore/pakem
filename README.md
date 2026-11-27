@@ -1,7 +1,7 @@
 # 🎨 Pakem Framework
 
 <p align="center">
-  <img src="storage/app/public/assets/logo.png" alt="Pakem Framework Logo" width="180">
+  <img src="https://raw.githubusercontent.com/pakem-rs/pakem/1.x/resources/images/logo.svg" alt="Pakem Framework Logo" width="160">
 </p>
 
 <p align="center">
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="resources/images/demo-polyglot-clone.gif" alt="Pakem Polyglot System Cloner Demo" width="880">
+  <img src="https://raw.githubusercontent.com/pakem-rs/pakem/1.x/resources/images/demo-polyglot-clone.gif" alt="Pakem Polyglot System Cloner Demo" width="880">
 </p>
 
 ---
