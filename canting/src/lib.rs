@@ -3,6 +3,7 @@ pub mod audit;
 pub mod cloner;
 pub mod desktop;
 pub mod generator;
+pub mod key_generator;
 pub mod migrator;
 pub mod skeleton;
 pub mod tinker;

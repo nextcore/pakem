@@ -2182,13 +2182,52 @@ if(!_dt){_dt=true;document.body.innerHTML='<div style="display:flex;justify-cont
 </script>"#
     }
 
-    /// Helper minifikasi dokumen HTML (menghilangkan baris kosong dan memadatkan whitespace)
+    /// Potong komentar JS satu baris (`// ...`) yang berada di luar string/URL agar aman saat one-line minify
+    fn strip_inline_js_comment(line: &str) -> &str {
+        let bytes = line.as_bytes();
+        let mut in_single = false;
+        let mut in_double = false;
+        let mut in_backtick = false;
+        let mut escaped = false;
+        let mut i = 0;
+        while i + 1 < bytes.len() {
+            let b = bytes[i];
+            if escaped {
+                escaped = false;
+                i += 1;
+                continue;
+            }
+            if b == b'\\' && (in_single || in_double || in_backtick) {
+                escaped = true;
+                i += 1;
+                continue;
+            }
+            if b == b'\'' && !in_double && !in_backtick {
+                in_single = !in_single;
+            } else if b == b'"' && !in_single && !in_backtick {
+                in_double = !in_double;
+            } else if b == b'`' && !in_single && !in_double {
+                in_backtick = !in_backtick;
+            } else if !in_single && !in_double && !in_backtick && b == b'/' && bytes[i + 1] == b'/' {
+                if i == 0 || bytes[i - 1] != b':' {
+                    return line[..i].trim_end();
+                }
+            }
+            i += 1;
+        }
+        line
+    }
+
+    /// Helper minifikasi dokumen HTML (menghilangkan baris kosong, komentar, dan memadatkan whitespace menjadi 1 baris)
     pub fn minify_html(input: &str) -> String {
         let mut out = String::with_capacity(input.len());
         let mut prev_space = false;
         for line in input.lines() {
-            let trimmed = line.trim();
+            let trimmed = Self::strip_inline_js_comment(line.trim());
             if trimmed.is_empty() {
+                continue;
+            }
+            if trimmed.starts_with("<!--") && trimmed.ends_with("-->") {
                 continue;
             }
             if !out.is_empty() && !prev_space {

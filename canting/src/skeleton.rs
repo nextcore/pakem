@@ -226,12 +226,23 @@ BROADCAST_DRIVER=log
 # Session Configuration
 JWT_SECRET=pakem-jwt-secret-key-change-me-in-production
 
+# ─── PRODUCTION TEMPLATE SHIELD & MINIFICATION ───────────────────────────────
+# Proteksi Anti-Inspect Element, Anti-DevTools, Anti-Copas, dan Minifikasi HTML
+# Otomatis aktif saat APP_ENV=production, atau paksa aktif dengan nilai true:
+BLADE_PRODUCTION_SHIELD=false
+BLADE_MINIFY_HTML=false
+
 # ──────────────────────────────────────────────────────────────────────────────
 "#,
         env_db_block
     );
     fs::write(base.join(".env.example"), &env_example).ok();
-    fs::write(base.join(".env"), &env_example).ok();
+    let generated_app_key = crate::key_generator::generate_key_string("base64");
+    let env_actual = env_example.replace(
+        "APP_KEY=pakem-super-secret-key-change-me-in-production",
+        &format!("APP_KEY={}", generated_app_key),
+    );
+    fs::write(base.join(".env"), &env_actual).ok();
 
     if db_normalized == "sqlite" || db_normalized == "all" {
         fs::write(base.join("database.sqlite"), "").ok();

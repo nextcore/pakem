@@ -153,16 +153,201 @@ pub async fn rate_limit_with_config(
             "Rate limit exceeded"
         );
 
-        let error_body = serde_json::json!(RateLimitError {
-            error: "Too Many Requests",
-            message: format!(
-                "Terlalu banyak request. Silakan coba lagi dalam {} detik.",
-                window_remaining
-            ),
-            retry_after: window_remaining,
-        });
+        let path = req.uri().path();
+        let accept_html = req
+            .headers()
+            .get("Accept")
+            .and_then(|v| v.to_str().ok())
+            .map(|a| a.contains("text/html"))
+            .unwrap_or(false);
+        let is_xhr = req
+            .headers()
+            .get("X-Requested-With")
+            .and_then(|v| v.to_str().ok())
+            .map(|v| v.eq_ignore_ascii_case("XMLHttpRequest"))
+            .unwrap_or(false);
+        let wants_html = accept_html && !is_xhr && !path.starts_with("/api");
 
-        let mut response = (StatusCode::TOO_MANY_REQUESTS, axum::Json(error_body)).into_response();
+        let mut response = if wants_html {
+            let secs = window_remaining.max(1);
+            let html = format!(
+                r#"<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mohon Tunggu Sebentar — The Gege</title>
+<style>
+  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+  body {{
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F6F2EB;
+    color: #1C1917;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 20px;
+  }}
+  .card {{
+    max-width: 440px;
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #E2DAD0;
+    border-radius: 20px;
+    padding: 36px 28px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(28, 25, 23, 0.08);
+  }}
+  .ring-wrap {{
+    position: relative;
+    width: 108px;
+    height: 108px;
+    margin: 0 auto 22px;
+  }}
+  .ring-wrap svg {{
+    transform: rotate(-90deg);
+    width: 108px;
+    height: 108px;
+  }}
+  .ring-bg {{ fill: none; stroke: #EFE9DF; stroke-width: 7; }}
+  .ring-fg {{
+    fill: none;
+    stroke: #B85D3B;
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-dasharray: 289;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.95s linear;
+  }}
+  .countdown {{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }}
+  .countdown-num {{
+    font-size: 30px;
+    font-weight: 800;
+    color: #1C1917;
+    line-height: 1;
+  }}
+  .countdown-unit {{
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #78716C;
+    margin-top: 4px;
+  }}
+  .badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: #EFE9DF;
+    color: #B85D3B;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }}
+  .dot {{
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #B85D3B;
+    animation: pulse 1.2s ease-in-out infinite;
+  }}
+  @keyframes pulse {{
+    0%, 100% {{ opacity: 1; transform: scale(1); }}
+    50% {{ opacity: 0.35; transform: scale(0.75); }}
+  }}
+  h1 {{ font-size: 20px; font-weight: 700; margin-bottom: 10px; color: #1C1917; }}
+  p {{ font-size: 14px; line-height: 1.6; color: #57534E; margin-bottom: 22px; }}
+  .btn {{
+    display: inline-block;
+    padding: 11px 22px;
+    border-radius: 10px;
+    background: #B85D3B;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.55;
+    pointer-events: none;
+    transition: all 0.2s;
+  }}
+  .btn.ready {{
+    opacity: 1;
+    pointer-events: auto;
+  }}
+  .btn.ready:hover {{ background: #9E4B2B; }}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge"><span class="dot"></span> Antrean Request</div>
+    <div class="ring-wrap">
+      <svg viewBox="0 0 100 100">
+        <circle class="ring-bg" cx="50" cy="50" r="46"></circle>
+        <circle class="ring-fg" id="ringFg" cx="50" cy="50" r="46"></circle>
+      </svg>
+      <div class="countdown">
+        <span class="countdown-num" id="secNum">{secs}</span>
+        <span class="countdown-unit">detik</span>
+      </div>
+    </div>
+    <h1>Request Anda Terlalu Banyak</h1>
+    <p>Silakan tunggu sebentar lagi. Halaman akan dimuat ulang secara otomatis dalam <strong id="secText">{secs}</strong> detik.</p>
+    <button type="button" id="retryBtn" class="btn" onclick="window.location.reload()">Muat Ulang Halaman</button>
+  </div>
+  <script>
+    (function() {{
+      var total = {secs};
+      var left = total;
+      var numEl = document.getElementById('secNum');
+      var txtEl = document.getElementById('secText');
+      var ring = document.getElementById('ringFg');
+      var btn = document.getElementById('retryBtn');
+      var circ = 289;
+      var timer = setInterval(function() {{
+        left = Math.max(0, left - 1);
+        if (numEl) numEl.textContent = left;
+        if (txtEl) txtEl.textContent = left;
+        if (ring) ring.style.strokeDashoffset = String(circ * (1 - (left / total)));
+        if (left <= 0) {{
+          clearInterval(timer);
+          if (btn) btn.classList.add('ready');
+          window.location.reload();
+        }}
+      }}, 1000);
+    }})();
+  </script>
+</body>
+</html>"#,
+                secs = secs
+            );
+            (StatusCode::TOO_MANY_REQUESTS, axum::response::Html(html)).into_response()
+        } else {
+            let error_body = serde_json::json!(RateLimitError {
+                error: "Too Many Requests",
+                message: format!(
+                    "Terlalu banyak request. Silakan coba lagi dalam {} detik.",
+                    window_remaining
+                ),
+                retry_after: window_remaining,
+            });
+            (StatusCode::TOO_MANY_REQUESTS, axum::Json(error_body)).into_response()
+        };
 
         // Tambahkan rate limit headers
         let headers = response.headers_mut();

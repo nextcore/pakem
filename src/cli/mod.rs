@@ -1654,6 +1654,83 @@ pub async fn handle_clean(purge: bool) {
     println!("\n🎉 Cache berhasil dioptimasi! Build aktif tetap hangat dan cepat.");
 }
 
+const B64_CHARS_CLI: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+fn encode_base64_cli(bytes: &[u8]) -> String {
+    let mut result = String::with_capacity((bytes.len() + 2) / 3 * 4);
+    for chunk in bytes.chunks(3) {
+        let b0 = chunk[0] as usize;
+        let b1 = if chunk.len() > 1 { chunk[1] as usize } else { 0 };
+        let b2 = if chunk.len() > 2 { chunk[2] as usize } else { 0 };
+
+        result.push(B64_CHARS_CLI[b0 >> 2] as char);
+        result.push(B64_CHARS_CLI[((b0 & 0x03) << 4) | (b1 >> 4)] as char);
+        if chunk.len() > 1 {
+            result.push(B64_CHARS_CLI[((b1 & 0x0F) << 2) | (b2 >> 6)] as char);
+        } else {
+            result.push('=');
+        }
+        if chunk.len() > 2 {
+            result.push(B64_CHARS_CLI[b2 & 0x3F] as char);
+        } else {
+            result.push('=');
+        }
+    }
+    result
+}
+
+pub fn handle_key_generate(show: bool, force: bool) {
+    use rand::RngCore;
+    let mut bytes = [0u8; 32];
+    rand::thread_rng().fill_bytes(&mut bytes);
+    let key = format!("base64:{}", encode_base64_cli(&bytes));
+
+    if show {
+        println!("{}", key);
+        return;
+    }
+
+    let env_path = Path::new(".env");
+    if !env_path.exists() {
+        if Path::new(".env.example").exists() {
+            let _ = fs::copy(".env.example", ".env");
+        } else {
+            let _ = fs::write(".env", "APP_NAME=Pakem\nAPP_ENV=local\nAPP_KEY=\n");
+        }
+    }
+
+    let content = fs::read_to_string(env_path).unwrap_or_default();
+    if !force && (content.contains("APP_ENV=production") || content.contains("APP_ENV=prod")) {
+        eprintln!("❌ Aplikasi terdeteksi berada di lingkungan produksi! Gunakan flag --force untuk melanjutkan.");
+        std::process::exit(1);
+    }
+
+    let mut lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
+    let mut found = false;
+    for l in lines.iter_mut() {
+        if l.trim().starts_with("APP_KEY=") && !l.trim().starts_with('#') {
+            *l = format!("APP_KEY={}", key);
+            found = true;
+            break;
+        }
+    }
+    if !found {
+        lines.push(format!("APP_KEY={}", key));
+    }
+
+    let mut new_content = lines.join("\n");
+    if !new_content.ends_with('\n') {
+        new_content.push('\n');
+    }
+
+    if let Err(e) = fs::write(env_path, new_content) {
+        eprintln!("❌ Gagal menulis .env: {}", e);
+        std::process::exit(1);
+    }
+
+    println!("✅ Application key [{}] set successfully.", key);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
