@@ -57,8 +57,9 @@ impl SandiAN {
             chunk.swap(0, 1);
         }
 
-        // 3. Format envelope $an1$
-        let inner = unsafe { String::from_utf8_unchecked(transformed) };
+        // 3. Format envelope $an1$ (safe UTF-8 conversion, tanpa unsafe)
+        let inner = String::from_utf8(transformed)
+            .unwrap_or_else(|e| String::from_utf8_lossy(e.as_bytes()).into_owned());
         format!("{}{}", SANDI_AN_PREFIX, inner)
     }
 
