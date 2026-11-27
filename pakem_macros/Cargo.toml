@@ -2,7 +2,6 @@
 name = "pakem_macros"
 version = "1.0.5"
 edition = "2024"
-authors = ["Slamet Sugandi <packercyber@gmail.com>"]
 description = "Procedural macros for Pakem Framework (PakemModel ORM derive, declarative form validation, and routing)"
 license = "MIT"
 repository = "https://github.com/pakem-rs/framework"

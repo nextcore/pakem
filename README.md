@@ -442,5 +442,4 @@ cargo test --test production_features_test
 
 ## 📄 License
 
-Pakem Framework dilisensikan di bawah lisensi [MIT](LICENSE).  
-Dibuat dengan cinta untuk ekosistem Rust oleh **Slamet Sugandi** (<packercyber@gmail.com>).
+Pakem Framework dilisensikan di bawah lisensi [MIT](LICENSE).

@@ -2,7 +2,6 @@
 name = "pakem"
 version = "1.0.5"
 edition = "2024"
-authors = ["Slamet Sugandi <packercyber@gmail.com>"]
 description = "A beautiful, fast, and elegant web framework for Rust — Look like Laravel, Run at Rust Speed"
 license = "MIT"
 repository = "https://github.com/pakem-rs/framework"
