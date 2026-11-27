@@ -1,4 +1,4 @@
-use pakem_macros::pakem_form;
+use pakem_derive::pakem_form;
 
 #[pakem_form]
 pub struct RegisterRequest {

@@ -56,7 +56,7 @@ pub mod prelude {
     pub use crate::database::observer::{AutoSlug, AutoHash, ModelLifecycle, Observer};
     pub use crate::database::seeder::{Seeder, DatabaseSeeder, SeederRegistry, call_seeder};
     pub use crate::{belongs_to, belongs_to_many, has_many, has_one};
-    pub use pakem_macros::{pakem_form, PakemModel};
+    pub use pakem_derive::{pakem_form, PakemModel};
     // financial & enterprise types
     pub use uuid::Uuid;
     pub use rust_decimal::Decimal;
@@ -74,6 +74,6 @@ pub mod prelude {
     pub use crate::core::ai::Ai;
 }
 
-pub use pakem_macros::{pakem_form, PakemModel};
+pub use pakem_derive::{pakem_form, PakemModel};
 pub use validator;
 pub use tower_sessions;

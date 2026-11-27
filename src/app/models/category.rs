@@ -1,4 +1,4 @@
-use pakem_macros::PakemModel;
+use pakem_derive::PakemModel;
 use serde::{Serialize, Deserialize};
 use sqlx::FromRow;
 
