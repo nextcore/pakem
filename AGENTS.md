@@ -207,4 +207,31 @@ Ketika tim atau developer menggunakan AI Agent (Antigravity, Cursor, Copilot, Wi
 
 ---
 
+## 🏷️ 9. Aturan Independensi Versi & Pembaruan CHANGELOG Crate (`Independent Versioning & Release Rules`)
+
+Di ekosistem Pakem Framework, **setiap sub-project / crate memiliki siklus rilis, versioning SemVer, dan file `CHANGELOG.md` sendiri secara independen** (tidak lagi dipaksa seragam mengikuti versi framework root).
+
+Bagi seluruh AI Agent dan developer manusia, **WAJIB** mematuhi protokol berikut saat melakukan perubahan dan publikasi:
+
+1. **Wajib Memiliki & Memperbarui `CHANGELOG.md` di Masing-Masing Sub-Project**:
+   - `pakem-blade/CHANGELOG.md` untuk perubahan pada engine template Blade.
+   - `canting/CHANGELOG.md` untuk penambahan/perubahan CLI commands, cloner, dan generator scaffolding.
+   - `pakem-live/CHANGELOG.md` untuk perbaikan reactive state dan WebSocket engine.
+   - `pakem_macros/CHANGELOG.md` untuk procedural macros (`PakemModel`, validasi, routing macros).
+   - `indonesian-script/CHANGELOG.md` untuk script compiler bahasa Indonesia.
+   - `CHANGELOG.md` (root) khusus untuk perubahan orkestrasi framework inti `pakem`.
+
+2. **Aturan Evaluasi Sebelum Bump Version & Publish**:
+   - **Cek Perubahan Berkas**: Periksa berkas apa saja yang dimodifikasi pada sub-project bersangkutan (`git diff` atau `git log`).
+   - **Tentukan SemVer Sesuai Dampak**:
+     - **PATCH** (`0.1.X` / `1.0.X`): Perbaikan bug, refactor internal, atau dokumentasi tanpa breaking changes.
+     - **MINOR** (`0.X.0` / `1.X.0`): Fitur baru yang backward-compatible.
+     - **MAJOR** (`X.0.0`): Breaking changes pada public API crate bersangkutan.
+   - **Tulis Riwayat di CHANGELOG Proyek Tersebut Terlebih Dahulu**: Dilarang melakukan bump version pada `Cargo.toml` atau publish ke crates.io tanpa mencatat deskripsi perubahan secara rinci di `CHANGELOG.md` lokal proyek bersangkutan.
+
+3. **Sinkronisasi Tag & Git Release**:
+   - Jika sub-project memiliki repository mandiri (seperti `pakem-blade`), buat git tag beranotasi sesuai versi independennya (misal `v0.1.0` atau `v1.0.5`) dan sertakan isi catatan dari `CHANGELOG.md` crate tersebut pada GitHub Release.
+
+---
+
 *Pakem Framework: Keringat performa Rust di balik keindahan dan kemudahan Laravel.*
