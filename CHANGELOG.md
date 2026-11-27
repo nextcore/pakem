@@ -4,7 +4,23 @@ Semua perubahan penting pada proyek **Pakem Framework** didokumentasikan di dala
 
 Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) dan mengikuti standar [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.4] - 2026-11-26
+## [1.0.4] - 2026-11-27
+
+### 🦀 Rust 2024 Edition & Axum 0.8 Upgrade
+- **Modernisasi Fondasi Inti (Pull Request #23 oleh @nextcore)**:
+  - **Migrasi ke Rust 2024 Edition (`edition = "2024"`)**:
+    - Diterapkan pada root manifest serta seluruh workspace member (`canting`, `pakem-live`, `pakem_macros`, `indonesian-script`, `pakem-framework`).
+    - Penyesuaian aturan keselamatan Rust 2024 pada fungsi mutasi environment variable (`std::env::set_var` / `remove_var`) dengan membungkusnya dalam blok `unsafe` yang terdokumentasi.
+  - **Web Engine & Middleware Modern (Axum 0.8 Stack)**:
+    - Upgrade `axum` ke `0.8.9` (termasuk pada `pakem-live`).
+    - Upgrade `tower-http` ke `0.6.11`.
+    - Upgrade `tower-sessions` & `tower-sessions-sqlx-store` ke `0.15.0` / `0.15.1`.
+    - Upgrade `axum_csrf` ke `0.11.0` dan `axum-extra` ke `0.10.3`.
+  - **Adaptasi API & Ergonomi Developer**:
+    - **Native Async Traits**: Menghapus dependensi macro `#[async_trait]` pada implementasi extractor `FromRequest` dan `FromRequestParts` (mengadopsi native async trait bawaan Axum 0.8).
+    - **WebSocket Messages**: Menyesuaikan payload `Message::Text` ke tipe data zero-copy `Utf8Bytes`.
+    - **Service & Sync Bounds**: Menyelaraskan signature generic middleware pada `Router` dan `Application` agar mematuhi syarat `Sync + 'static` Axum 0.8.
+    - **Backward Compatibility Rute**: Router Pakem otomatis menormalisasi sintaks parameter `:param` (gaya Express/Laravel) menjadi `{param}` (bawaan Axum 0.8) sehingga tidak memecahkan aplikasi yang sudah ada.
 
 ### 🔑 Application Key Generator (`canting key:generate`)
 - **CLI Security Tooling**:
