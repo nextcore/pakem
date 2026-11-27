@@ -4,16 +4,16 @@ use indicatif::{ProgressBar, ProgressStyle};
 use std::fs;
 use std::path::Path;
 
-mod generator;
-mod skeleton;
-mod audit;
-mod migrator;
-mod upgrader;
-mod tinker;
 mod ai_context;
-mod desktop;
+mod audit;
 mod cloner;
+mod desktop;
+mod generator;
 mod key_generator;
+mod migrator;
+mod skeleton;
+mod tinker;
+mod upgrader;
 
 #[derive(Parser)]
 #[command(
@@ -58,8 +58,8 @@ enum Commands {
         purge: bool,
     },
 
-    /// Upgrade Canting CLI toolchain and current project dependencies
-    #[command(name = "upgrade", alias = "update")]
+    /// Upgrade Canting CLI toolchain (and optionally sync project dependencies)
+    #[command(name = "upgrade")]
     Upgrade {
         /// Upgrade only the CLI toolchain without updating the current project
         #[arg(long)]
@@ -67,9 +67,22 @@ enum Commands {
         /// Update only current project dependencies without upgrading the CLI
         #[arg(long)]
         project_only: bool,
-        /// Upgrade CLI from a local directory path instead of GitHub
+        /// Upgrade CLI from a local directory path instead of crates.io / GitHub
         #[arg(long)]
         local: Option<String>,
+    },
+
+    /// Update current project dependencies (like `composer update`)
+    #[command(name = "update")]
+    Update {
+        /// Specific package name to update (e.g., pakem, sqlx). Omit to update all
+        package: Option<String>,
+        /// Preview dependency updates without modifying Cargo.lock
+        #[arg(long)]
+        dry_run: bool,
+        /// Update only the Pakem framework package (-p pakem)
+        #[arg(long)]
+        pakem_only: bool,
     },
 
     // ─── Generators ──────────────────────────────────────────────────────────
@@ -520,7 +533,11 @@ fn main() {
         Commands::MakeAiContext { target, force } => {
             generator::generate_ai_context(&target, force);
         }
-        Commands::MakeAiSkill { name, fields, provider } => {
+        Commands::MakeAiSkill {
+            name,
+            fields,
+            provider,
+        } => {
             generator::generate_ai_skill(&name, &fields, &provider);
         }
         Commands::QueueWork { queue } => {
@@ -531,7 +548,13 @@ fn main() {
         Commands::Audit => {
             audit::run_audit();
         }
-        Commands::KeyGenerate { show, force, env, cipher, jwt } => {
+        Commands::KeyGenerate {
+            show,
+            force,
+            env,
+            cipher,
+            jwt,
+        } => {
             if let Err(e) = key_generator::run_key_generate(show, force, &env, &cipher, jwt) {
                 eprintln!("{} {}", "✖ [ERROR]".red().bold(), e);
                 std::process::exit(1);
@@ -675,13 +698,26 @@ fn main() {
         Commands::PluginReload => {
             generator::cmd_plugin_reload();
         }
-        Commands::RouteOpenApi { output, format, title, version } => {
+        Commands::RouteOpenApi {
+            output,
+            format,
+            title,
+            version,
+        } => {
             generator::generate_openapi(&output, &format, &title, &version);
         }
-        Commands::ExportPostman { output, name, version } => {
+        Commands::ExportPostman {
+            output,
+            name,
+            version,
+        } => {
             generator::export_postman(&output, &name, &version);
         }
-        Commands::DesktopInit { title, width, height } => {
+        Commands::DesktopInit {
+            title,
+            width,
+            height,
+        } => {
             desktop::init_desktop_config(title.as_deref(), width, height);
         }
         Commands::DesktopRun { port } => {
@@ -690,19 +726,31 @@ fn main() {
         Commands::DesktopBuild { release } => {
             desktop::build_desktop(release);
         }
-        Commands::Upgrade { cli_only, project_only, local } => {
+        Commands::Upgrade {
+            cli_only,
+            project_only,
+            local,
+        } => {
             upgrader::run_upgrade(cli_only, project_only, local);
+        }
+        Commands::Update {
+            package,
+            dry_run,
+            pakem_only,
+        } => {
+            upgrader::run_update(package, dry_run, pakem_only);
         }
     }
 }
 
 fn handle_new_project(name: &str, db: &str, offline: bool) {
     let db_normalized = db.to_lowercase();
+    println!("{}", "✨ Welcome to Pakem Framework".bright_purple().bold());
     println!(
-        "{}",
-        "✨ Welcome to Pakem Framework".bright_purple().bold()
+        "🚀 Creating new project: {} (Database: {})\n",
+        name.bright_blue(),
+        db_normalized.bright_yellow()
     );
-    println!("🚀 Creating new project: {} (Database: {})\n", name.bright_blue(), db_normalized.bright_yellow());
 
     let pb = ProgressBar::new_spinner();
     pb.set_style(
@@ -726,7 +774,13 @@ fn handle_new_project(name: &str, db: &str, offline: bool) {
     if !offline {
         pb.set_message("Fetching latest starter template from GitHub (pakem-rs/pakem)...");
         let git_clone_status = std::process::Command::new("git")
-            .args(["clone", "--depth", "1", "https://github.com/pakem-rs/pakem.git", name])
+            .args([
+                "clone",
+                "--depth",
+                "1",
+                "https://github.com/pakem-rs/pakem.git",
+                name,
+            ])
             .output();
 
         if let Ok(output) = git_clone_status {
@@ -742,7 +796,9 @@ fn handle_new_project(name: &str, db: &str, offline: bool) {
                     let _ = fs::write(&cargo_path, customized);
                 }
                 // Initialize fresh git repo
-                let _ = std::process::Command::new("git").args(["init", name]).output();
+                let _ = std::process::Command::new("git")
+                    .args(["init", name])
+                    .output();
                 // Ensure AI context files are created
                 ai_context::scaffold_ai_context(path, name).ok();
                 cloned_successfully = true;
@@ -764,6 +820,12 @@ fn handle_new_project(name: &str, db: &str, offline: bool) {
     println!("\n{}", "Next steps:".bright_green().bold());
     println!("  cd {}", name.bright_cyan());
     println!("  canting serve\n");
-    println!("  {} AI Agents Ready: AGENTS.md, .cursorrules, .github/copilot-instructions.md, CLAUDE.md", "🤖".bright_magenta());
-    println!("{}", "Happy coding with Pakem & Canting! 🦀🎨".bright_yellow());
+    println!(
+        "  {} AI Agents Ready: AGENTS.md, .cursorrules, .github/copilot-instructions.md, CLAUDE.md",
+        "🤖".bright_magenta()
+    );
+    println!(
+        "{}",
+        "Happy coding with Pakem & Canting! 🦀🎨".bright_yellow()
+    );
 }
