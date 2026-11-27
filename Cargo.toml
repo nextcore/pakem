@@ -14,13 +14,10 @@ categories = ["web-programming::http-server", "network-programming"]
 name = "pakem"
 path = "src/lib.rs"
 
-[workspace]
-members = ["pakem_macros", "canting", "indonesian-script", "pakem-live", "pakem-framework", "pakem-blade"]
-
 [dependencies]
-pakem_macros = { path = "pakem_macros", version = "1.0.5" }
-pakem-blade = { path = "pakem-blade", version = "1.0.5" }
-indonesian-script = { path = "indonesian-script", version = "0.1.2" }
+pakem_macros = { version = "1.0.5" }
+pakem-blade = { version = "1.0.5" }
+indonesian-script = { version = "0.1.2" }
 tokio = { version = "1", features = ["full"] }
 axum = { version = "0.8", features = ["macros", "multipart", "ws"] }
 futures = "0.3"

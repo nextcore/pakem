@@ -259,7 +259,7 @@ async fn test_enterprise_audit_trail_logging() {
 #[test]
 fn test_pakem_aurora_views_rendering() {
     let mut engine = BladeEngine::empty();
-    engine.reload_templates("resources/views");
+    engine.reload_templates("tests/fixtures/views");
 
     let mut ctx = BladeContext::new();
     ctx.insert("user", &json!({

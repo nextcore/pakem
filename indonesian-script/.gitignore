@@ -1,9 +1,0 @@
-/target/
-Cargo.lock
-.DS_Store
-Thumbs.db
-*.swp
-*.bak
-*.tmp
-pkg/
-
