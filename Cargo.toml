@@ -1,6 +1,6 @@
 [package]
 name = "pakem"
-version = "1.0.5"
+version = "1.0.6"
 edition = "2024"
 description = "A beautiful, fast, and elegant web framework for Rust — Look like Laravel, Run at Rust Speed"
 license = "MIT"

@@ -4,6 +4,25 @@ Semua perubahan penting pada proyek **Pakem Framework** didokumentasikan di dala
 
 Format pencatatan mengacu pada [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) dan mengikuti standar [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2026-11-28
+
+### 📦 Rilis Kestabilan, Keamanan & Benchmark Reproducible
+- **Crate Ecosystem & Dependencies**:
+  - Menggunakan `pakem-derive = "1.0.5"` (menggantikan `pakem_macros` agar konsisten memakai tanda hubung `-` di crates.io).
+  - Pembaruan `wasmi` ke versi non-yanked (`2.0.3`).
+- **Security Hardening & Transparansi**:
+  - Menambahkan `LICENSE` (MIT) dan `SECURITY.md` (*responsible disclosure*).
+  - Constant-time comparison (`subtle::ConstantTimeEq`) untuk legacy SHA-1 & MD5 + flag opt-out `AUTH_ALLOW_LEGACY_WEAK_HASH=false`.
+  - Hardening `/pakem/telescope` (default mati di production) + redaksi otomatis field/query sensitif.
+  - Batas fuel (`1_000_000`) & memori (`16 MiB`) pada sandbox WASM serta batas kedalaman (`64`) & timeout (`500ms`) pada `.is`.
+- **Ergonomi, Skalabilitas & Benchmark**:
+  - Menambahkan typed extractors ringan (`ExtractDb`, `AppSession`, `OptionalUser`), trait `RequestLike`, dan `DatabasePool::raw_pool()`.
+  - Menambahkan `Application::without_default_middleware()` & `.with_default_middleware(bool)`.
+  - Upgrade queue DB (`FOR UPDATE SKIP LOCKED`, `UPDLOCK, READPAST`, `failed_jobs`, exponential backoff) & `Scheduler::cron_on_one_server()`.
+  - Menambahkan benchmark reproducible (`benches/README.md`, `examples/bench_server.rs`, `examples/bench_load.rs`).
+
+---
+
 ## [1.0.5] - 2026-11-27
 
 ### 🦀 Rust 2024 Edition & Axum 0.8 Upgrade
